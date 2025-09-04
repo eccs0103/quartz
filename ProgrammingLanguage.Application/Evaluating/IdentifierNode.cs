@@ -6,7 +6,7 @@ namespace ProgrammingLanguage.Application.Evaluating;
 
 public partial class IdentifierNode : Node
 {
-	public override T Evaluate<T>(in Evalutor evalutor) 
+	public override T Evaluate<T>(in Evalutor evalutor)
 	{
 		if (IsCompatible<T, ValueNode>())
 		{
