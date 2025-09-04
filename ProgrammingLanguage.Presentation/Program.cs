@@ -1,8 +1,9 @@
-﻿using APL;
+using ProgrammingLanguage.Application;
+using static ProgrammingLanguage.Application.Interpreter;
 
-using static APL.Interpreter;
+namespace ProgrammingLanguage.Presentation;
 
-internal partial class Program
+class Program
 {
 	private static IEnumerable<string> GenerateInstructions(IEnumerable<string> initial)
 	{
@@ -20,7 +21,8 @@ internal partial class Program
 	private static void Main(string[] args)
 	{
 		Console.ForegroundColor = ConsoleColor.White;
-		Interpreter interpreter = new(new(RunModes.Run));
+		Options options = new() { Mode = RunModes.Run };
+		Interpreter interpreter = new(options);
 		foreach (string instruction in GenerateInstructions(args))
 		{
 			interpreter.Run(instruction);

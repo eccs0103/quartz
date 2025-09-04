@@ -1,39 +1,12 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
+using ProgrammingLanguage.Shared.Exceptions;
+using ProgrammingLanguage.Shared.Helpers;
 
-namespace APL;
+namespace ProgrammingLanguage.Application.Lexing;
 
-internal partial class Interpreter
+public partial class Tokenizer
 {
-	private class Token(in Token.Types type, in string value, in Range<Position> range)
-	{
-		public enum Types
-		{
-			Number,
-			String,
-			Identifier,
-			Keyword,
-			Operator,
-			Bracket,
-			Separator,
-		}
-		public readonly Types Type = type;
-		public readonly string Value = value;
-		public readonly Range<Position> RangePosition = range;
-		public override string ToString()
-		{
-			return $"{this.Type} '{this.Value}' at {this.RangePosition.Begin}";
-		}
-		public bool Match(params string[] values)
-		{
-			return values.Any(value => value == this.Value);
-		}
-		public bool Match(in Types type, params string[] values)
-		{
-			return type == this.Type && this.Match(values);
-		}
-	}
-
 	private static readonly Dictionary<Regex, Token.Types?> Dictionary = new()
 	{
 		{ StringPattern(), Token.Types.String },
@@ -45,7 +18,6 @@ internal partial class Interpreter
 		{ SeparatorPattern(), Token.Types.Separator },
 	};
 	private static readonly HashSet<string> Keywords = ["data", "null", "import"];
-
 	[GeneratedRegex(@"^\s+", RegexOptions.Compiled)]
 	private static partial Regex WhitespacePattern();
 	[GeneratedRegex(@"^\d+(\.\d+)?", RegexOptions.Compiled)]
@@ -60,8 +32,7 @@ internal partial class Interpreter
 	private static partial Regex BracketsPattern();
 	[GeneratedRegex(@"^[;,]", RegexOptions.Compiled)]
 	private static partial Regex SeparatorPattern();
-
-	private Token[] Tokenize(in string code)
+	public Token[] Tokenize(in string code)
 	{
 		Position begin = new(0, 0);
 		List<Token> tokens = [];
@@ -88,8 +59,9 @@ internal partial class Interpreter
 				hasChanges = true;
 				break;
 			}
-			if (!hasChanges) throw new Error($"Unidentified term '{text[0]}'", begin);
+			if (!hasChanges) throw new Issue($"Unidentified term '{text[0]}'", begin);
 		}
 		return [.. tokens];
 	}
 }
+
