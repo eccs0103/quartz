@@ -1,4 +1,3 @@
-using System;
 using ProgrammingLanguage.Application.Parsing;
 
 namespace ProgrammingLanguage.Application.Evaluating;
@@ -61,4 +60,3 @@ public partial class BinaryOperatorNode : OperatorNode
 		return PreventEvaluation<T>(this);
 	}
 }
-

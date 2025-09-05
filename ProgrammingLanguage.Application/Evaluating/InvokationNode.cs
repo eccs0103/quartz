@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using ProgrammingLanguage.Shared.Exceptions;
 
@@ -29,4 +28,3 @@ public partial class InvokationNode : Node
 		return PreventEvaluation<T>(this);
 	}
 }
-

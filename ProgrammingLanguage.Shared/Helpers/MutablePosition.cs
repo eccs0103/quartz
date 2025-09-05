@@ -32,4 +32,3 @@ public class MutablePosition(uint column, uint line) : Position(column, line)
 		return $"line {Line + 1} column {Column + 1}";
 	}
 }
-

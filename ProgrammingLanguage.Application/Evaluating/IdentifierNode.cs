@@ -1,5 +1,3 @@
-using System;
-using ProgrammingLanguage.Application.Parsing;
 using ProgrammingLanguage.Shared.Exceptions;
 
 namespace ProgrammingLanguage.Application.Evaluating;
@@ -17,4 +15,3 @@ public partial class IdentifierNode : Node
 		return PreventEvaluation<T>(this);
 	}
 }
-

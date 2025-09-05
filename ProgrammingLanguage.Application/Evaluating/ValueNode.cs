@@ -1,5 +1,3 @@
-using System;
-
 namespace ProgrammingLanguage.Application.Evaluating;
 
 public partial class ValueNode : Node
@@ -10,4 +8,3 @@ public partial class ValueNode : Node
 		return PreventEvaluation<T>(this);
 	}
 }
-

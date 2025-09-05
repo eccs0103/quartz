@@ -1,4 +1,3 @@
-using System;
 using static System.Math;
 
 namespace ProgrammingLanguage.Application.Evaluating;

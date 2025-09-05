@@ -17,4 +17,3 @@ public partial class ValueNode(in object? value, in Range<Position> range) : Nod
 		return $"{Value}";
 	}
 }
-

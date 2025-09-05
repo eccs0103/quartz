@@ -11,4 +11,3 @@ public partial class InvokationNode(in IdentifierNode target, in Node[] argument
 		return $"{Target}({string.Join<Node>(", ", Arguments)})";
 	}
 }
-

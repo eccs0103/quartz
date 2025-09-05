@@ -10,4 +10,3 @@ public partial class IdentifierNode(in string name, in Range<Position> range) : 
 		return $"{Name}";
 	}
 }
-

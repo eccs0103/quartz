@@ -11,4 +11,3 @@ public partial class BinaryOperatorNode(in string @operator, in Node left, in No
 		return $"({Left} {Operator} {Right})";
 	}
 }
-

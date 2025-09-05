@@ -53,5 +53,3 @@ public class Interpreter(Interpreter.Options options)
 		Console.ForegroundColor = foreground;
 	}
 }
-
-

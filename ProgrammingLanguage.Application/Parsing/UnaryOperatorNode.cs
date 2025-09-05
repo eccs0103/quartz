@@ -7,7 +7,6 @@ public partial class UnaryOperatorNode(in string @operator, in Node target, in R
 	public readonly Node Target = target;
 	public override string ToString()
 	{
-		return $"{Operator}({Target})";
+		return $"({Operator} {Target})";
 	}
 }
-

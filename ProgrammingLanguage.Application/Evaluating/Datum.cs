@@ -1,5 +1,3 @@
-using System;
-
 namespace ProgrammingLanguage.Application.Evaluating;
 
 public class Datum(in object? value, in Datum.Initializer initializer)

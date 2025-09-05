@@ -64,4 +64,3 @@ public partial class Tokenizer
 		return [.. tokens];
 	}
 }
-

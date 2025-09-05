@@ -1,4 +1,3 @@
-using System;
 using ProgrammingLanguage.Application.Parsing;
 
 namespace ProgrammingLanguage.Application.Evaluating;
@@ -46,4 +45,3 @@ public partial class UnaryOperatorNode : OperatorNode
 		return PreventEvaluation<T>(this);
 	}
 }
-

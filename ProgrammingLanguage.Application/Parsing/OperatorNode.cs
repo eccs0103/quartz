@@ -6,4 +6,3 @@ public abstract partial class OperatorNode(in string @operator, in Range<Positio
 {
 	public readonly string Operator = @operator;
 }
-
