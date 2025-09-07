@@ -1,7 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
+using ProgrammingLanguage.Application.Exceptions;
 using ProgrammingLanguage.Application.Lexing;
-using ProgrammingLanguage.Shared.Exceptions;
+using static ProgrammingLanguage.Application.Lexing.Token;
 
 namespace ProgrammingLanguage.Application.Parsing;
 
@@ -9,162 +10,167 @@ public class Parser
 {
 	private static readonly Dictionary<string, string> Brackets = new()
 	{
-		{  @"(", @")" },
+		{ "(", ")" },
 	};
-	private Node Degree1OperatorsParse(in Walker walker)
-	{
-		Node left = Degree2OperatorsParse(walker);
-		while (walker.InRange)
-		{
-			Token token = walker.Token;
-			if (!token.Match(Token.Types.Operator, ":")) break;
-			walker.Index++;
-			Node right = Degree2OperatorsParse(walker);
-			left = new BinaryOperatorNode(token.Value, left, right, new(left.RangePosition.Begin, right.RangePosition.End));
-		}
-		return left;
-	}
-	private Node Degree2OperatorsParse(in Walker walker)
-	{
-		Node left = Degree3OperatorsParse(walker);
-		while (walker.InRange)
-		{
-			Token token = walker.Token;
-			if (!token.Match(Token.Types.Operator, "+", "-")) break;
-			walker.Index++;
-			Node right = Degree3OperatorsParse(walker);
-			left = new BinaryOperatorNode(token.Value, left, right, new(left.RangePosition.Begin, right.RangePosition.End));
-		}
-		return left;
-	}
-	private Node Degree3OperatorsParse(in Walker walker)
-	{
-		Node left = VerticesParse(walker);
-		while (walker.InRange)
-		{
-			Token token = walker.Token;
-			if (!token.Match(Token.Types.Operator, "*", "/")) break;
-			walker.Index++;
-			Node right = VerticesParse(walker);
-			left = new BinaryOperatorNode(token.Value, left, right, new(left.RangePosition.Begin, right.RangePosition.End));
-		}
-		return left;
-	}
-	private Node[] ArgumentsParse(in Walker walker)
-	{
-		List<Node> arguments = [];
-		while (true)
-		{
-			arguments.Add(Degree1OperatorsParse(walker));
 
-			if (!walker.InRange) break;
-			Token token = walker.Token;
-			if (!token.Match(Token.Types.Separator, ",")) throw new Issue($"Expected ','", token.RangePosition.Begin);
+	public List<Node> Parse(Token[] tokens)
+	{
+		List<Node> trees = [];
+		Walker walker = new(tokens, new(0, Convert.ToUInt32(tokens.Length)));
+		while (walker.InRange)
+		{
+			Node tree = StatementParse(walker);
+			if (!walker.GetToken(out Token token) || !token.Represents(Types.Separator, ";")) throw new Issue("Expected ';'", walker.RangePosition.End);
+			trees.Add(tree);
 			walker.Index++;
 		}
-		return [.. arguments];
+		return trees;
 	}
-	private static Walker GetSubwalker(in Walker walker, in string bracket)
+
+	private Node StatementParse(Walker walker)
 	{
-		if (!Brackets.TryGetValue(bracket, out string? pair)) throw new Issue($"Unable to get pair of {bracket}", walker.RangePosition.Begin);
-		uint counter = 1;
-		uint begin = walker.Index + 1;
-		for (walker.Index++; walker.Index < walker.RangeIndex.End; walker.Index++)
+		if (!walker.GetToken(out Token token)) throw new Issue("Expected statement", walker.RangePosition.Begin);
+		if (token.Represents(Types.Keyword, "datum")) return DeclarationParse(walker);
+		return ExpressionParse(walker);
+	}
+
+	private DeclarationNode DeclarationParse(Walker walker)
+	{
+		walker.GetToken(out Token token1);
+		walker.Index++;
+
+		if (!walker.GetToken(out Token token2)) throw new Issue("Expected identifier", token1.RangePosition.End);
+		if (!token2.Represents(Types.Identifier)) throw new Issue("Expected identifier", token2.RangePosition.Begin);
+		IdentifierNode identifier = new(token2.Value, token2.RangePosition);
+		walker.Index++;
+
+		if (!walker.GetToken(out Token token) || !token.Represents(Types.Operator, ":"))
 		{
-			if (!walker.InRange) continue;
-			Token token = walker.Token;
-			if (token.Match(Token.Types.Bracket, bracket)) counter++;
-			else if (token.Match(Token.Types.Bracket, pair)) counter--;
-			if (counter != 0) continue;
-			uint end = walker.Index;
-			walker.Index = begin;
-			return walker.GetSubwalker(begin, end);
+			ValueNode nullable = ValueNode.NullAt(token2.RangePosition);
+			return new DeclarationNode(identifier, nullable, new(token1.RangePosition.Begin, identifier.RangePosition.End));
 		}
-		throw new Issue($"Expected '{pair}'", walker.RangePosition.End);
+
+		walker.Index++;
+		Node value = ExpressionParse(walker);
+		return new DeclarationNode(identifier, value, new(token1.RangePosition.Begin, value.RangePosition.End));
 	}
-	private Node VerticesParse(in Walker walker)
+
+	private Node ExpressionParse(Walker walker)
 	{
-		if (!walker.InRange) throw new Issue($"Expected expression", walker.RangePosition.Begin);
-		Token token = walker.Token;
+		return AdditiveParse(walker);
+	}
+
+	private Node AdditiveParse(Walker walker)
+	{
+		Node left = MultiplicativeParse(walker);
+		while (walker.GetToken(out Token token))
+		{
+			if (!token.Represents(Types.Operator, "+", "-")) break;
+			walker.Index++;
+			Node right = MultiplicativeParse(walker);
+			left = new BinaryOperatorNode(token.Value, left, right, new(left.RangePosition.Begin, right.RangePosition.End));
+		}
+		return left;
+	}
+
+	private Node MultiplicativeParse(Walker walker)
+	{
+		Node left = UnaryParse(walker);
+		while (walker.GetToken(out Token token))
+		{
+			if (!token.Represents(Types.Operator, "*", "/")) break;
+			walker.Index++;
+			Node right = UnaryParse(walker);
+			left = new BinaryOperatorNode(token.Value, left, right, new(left.RangePosition.Begin, right.RangePosition.End));
+		}
+		return left;
+	}
+
+	private Node UnaryParse(Walker walker)
+	{
+		if (!walker.GetToken(out Token token)) throw new Issue("Expected expression", walker.RangePosition.Begin);
+		if (token.Represents(Types.Operator, "+", "-"))
+		{
+			walker.Index++;
+			Node target = UnaryParse(walker);
+			return new UnaryOperatorNode(token.Value, target, new(token.RangePosition.Begin, target.RangePosition.End));
+		}
+		return PrimaryParse(walker);
+	}
+
+	private Node PrimaryParse(Walker walker)
+	{
+		if (!walker.GetToken(out Token token)) throw new Issue("Expected expression", walker.RangePosition.Begin);
 		switch (token.Type)
 		{
-		case Token.Types.Number:
+		case Types.Number:
 		{
 			ValueNode value = new(Convert.ToDouble(token.Value, CultureInfo.GetCultureInfo("en-US")), token.RangePosition);
 			walker.Index++;
 			return value;
 		}
-		case Token.Types.String:
+		case Types.String:
 		{
-			ValueNode path = new(JsonSerializer.Deserialize<string>(token.Value) ?? throw new Issue($"Unable to parse string", token.RangePosition.Begin), token.RangePosition);
+			ValueNode @string = new(JsonSerializer.Deserialize<string>(token.Value) ?? throw new Issue("Unable to parse string", token.RangePosition.Begin), token.RangePosition);
 			walker.Index++;
-			return path;
+			return @string;
 		}
-		case Token.Types.Identifier:
+		case Types.Identifier:
 		{
 			IdentifierNode identifier = new(token.Value, token.RangePosition);
 			walker.Index++;
-			if (!walker.InRange) return identifier;
-			Token subtoken = walker.Token;
-			if (!subtoken.Match(Token.Types.Bracket, "(")) return identifier;
-			Node[] arguments = ArgumentsParse(GetSubwalker(walker, subtoken.Value));
+			if (!walker.GetToken(out Token subtoken) || !subtoken.Represents(Types.Bracket, "(")) return identifier;
+			string open = subtoken.Value;
+			if (!Brackets.TryGetValue(open, out string? close)) throw new Issue($"Unmatched bracket {open}", walker.RangePosition.Begin);
+			IEnumerable<Node> arguments = ArgumentsParse(walker.GetSubwalker(open, close));
 			walker.Index++;
 			return new InvokationNode(identifier, arguments, new(identifier.RangePosition.Begin, arguments.LastOrDefault(identifier).RangePosition.End));
 		}
-		case Token.Types.Keyword:
+		case Types.Keyword:
 		{
-			switch (token.Value)
-			{
-			case "data":
+			if (token.Represents("null"))
 			{
 				walker.Index++;
-				Node target = VerticesParse(walker);
-				return new UnaryOperatorNode(token.Value, target, new(token.RangePosition.Begin, target.RangePosition.End));
+				return ValueNode.NullAt(token.RangePosition);
 			}
-			case "null":
+			if (token.Represents("true"))
 			{
 				walker.Index++;
-				return new ValueNode(null, token.RangePosition);
+				return new ValueNode(true, token.RangePosition);
 			}
-			case "import":
+			if (token.Represents("false"))
 			{
 				walker.Index++;
-				Node target = VerticesParse(walker);
-				return new UnaryOperatorNode(token.Value, target, new(token.RangePosition.Begin, target.RangePosition.End));
+				return new ValueNode(false, token.RangePosition);
 			}
-			default: throw new Issue($"Unidentified keyword '{token.Value}'", token.RangePosition.Begin);
-			}
+			throw new Issue($"Unexpected keyword '{token.Value}'", token.RangePosition.Begin);
 		}
-		case Token.Types.Operator:
+		case Types.Bracket:
 		{
-			if (token.Match("+", "-"))
+			if (token.Represents("("))
 			{
+				string open = token.Value;
+				if (!Brackets.TryGetValue(open, out string? close)) throw new Issue($"Unmatched bracket {open}", walker.RangePosition.Begin);
+				Node expression = ExpressionParse(walker.GetSubwalker(open, close));
 				walker.Index++;
-				Node target = VerticesParse(walker);
-				return new UnaryOperatorNode(token.Value, target, new(token.RangePosition.Begin, target.RangePosition.End));
+				return expression;
 			}
-			else throw new Issue($"Unidentified operator '{token.Value}'", token.RangePosition.Begin);
+			throw new Issue($"Unexpected bracket '{token.Value}'", token.RangePosition.Begin);
 		}
-		case Token.Types.Bracket:
-		{
-			Node node = Degree1OperatorsParse(GetSubwalker(walker, token.Value));
-			walker.Index++;
-			return node;
-		}
-		default: throw new Issue($"Unidentified token '{token.Value}'", token.RangePosition.Begin);
+		default: throw new Issue($"Unexpected token '{token.Value}'", token.RangePosition.Begin);
 		}
 	}
-	public List<Node> Parse(in Token[] tokens)
+
+	private IEnumerable<Node> ArgumentsParse(Walker walker)
 	{
-		List<Node> trees = [];
-		Walker walker = new(tokens, new(0, Convert.ToUInt32(tokens.Length)));
-		while (walker.Index < tokens.Length)
+		List<Node> arguments = [];
+		if (!walker.InRange) return arguments.AsEnumerable();
+		while (true)
 		{
-			Node tree = Degree1OperatorsParse(walker);
-			if (!walker.InRange || !walker.Token.Match(Token.Types.Separator, ";")) throw new Issue($"Expected ';'", walker.RangePosition.End);
-			trees.Add(tree);
+			arguments.Add(ExpressionParse(walker));
+			if (!walker.GetToken(out Token token) || !token.Represents(Types.Separator, ",")) break;
 			walker.Index++;
 		}
-		return trees;
+		return arguments.AsEnumerable();
 	}
 }

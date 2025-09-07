@@ -1,0 +1,125 @@
+program
+	= { statement, ";" };
+
+statement
+	= declaration
+	| expression;
+
+declaration
+	= "datum", identifier, [ ":", expression ];
+
+expression
+	= additive;
+
+additive
+	= multiplicative, { ( "+"
+	| "-" ), multiplicative };
+
+multiplicative
+	= unary, { ( "*"
+	| "/" ), unary };
+
+unary
+	= [ ( "+"
+	| "-" ) ], primary;
+
+primary
+	= number
+	| boolean
+	| string
+	| "null"
+	| identifier, [ invocation ]
+	| "(", expression, ")";
+
+invocation
+	= "(", [ arguments ], ")";
+
+arguments
+	= expression, { ",", expression };
+
+identifier
+	= letter, { letter
+	| digit };
+
+string
+	= '"', { character - '"' }, '"';
+
+letter
+	= "a"
+	| "b"
+	| "c"
+	| "d"
+	| "e"
+	| "f"
+	| "g"
+	| "h"
+	| "i"
+	| "j"
+	| "k"
+	| "l"
+	| "m"
+	| "n"
+	| "o"
+	| "p"
+	| "q"
+	| "r"
+	| "s"
+	| "t"
+	| "u"
+	| "v"
+	| "w"
+	| "x"
+	| "y"
+	| "z"
+	| "A"
+	| "B"
+	| "C"
+	| "D"
+	| "E"
+	| "F"
+	| "G"
+	| "H"
+	| "I"
+	| "J"
+	| "K"
+	| "L"
+	| "M"
+	| "N"
+	| "O"
+	| "P"
+	| "Q"
+	| "R"
+	| "S"
+	| "T"
+	| "U"
+	| "V"
+	| "W"
+	| "X"
+	| "Y"
+	| "Z"
+	| "_";
+
+boolean
+	= "true"
+	| "false";
+
+number
+	= integer, [ ".", integer ];
+
+integer
+	= digit, { digit };
+
+digit
+	= "0"
+	| "1"
+	| "2"
+	| "3"
+	| "4"
+	| "5"
+	| "6"
+	| "7"
+	| "8"
+	| "9";
+
+character
+	= ? any valid source character ?;

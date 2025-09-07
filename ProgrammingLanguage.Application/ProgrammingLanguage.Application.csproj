@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputType>Exe</OutputType>
+		<OutputType>Library</OutputType>
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\ProgrammingLanguage.Domain\ProgrammingLanguage.Domain.csproj" />
 		<ProjectReference Include="..\ProgrammingLanguage.Shared\ProgrammingLanguage.Shared.csproj" />
 	</ItemGroup>
 

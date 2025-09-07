@@ -3,13 +3,14 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Parsing;
 
-public class UnaryOperatorNode(string @operator, Node target, Range<Position> range) : OperatorNode(@operator, range)
+public class DeclarationNode(IdentifierNode identifier, Node value, Range<Position> range) : Node(range)
 {
-	public readonly Node Target = target;
+	public readonly IdentifierNode Identifier = identifier;
+	public readonly Node Value = value;
 
 	public override string ToString()
 	{
-		return $"({Operator} {Target})";
+		return $"(@{Identifier}: {Value})";
 	}
 
 	public override T Accept<T>(IEvaluatorVisitor<T> visitor)

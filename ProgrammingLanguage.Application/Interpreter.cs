@@ -1,54 +1,65 @@
 ﻿using ProgrammingLanguage.Application.Evaluating;
+using ProgrammingLanguage.Application.Exceptions;
 using ProgrammingLanguage.Application.Lexing;
 using ProgrammingLanguage.Application.Parsing;
-using ProgrammingLanguage.Shared.Exceptions;
 
 namespace ProgrammingLanguage.Application;
 
-public class Interpreter(Interpreter.Options options)
+public class Interpreter
 {
-	public enum RunModes : byte
-	{
-		Debug,
-		Run,
-	}
 	public class Options
 	{
-		public RunModes? Mode { get; set; }
-		public void Deconstruct(out RunModes mode)
+		public bool? LogLexing { get; set; }
+		public bool? LogParsing { get; set; }
+
+		public void Deconstruct(out bool logLexing, out bool logParsing)
 		{
-			mode = Mode ?? RunModes.Run;
+			logLexing = LogLexing ?? false;
+			logParsing = LogParsing ?? false;
 		}
 	}
 
 	private static readonly Tokenizer Tokenizer = new();
 	private static readonly Parser Parser = new();
-	private static readonly Evalutor Evalutor = new();
-	public void Run(in string input)
-	{
-		options.Deconstruct(out RunModes mode);
+	private static readonly Evaluator Evaluator = new();
+	private readonly bool LogLexing;
+	private readonly bool LogParsing;
 
+	public Interpreter(Options options)
+	{
+		(LogLexing, LogParsing) = options;
+	}
+
+	public Interpreter() : this(new())
+	{
+	}
+
+	public void Run(string input)
+	{
 		ConsoleColor foreground = Console.ForegroundColor;
 		try
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			Token[] tokens = Tokenizer.Tokenize(input);
-			if (mode == RunModes.Debug && tokens.Length > 0) Console.WriteLine(string.Join<Token>('\n', tokens));
+			if (LogLexing && tokens.Length > 0) Console.WriteLine(string.Join<Token>('\n', tokens));
 
-			Console.ForegroundColor = ConsoleColor.Blue;
+			Console.ForegroundColor = ConsoleColor.Magenta;
 			List<Node> trees = Parser.Parse(tokens);
-			if (mode == RunModes.Debug && tokens.Length > 0) Console.WriteLine(string.Join('\n', trees));
+			if (LogParsing && tokens.Length > 0) Console.WriteLine(string.Join('\n', trees));
 
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			Evaluate(trees);
+			Evaluator.Evaluate(trees);
 		}
-		catch (Issue error)
+		catch (Issue issue)
 		{
-			Console.WriteLine(error.Message);
+			Console.WriteLine(issue.Message);
 		}
-		catch (Exception)
+		catch (Exception exception)
 		{
-			throw;
+			ConsoleColor temporary = Console.ForegroundColor;
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine(exception.ToString());
+			Console.ForegroundColor = temporary;
 		}
 		Console.ForegroundColor = foreground;
 	}

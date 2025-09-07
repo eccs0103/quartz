@@ -2,7 +2,7 @@
 
 namespace ProgrammingLanguage.Application.Lexing;
 
-public class Token(in Token.Types type, in string value, in Range<Position> range)
+public class Token(Token.Types type, string value, Range<Position> range)
 {
 	public enum Types
 	{
@@ -15,19 +15,23 @@ public class Token(in Token.Types type, in string value, in Range<Position> rang
 		Separator,
 	}
 
-	public Types Type { get; } = type;
-	public string Value { get; } = value;
-	public Range<Position> RangePosition { get; } = range;
+	public readonly Types Type = type;
+	public readonly string Value = value;
+	public readonly Range<Position> RangePosition = range;
+
 	public override string ToString()
 	{
 		return $"{Type} '{Value}' at {RangePosition.Begin}";
 	}
-	public bool Match(params string[] values)
+
+	public bool Represents(params string[] values)
 	{
-		return values.Any(value => value == Value);
+		if (values.Length == 0) return true;
+		return values.Contains(Value);
 	}
-	public bool Match(in Types type, params string[] values)
+
+	public bool Represents(Types type, params string[] values)
 	{
-		return type == Type && Match(values);
+		return type == Type && Represents(values);
 	}
 }
