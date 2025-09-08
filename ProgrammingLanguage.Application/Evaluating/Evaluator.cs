@@ -1,4 +1,3 @@
-using System.Text;
 using ProgrammingLanguage.Application.Abstractions;
 using ProgrammingLanguage.Application.Exceptions;
 using ProgrammingLanguage.Application.Parsing;
@@ -8,23 +7,22 @@ namespace ProgrammingLanguage.Application.Evaluating;
 
 public class Evaluator : IEvaluatorVisitor<ValueNode>
 {
-	public readonly Dictionary<string, Datum> Database = new()
-	{
-		{ "pi", Datum.ConstantFrom(PI) },
-		{ "e", Datum.ConstantFrom(E) },
-	};
-	// public readonly Dictionary<string, ValueNode> Functions = [];
+	private readonly Registry Memory = new();
 
-	// private static void write(params object[] arguments)
-	// {
-	// 	StringBuilder builder = new();
-	// 	foreach (object argument in arguments)
-	// 	{
-	// 		if (builder.Length > 0) builder.Append('\n');
-	// 		builder.Append(argument.ToString());
-	// 	}
-	// 	Console.WriteLine(builder.ToString());
-	// }
+	public Evaluator()
+	{
+		Memory.TryDeclareType("Type", typeof(Type), out _);
+		Memory.TryDeclareType("Number", typeof(double), out _);
+		Memory.TryDeclareType("Boolean", typeof(bool), out _);
+		Memory.TryDeclareType("String", typeof(string), out _);
+		Memory.TryDeclareConstant("Number", "pi", PI, out _);
+		Memory.TryDeclareConstant("Number", "e", E, out _);
+	}
+
+	/* private static void write(double first, double second)
+	{
+		Console.WriteLine($"{first}\n{second}");
+	} */
 
 	public void Evaluate(IEnumerable<Node> trees)
 	{
@@ -38,34 +36,23 @@ public class Evaluator : IEvaluatorVisitor<ValueNode>
 
 	public ValueNode Visit(IdentifierNode node)
 	{
-		if (!Database.TryGetValue(node.Name, out Datum? datum)) throw new Issue($"Identifier '{node.Name}' does not exist", node.RangePosition.Begin);
-		return new ValueNode(datum.Value, node.RangePosition);
+		if (!Memory.TryRead(node.Name, out object? value)) throw new Issue($"Identifier '{node.Name}' does not exist", node.RangePosition.Begin);
+		return new ValueNode(value, node.RangePosition);
 	}
 
 	public ValueNode Visit(DeclarationNode node)
 	{
 		ValueNode value = node.Value.Accept(this);
-		if (!Database.TryAdd(node.Identifier.Name, Datum.VariableFrom(value))) throw new Issue($"Identifier '{node.Identifier.Name}' already exists", node.RangePosition.Begin);
+		if (!Memory.TryDeclareVariable("Number", node.Identifier.Name, value.Value, out _)) throw new Issue($"Identifier '{node.Identifier.Name}' already exists", node.RangePosition.Begin);
 		return ValueNode.NullAt(node.RangePosition);
 	}
 
 	public ValueNode Visit(InvokationNode node)
 	{
-		switch (node.Target.Name)
-		{
-		case "write":
-		{
-			StringBuilder builder = new();
-			foreach (Node argument in node.Arguments)
-			{
-				if (builder.Length > 0) builder.Append('\n');
-				builder.Append(argument.Accept(this).GetValue<double>());
-			}
-			Console.WriteLine(builder.ToString());
-			return ValueNode.NullAt(node.RangePosition);
-		}
-		default: throw new Issue($"Function '{node.Target.Name}' does not exist", node.RangePosition.Begin);
-		}
+		throw new NotImplementedException();
+		// if (!Functions.TryGetValue(node.Target.Name, out Function? function)) throw new Issue($"Function '{node.Target.Name}' does not exist", node.RangePosition.Begin);
+		// IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => argument.Accept(this));
+		// return function.Invoke(arguments, node.RangePosition.Begin);
 	}
 
 	public ValueNode Visit(UnaryOperatorNode node)
@@ -81,8 +68,8 @@ public class Evaluator : IEvaluatorVisitor<ValueNode>
 		ValueNode target = node.Target.Accept(this);
 		switch (node.Operator)
 		{
-		case "+": return new ValueNode(+target.GetValue<double>(), node.RangePosition);
-		case "-": return new ValueNode(-target.GetValue<double>(), node.RangePosition);
+		case "+": return new ValueNode(+target.ValueAs<double>(), node.RangePosition);
+		case "-": return new ValueNode(-target.ValueAs<double>(), node.RangePosition);
 		default: throw new Issue($"Unidentified '{node.Operator}' operator", node.RangePosition.Begin);
 		}
 	}
@@ -108,10 +95,10 @@ public class Evaluator : IEvaluatorVisitor<ValueNode>
 
 		switch (node.Operator)
 		{
-		case "+": return new ValueNode(left.GetValue<double>() + right.GetValue<double>(), node.RangePosition);
-		case "-": return new ValueNode(left.GetValue<double>() - right.GetValue<double>(), node.RangePosition);
-		case "*": return new ValueNode(left.GetValue<double>() * right.GetValue<double>(), node.RangePosition);
-		case "/": return new ValueNode(left.GetValue<double>() / right.GetValue<double>(), node.RangePosition);
+		case "+": return new ValueNode(left.ValueAs<double>() + right.ValueAs<double>(), node.RangePosition);
+		case "-": return new ValueNode(left.ValueAs<double>() - right.ValueAs<double>(), node.RangePosition);
+		case "*": return new ValueNode(left.ValueAs<double>() * right.ValueAs<double>(), node.RangePosition);
+		case "/": return new ValueNode(left.ValueAs<double>() / right.ValueAs<double>(), node.RangePosition);
 		default: throw new Issue($"Unidentified '{node.Operator}' operator", node.RangePosition.Begin);
 		}
 	}
