@@ -1,8 +1,34 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ProgrammingLanguage.Application.Evaluating;
 
 internal class Registry
 {
 	private readonly Dictionary<string, Datum> Database = [];
+
+	public object? Read(string name)
+	{
+		if (!Database.TryGetValue(name, out Datum? datum)) throw new NullReferenceException();
+		return datum.Value;
+	}
+
+	public void Assign(string name, object? value)
+	{
+		if (!Database.TryGetValue(name, out Datum? datum)) throw new NullReferenceException();
+		if (!datum.Mutable) throw new InvalidOperationException();
+		// Type conversation
+		datum.Value = value;
+		Database[name] = datum;
+	}
+
+	public void Declare(string type, string name, object? value, bool mutable)
+	{
+		Datum constant = new(type, value, mutable);
+		if (!Database.TryAdd(name, constant)) throw new InvalidOperationException();
+	}
+
+	///
+
 
 	public bool TryRead(string name, out object? value)
 	{
@@ -24,7 +50,7 @@ internal class Registry
 		return true;
 	}
 
-	public bool TryDeclareConstant(string type, string name, object? value, out Datum? datum)
+	public bool TryDeclareConstant(string type, string name, object? value, [NotNullWhen(true)] out Datum datum)
 	{
 		Datum constant = new(type, value, false);
 		if (!Database.TryAdd(name, constant))

@@ -4,8 +4,10 @@ using ProgrammingLanguage.Application.Parsing;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class ValueResolver(Registry memory, IdentifierResolver nominator) : IResolverVisitor<ValueNode>
+internal class ValueResolver(Registry memory) : IResolverVisitor<ValueNode>
 {
+	public IdentifierResolver Nominator { get; set; } = default!;
+
 	public ValueNode Visit(ValueNode node)
 	{
 		return node;
@@ -81,7 +83,7 @@ internal class ValueResolver(Registry memory, IdentifierResolver nominator) : IR
 		}
 		case ":":
 		{
-			IdentifierNode left = node.Left.Accept(nominator);
+			IdentifierNode left = node.Left.Accept(Nominator);
 			ValueNode right = node.Right.Accept(this);
 			if (!memory.TryWrite(left.Name, right.Value)) throw new NotExistIssue($"Identifier '{left.Name}'", left.RangePosition); //throw new Issue($"Identifier '{left.Name}' does not exist or is non-mutable", left.RangePosition);
 			return ValueNode.NullAt(node.RangePosition);

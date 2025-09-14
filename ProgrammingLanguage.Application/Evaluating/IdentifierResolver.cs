@@ -4,9 +4,11 @@ using ProgrammingLanguage.Application.Parsing;
 namespace ProgrammingLanguage.Application.Evaluating;
 
 #pragma warning disable CS9113 // Parameter is unread.
-internal class IdentifierResolver(Registry memory, ValueResolver valuator) : IResolverVisitor<IdentifierNode>
+internal class IdentifierResolver(Registry memory) : IResolverVisitor<IdentifierNode>
 #pragma warning restore CS9113 // Parameter is unread.
 {
+	public ValueResolver Valuator { get; set; } = default!;
+
 	public IdentifierNode Visit(ValueNode node)
 	{
 		throw new NotImplementedException();

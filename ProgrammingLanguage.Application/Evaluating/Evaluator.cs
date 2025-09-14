@@ -6,27 +6,17 @@ namespace ProgrammingLanguage.Application.Evaluating;
 internal class Evaluator
 {
 	private readonly Registry Memory = new();
-	private ValueResolver? ValuatorInstance = null;
-	private ValueResolver Valuator
-	{
-		get
-		{
-			ValuatorInstance ??= new(Memory, Nominator);
-			return ValuatorInstance;
-		}
-	}
-	private IdentifierResolver? NominatorInstance = null;
-	private IdentifierResolver Nominator
-	{
-		get
-		{
-			NominatorInstance ??= new(Memory, Valuator);
-			return NominatorInstance;
-		}
-	}
+	private readonly ValueResolver Valuator;
+	private readonly IdentifierResolver Nominator;
 
 	public Evaluator()
 	{
+		Valuator = new(Memory);
+		Nominator = new(Memory);
+
+		Valuator.Nominator = Nominator;
+		Nominator.Valuator = Valuator;
+
 		Memory.TryDeclareType("Type", typeof(Type), out _);
 		Memory.TryDeclareType("Number", typeof(double), out _);
 		Memory.TryDeclareType("Boolean", typeof(bool), out _);

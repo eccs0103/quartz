@@ -5,30 +5,19 @@ using ProgrammingLanguage.Application.Parsing;
 
 namespace ProgrammingLanguage.Application;
 
-public class Interpreter
+public class Interpreter(Interpreter.Options options)
 {
 	public class Options
 	{
-		public bool? LogLexing { get; set; }
-		public bool? LogParsing { get; set; }
-
-		public void Deconstruct(out bool logLexing, out bool logParsing)
-		{
-			logLexing = LogLexing ?? false;
-			logParsing = LogParsing ?? false;
-		}
+		public bool LogLexing { get; set; } = false;
+		public bool LogParsing { get; set; } = false;
 	}
 
 	private static readonly Tokenizer Tokenizer = new();
 	private static readonly Parser Parser = new();
 	private static readonly Evaluator Evaluator = new();
-	private readonly bool LogLexing;
-	private readonly bool LogParsing;
-
-	public Interpreter(Options options)
-	{
-		(LogLexing, LogParsing) = options;
-	}
+	private readonly bool LogLexing = options.LogLexing;
+	private readonly bool LogParsing = options.LogParsing;
 
 	public Interpreter() : this(new())
 	{
