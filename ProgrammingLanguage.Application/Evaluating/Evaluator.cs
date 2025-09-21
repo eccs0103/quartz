@@ -29,36 +29,28 @@ internal class Evaluator
 		ImportString(range);
 		ImportMath(range);
 
-		Operation operationWrite = new(Write);
-		Module.RegisterOperation("write", operationWrite, range);
+		Module.RegisterOperation("write", Write, range);
 	}
 
 	private void ImportType(Range<Position> range)
 	{
-		Structure typeType = new(typeof(Type));
-		Module.RegisterType("Type", typeType, range);
+		Module.RegisterType("Type", typeof(Type), range);
 	}
 
 	private void ImportNumber(Range<Position> range)
 	{
-		Structure typeNumber = new(typeof(double));
+		Structure typeNumber = Module.RegisterType("Number", typeof(double), range);
 
-		Operation operationPlus = new(Plus);
-		typeNumber.RegisterOperation("+", operationPlus, range);
+		typeNumber.RegisterOperation("+", Plus, range);
 
-		Operation operationMinus = new(Minus);
-		typeNumber.RegisterOperation("-", operationMinus, range);
+		typeNumber.RegisterOperation("-", Minus, range);
 
-		Operation operationMultiplication = new(Multiplication);
-		typeNumber.RegisterOperation("*", operationMultiplication, range);
+		typeNumber.RegisterOperation("*", Multiplication, range);
 
-		Operation operationDivision = new(Division);
-		typeNumber.RegisterOperation("/", operationDivision, range);
-
-		Module.RegisterType("Number", typeNumber, range);
+		typeNumber.RegisterOperation("/", Division, range);
 	}
 
-	private Node Plus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode Plus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
@@ -83,7 +75,7 @@ internal class Evaluator
 		return new ValueNode("Number", +target, range);
 	}
 
-	private Node Minus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode Minus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
@@ -108,7 +100,7 @@ internal class Evaluator
 		return new ValueNode("Number", -target, range);
 	}
 
-	private Node Multiplication(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode Multiplication(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
@@ -127,7 +119,7 @@ internal class Evaluator
 		return new ValueNode("Number", left * right, range);
 	}
 
-	private Node Division(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode Division(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
@@ -148,26 +140,22 @@ internal class Evaluator
 
 	private void ImportBoolean(Range<Position> range)
 	{
-		Structure typeBoolean = new(typeof(bool));
-		Module.RegisterType("Boolean", typeBoolean, range);
+		Module.RegisterType("Boolean", typeof(bool), range);
 	}
 
 	private void ImportString(Range<Position> range)
 	{
-		Structure typeString = new(typeof(string));
-		Module.RegisterType("String", typeString, range);
+		Module.RegisterType("String", typeof(string), range);
 	}
 
 	private void ImportMath(Range<Position> range)
 	{
-		Datum datumPi = new("Number", PI);
-		Module.RegisterDatum("pi", datumPi, range);
+		Module.RegisterConstant("Number", "pi", PI, range);
 
-		Datum datumE = new("Number", E);
-		Module.RegisterDatum("e", datumE, range);
+		Module.RegisterConstant("Number", "e", E, range);
 	}
 
-	private Node Write(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode Write(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		foreach (Node nodeArgument in arguments)
 		{

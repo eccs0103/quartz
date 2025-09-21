@@ -4,13 +4,22 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class Module : IDatumContainer, IOperationContainer, ITypeContainer
+internal class Module() : IDatumContainer, IOperationContainer, ITypeContainer
 {
 	private readonly Dictionary<string, Datum> Database = [];
 
-	public void RegisterDatum(string name, Datum datum, Range<Position> range)
+	public Datum RegisterConstant(string tag, string name, object? value, Range<Position> range)
 	{
-		if (!Database.TryAdd(name, datum)) throw new AlreadyExistsIssue($"Identifier '{name}'", range);
+		Datum constant = new(tag, name, value);
+		if (!Database.TryAdd(name, constant)) throw new AlreadyExistsIssue($"Identifier '{name}'", range);
+		return constant;
+	}
+
+	public Datum RegisterVariable(string tag, string name, object? value, Range<Position> range)
+	{
+		Datum variable = new(tag, name, value, true);
+		if (!Database.TryAdd(name, variable)) throw new AlreadyExistsIssue($"Identifier '{name}'", range);
+		return variable;
 	}
 
 	public Datum ReadDatum(string name, Range<Position> range)
@@ -27,9 +36,11 @@ internal class Module : IDatumContainer, IOperationContainer, ITypeContainer
 		Database[name] = datum;
 	}
 
-	public void RegisterOperation(string name, Operation operation, Range<Position> range)
+	public Operation RegisterOperation(string name, Function function, Range<Position> range)
 	{
+		Operation operation = new(name, function);
 		if (!Database.TryAdd(name, operation)) throw new AlreadyExistsIssue($"Operation '{name}'", range);
+		return operation;
 	}
 
 	public Operation ReadOperation(string name, Range<Position> range)
@@ -39,9 +50,11 @@ internal class Module : IDatumContainer, IOperationContainer, ITypeContainer
 		return operation;
 	}
 
-	public void RegisterType(string name, Structure type, Range<Position> range)
+	public Structure RegisterType(string name, Type equivalent, Range<Position> range)
 	{
+		Structure type = new(name, equivalent);
 		if (!Database.TryAdd(name, type)) throw new AlreadyExistsIssue($"Type '{name}'", range);
+		return type;
 	}
 
 	public Structure ReadType(string name, Range<Position> range)

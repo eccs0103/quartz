@@ -50,7 +50,7 @@ internal class Parser
 		IdentifierNode identifier = new(token2.Value, token2.RangePosition);
 		walker.Index++;
 
-		if (!walker.GetToken(out Token token) || !token.Represents(Types.Operator, ":"))
+		if (!walker.GetToken(out Token token3) || !token3.Represents(Types.Operator, ":"))
 		{
 			ValueNode nullable = ValueNode.NullableAt("Number", token2.RangePosition);
 			return new DeclarationNode(identifier, nullable, token1.RangePosition >> identifier.RangePosition);
@@ -62,19 +62,18 @@ internal class Parser
 		return new DeclarationNode(identifier, value, token1.RangePosition >> value.RangePosition);
 	}
 
-	private BinaryOperatorNode AssignmentParse(Walker walker)
+	private AssignmentNode AssignmentParse(Walker walker)
 	{
-		if (!walker.GetToken(out Token token) || !token.Represents(Types.Identifier)) throw new ExpectedIssue("identifier", ~walker.RangePosition.Begin);
-		IdentifierNode identifier = new(token.Value, token.RangePosition);
+		if (!walker.GetToken(out Token token1) || !token1.Represents(Types.Identifier)) throw new ExpectedIssue("identifier", ~walker.RangePosition.Begin);
+		IdentifierNode identifier = new(token1.Value, token1.RangePosition);
 		walker.Index++;
 
-		if (!walker.GetToken(out Token colonToken) || !colonToken.Represents(Types.Operator, ":")) throw new ExpectedIssue(":", ~token.RangePosition.End);
-		IdentifierNode @operator = new(colonToken.Value, token.RangePosition);
-		walker.Index++;
+		if (!walker.GetToken(out Token token2) || !token2.Represents(Types.Operator, ":")) throw new ExpectedIssue(":", ~token1.RangePosition.End);
 
+		walker.Index++;
 		Node value = ExpressionParse(walker);
 
-		return new BinaryOperatorNode(@operator, identifier, value, identifier.RangePosition >> value.RangePosition);
+		return new AssignmentNode(identifier, value, identifier.RangePosition >> value.RangePosition);
 	}
 
 	private Node ExpressionParse(Walker walker)

@@ -4,13 +4,15 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class Structure(Type equivalent) : Datum("Type", equivalent), IOperationContainer
+internal class Structure(string name, Type equivalent) : Datum("Type", name, equivalent), IOperationContainer
 {
 	private readonly Dictionary<string, Operation> Operations = [];
 
-	public void RegisterOperation(string name, Operation operation, Range<Position> range)
+	public Operation RegisterOperation(string name, Function function, Range<Position> range)
 	{
+		Operation operation = new(name, function);
 		if (!Operations.TryAdd(name, operation)) throw new AlreadyExistsIssue($"Operation '{name}'", range);
+		return operation;
 	}
 
 	public Operation ReadOperation(string name, Range<Position> range)

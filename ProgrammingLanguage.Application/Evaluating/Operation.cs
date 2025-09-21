@@ -5,7 +5,7 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class Operation(Function function) : Datum("Function", function)
+internal class Operation(string name, Function function) : Datum("Function", name, function)
 {
 	public Node Invoke(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{

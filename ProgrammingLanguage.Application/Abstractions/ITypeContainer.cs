@@ -5,6 +5,6 @@ namespace ProgrammingLanguage.Application.Abstractions;
 
 internal interface ITypeContainer
 {
-	public void RegisterType(string name, Structure type, Range<Position> range);
+	public Structure RegisterType(string name, Type equivalent, Range<Position> range);
 	public Structure ReadType(string name, Range<Position> range);
 }

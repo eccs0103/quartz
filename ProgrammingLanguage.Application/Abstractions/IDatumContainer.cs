@@ -5,7 +5,8 @@ namespace ProgrammingLanguage.Application.Abstractions;
 
 internal interface IDatumContainer
 {
-	public void RegisterDatum(string name, Datum datum, Range<Position> range);
+	public Datum RegisterConstant(string tag, string name, object? value, Range<Position> range);
+	public Datum RegisterVariable(string tag, string name, object? value, Range<Position> range);
 	public Datum ReadDatum(string name, Range<Position> range);
 	public void WriteDatum(string name, object? value, Range<Position> range);
 }
