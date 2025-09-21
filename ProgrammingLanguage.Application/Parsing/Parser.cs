@@ -84,11 +84,13 @@ internal class Parser
 	private Node AdditiveParse(Walker walker)
 	{
 		Node left = MultiplicativeParse(walker);
-		while (walker.GetToken(out Token token))
+		while (walker.GetToken(out Token token1))
 		{
-			if (!token.Represents(Types.Operator, "+", "-")) break;
-			IdentifierNode @operator = new(token.Value, token.RangePosition);
+			if (!token1.Represents(Types.Operator, "+", "-")) break;
+			IdentifierNode @operator = new(token1.Value, token1.RangePosition);
 			walker.Index++;
+			if (!walker.GetToken(out Token token2)) throw new ExpectedIssue($"expression after '{@operator.Name}'", ~@operator.RangePosition.End);
+			if (token2.Represents(Types.Separator, ";")) throw new ExpectedIssue($"expression after '{@operator.Name}'", token2.RangePosition);
 			Node right = MultiplicativeParse(walker);
 			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
 		}
@@ -98,11 +100,13 @@ internal class Parser
 	private Node MultiplicativeParse(Walker walker)
 	{
 		Node left = UnaryParse(walker);
-		while (walker.GetToken(out Token token))
+		while (walker.GetToken(out Token token1))
 		{
-			if (!token.Represents(Types.Operator, "*", "/")) break;
-			IdentifierNode @operator = new(token.Value, token.RangePosition);
+			if (!token1.Represents(Types.Operator, "*", "/")) break;
+			IdentifierNode @operator = new(token1.Value, token1.RangePosition);
 			walker.Index++;
+			if (!walker.GetToken(out Token token2)) throw new ExpectedIssue($"expression after '{@operator.Name}'", ~@operator.RangePosition.End);
+			if (token2.Represents(Types.Separator, ";")) throw new ExpectedIssue($"expression after '{@operator.Name}'", token2.RangePosition);
 			Node right = UnaryParse(walker);
 			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
 		}

@@ -1,3 +1,4 @@
+using ProgrammingLanguage.Application.Exceptions;
 using ProgrammingLanguage.Application.Parsing;
 using ProgrammingLanguage.Shared.Helpers;
 using static System.Math;
@@ -48,12 +49,12 @@ internal class Evaluator
 	private ValueNode NumberPlus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
-		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
+		if (!enumerator.MoveNext()) throw new NoOverloadIssue(nodeOperand.Name, 0, range);
 		ValueNode nodeLeft = enumerator.Current.Accept(Valuator);
-		if (nodeLeft.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}'");
+		if (nodeLeft.Tag != "Number") throw new TypeMismatchIssue(nodeLeft.Tag, "Number", range);
 		if (!enumerator.MoveNext()) return NumberUnaryPlus(nodeLeft, range);
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
-		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
+		if (nodeRight.Tag != "Number") throw new TypeMismatchIssue(nodeRight.Tag, "Number", range);
 		return NumberBinaryPlus(nodeLeft, nodeRight, range);
 	}
 
@@ -73,12 +74,12 @@ internal class Evaluator
 	private ValueNode NumberMinus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
-		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
+		if (!enumerator.MoveNext()) throw new NoOverloadIssue(nodeOperand.Name, 0, range);
 		ValueNode nodeLeft = enumerator.Current.Accept(Valuator);
-		if (nodeLeft.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}'");
+		if (nodeLeft.Tag != "Number") throw new TypeMismatchIssue(nodeLeft.Tag, "Number", range);
 		if (!enumerator.MoveNext()) return NumberUnaryMinus(nodeLeft, range);
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
-		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
+		if (nodeRight.Tag != "Number") throw new TypeMismatchIssue(nodeRight.Tag, "Number", range);
 		return NumberBinaryMinus(nodeLeft, nodeRight, range);
 	}
 
@@ -98,12 +99,12 @@ internal class Evaluator
 	private ValueNode NumberMultiplication(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
-		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
+		if (!enumerator.MoveNext()) throw new NoOverloadIssue(nodeOperand.Name, 0, range);
 		ValueNode nodeLeft = enumerator.Current.Accept(Valuator);
-		if (nodeLeft.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}'");
-		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 1 arguments");
+		if (nodeLeft.Tag != "Number") throw new TypeMismatchIssue(nodeLeft.Tag, "Number", range);
+		if (!enumerator.MoveNext()) throw new NoOverloadIssue(nodeOperand.Name, 1, range);
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
-		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
+		if (nodeRight.Tag != "Number") throw new TypeMismatchIssue(nodeRight.Tag, "Number", range);
 		return NumberBinaryMultiplication(nodeLeft, nodeRight, range);
 	}
 
@@ -117,12 +118,12 @@ internal class Evaluator
 	private ValueNode NumberDivision(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
-		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
+		if (!enumerator.MoveNext()) throw new NoOverloadIssue(nodeOperand.Name, 0, range);
 		ValueNode nodeLeft = enumerator.Current.Accept(Valuator);
-		if (nodeLeft.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}'");
-		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 1 arguments");
+		if (nodeLeft.Tag != "Number") throw new TypeMismatchIssue(nodeLeft.Tag, "Number", range);
+		if (!enumerator.MoveNext()) throw new NoOverloadIssue(nodeOperand.Name, 1, range);
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
-		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
+		if (nodeRight.Tag != "Number") throw new TypeMismatchIssue(nodeRight.Tag, "Number", range);
 		return NumberBinaryDivision(nodeLeft, nodeRight, range);
 	}
 
