@@ -28,8 +28,7 @@ internal class Evaluator
 		ImportBoolean(range);
 		ImportString(range);
 		ImportMath(range);
-
-		Module.RegisterOperation("write", Write, range);
+		ImportInOut(range);
 	}
 
 	private void ImportType(Range<Position> range)
@@ -40,67 +39,63 @@ internal class Evaluator
 	private void ImportNumber(Range<Position> range)
 	{
 		Structure typeNumber = Module.RegisterType("Number", typeof(double), range);
-
-		typeNumber.RegisterOperation("+", Plus, range);
-
-		typeNumber.RegisterOperation("-", Minus, range);
-
-		typeNumber.RegisterOperation("*", Multiplication, range);
-
-		typeNumber.RegisterOperation("/", Division, range);
+		typeNumber.RegisterOperation("+", NumberPlus, range);
+		typeNumber.RegisterOperation("-", NumberMinus, range);
+		typeNumber.RegisterOperation("*", NumberMultiplication, range);
+		typeNumber.RegisterOperation("/", NumberDivision, range);
 	}
 
-	private ValueNode Plus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode NumberPlus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
 		ValueNode nodeLeft = enumerator.Current.Accept(Valuator);
 		if (nodeLeft.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}'");
-		if (!enumerator.MoveNext()) return UnaryPlus(nodeLeft, range);
+		if (!enumerator.MoveNext()) return NumberUnaryPlus(nodeLeft, range);
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
 		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
-		return BinaryPlus(nodeLeft, nodeRight, range);
+		return NumberBinaryPlus(nodeLeft, nodeRight, range);
 	}
 
-	private ValueNode BinaryPlus(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
+	private static ValueNode NumberBinaryPlus(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
 	{
 		double left = nodeLeft.ValueAs<double>();
 		double right = nodeRight.ValueAs<double>();
 		return new ValueNode("Number", left + right, range);
 	}
 
-	private ValueNode UnaryPlus(ValueNode nodeTarget, Range<Position> range)
+	private static ValueNode NumberUnaryPlus(ValueNode nodeTarget, Range<Position> range)
 	{
 		double target = nodeTarget.ValueAs<double>();
 		return new ValueNode("Number", +target, range);
 	}
 
-	private ValueNode Minus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode NumberMinus(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
 		ValueNode nodeLeft = enumerator.Current.Accept(Valuator);
 		if (nodeLeft.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}'");
-		if (!enumerator.MoveNext()) return UnaryMinus(nodeLeft, range);
+		if (!enumerator.MoveNext()) return NumberUnaryMinus(nodeLeft, range);
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
 		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
-		return BinaryMinus(nodeLeft, nodeRight, range);
+		return NumberBinaryMinus(nodeLeft, nodeRight, range);
 	}
 
-	private ValueNode BinaryMinus(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
+	private static ValueNode NumberBinaryMinus(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
 	{
 		double left = nodeLeft.ValueAs<double>();
 		double right = nodeRight.ValueAs<double>();
 		return new ValueNode("Number", left - right, range);
 	}
 
-	private ValueNode UnaryMinus(ValueNode nodeTarget, Range<Position> range)
+	private static ValueNode NumberUnaryMinus(ValueNode nodeTarget, Range<Position> range)
 	{
 		double target = nodeTarget.ValueAs<double>();
 		return new ValueNode("Number", -target, range);
 	}
 
-	private ValueNode Multiplication(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode NumberMultiplication(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
@@ -109,17 +104,17 @@ internal class Evaluator
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 1 arguments");
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
 		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
-		return BinaryMultiplication(nodeLeft, nodeRight, range);
+		return NumberBinaryMultiplication(nodeLeft, nodeRight, range);
 	}
 
-	private ValueNode BinaryMultiplication(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
+	private static ValueNode NumberBinaryMultiplication(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
 	{
 		double left = nodeLeft.ValueAs<double>();
 		double right = nodeRight.ValueAs<double>();
 		return new ValueNode("Number", left * right, range);
 	}
 
-	private ValueNode Division(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
+	private ValueNode NumberDivision(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)
 	{
 		IEnumerator<Node> enumerator = arguments.GetEnumerator();
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 0 arguments");
@@ -128,10 +123,10 @@ internal class Evaluator
 		if (!enumerator.MoveNext()) throw new ArgumentException($"No overload for '{nodeOperand.Name}' that takes 1 arguments");
 		ValueNode nodeRight = enumerator.Current.Accept(Valuator);
 		if (nodeRight.Tag != "Number") throw new Exception($"Cannot apply '{nodeOperand.Name}' to types '{nodeLeft.Tag}' and '{nodeRight.Tag}'");
-		return BinaryDivision(nodeLeft, nodeRight, range);
+		return NumberBinaryDivision(nodeLeft, nodeRight, range);
 	}
 
-	private ValueNode BinaryDivision(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
+	private static ValueNode NumberBinaryDivision(ValueNode nodeLeft, ValueNode nodeRight, Range<Position> range)
 	{
 		double left = nodeLeft.ValueAs<double>();
 		double right = nodeRight.ValueAs<double>();
@@ -151,8 +146,12 @@ internal class Evaluator
 	private void ImportMath(Range<Position> range)
 	{
 		Module.RegisterConstant("Number", "pi", PI, range);
-
 		Module.RegisterConstant("Number", "e", E, range);
+	}
+
+	private void ImportInOut(Range<Position> range)
+	{
+		Module.RegisterOperation("write", Write, range);
 	}
 
 	private ValueNode Write(IdentifierNode nodeOperand, IEnumerable<Node> arguments, Range<Position> range)

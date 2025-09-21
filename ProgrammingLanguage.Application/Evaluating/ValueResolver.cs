@@ -22,7 +22,7 @@ internal class ValueResolver(Module module) : IResolverVisitor<ValueNode>
 	{
 		IdentifierNode nodeIdentifier = node.Identifier;
 		ValueNode nodeValue = node.Value.Accept(this);
-		module.RegisterVariable(nodeValue.Tag, nodeIdentifier.Name, nodeValue.Value, ~node.RangePosition.Begin);
+		module.RegisterVariable(nodeValue.Tag, nodeIdentifier.Name, nodeValue.Value, nodeIdentifier.RangePosition);
 		return ValueNode.NullableAt("Number", node.RangePosition);
 	}
 
@@ -30,7 +30,7 @@ internal class ValueResolver(Module module) : IResolverVisitor<ValueNode>
 	{
 		IdentifierNode nodeIdentifier = node.Identifier;
 		ValueNode nodeValue = node.Value.Accept(this);
-		module.WriteDatum(nodeIdentifier.Name, nodeValue.Value, nodeIdentifier.RangePosition);
+		module.WriteDatum(nodeIdentifier.Name, nodeValue.Tag, nodeValue.Value, nodeIdentifier.RangePosition);
 		return ValueNode.NullableAt("Number", node.RangePosition);
 	}
 
