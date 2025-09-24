@@ -2,6 +2,8 @@
 
 Custom simplified programming language model.
 
+[Change log](./CHANGELOG.md), [Grammar](./Grammar.ebnf)
+
 #### Variables
 ```
 datum var1;
@@ -13,7 +15,7 @@ datum var4: "string value";
 #### Simple math
 ```
 datum celsius: 36.6;
-datum fahrenheit: (celsius * 1.8) + 32;
+datum fahrenheit: celsius * 1.8 + 32;
 write(fahrenheit);
 ```
 
@@ -25,5 +27,3 @@ write(Number);
 write(Boolean);
 write(String);
 ```
-
-[Change log](./CHANGELOG.md), [Grammar](./Grammar.ebnf)
