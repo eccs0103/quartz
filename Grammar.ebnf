@@ -7,7 +7,7 @@ statement
 	| expression;
 
 declaration
-	= "datum", identifier, [ ":", expression ];
+	= identifier, identifier, [ ":", expression ];
 
 assignment
 	= identifier, ":", expression;

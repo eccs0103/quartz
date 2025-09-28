@@ -7,7 +7,7 @@
 			"request": "launch",
 			"preLaunchTask": "build",
 			"program": "${workspaceFolder}/ProgrammingLanguage.Presentation/bin/Debug/net8.0/ProgrammingLanguage.Presentation.dll",
-			"args": [ "Code.txt" ],
+			"args": [ "Code.apl" ],
 			"cwd": "${workspaceFolder}",
 			"console": "externalTerminal"
 		}

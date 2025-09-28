@@ -1,4 +1,5 @@
 using ProgrammingLanguage.Application.Abstractions;
+using ProgrammingLanguage.Application.Exceptions;
 using ProgrammingLanguage.Application.Parsing;
 
 namespace ProgrammingLanguage.Application.Evaluating;
@@ -20,9 +21,11 @@ internal class ValueResolver(Module module) : IResolverVisitor<ValueNode>
 
 	public ValueNode Visit(DeclarationNode node)
 	{
+		IdentifierNode nodeType = node.Type;
 		IdentifierNode nodeIdentifier = node.Identifier;
 		ValueNode nodeValue = node.Value.Accept(this);
-		module.RegisterVariable(nodeValue.Tag, nodeIdentifier.Name, nodeValue.Value, nodeIdentifier.RangePosition);
+		if (nodeType.Name != nodeValue.Tag) throw new TypeMismatchIssue(nodeValue.Tag, nodeType.Name, nodeValue.RangePosition);
+		module.RegisterVariable(nodeType.Name, nodeIdentifier.Name, nodeValue.Value, nodeIdentifier.RangePosition);
 		return ValueNode.NullableAt("Number", node.RangePosition);
 	}
 
