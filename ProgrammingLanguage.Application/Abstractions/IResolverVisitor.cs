@@ -11,4 +11,6 @@ internal interface IResolverVisitor<out T>
 	public T Visit(InvokationNode node);
 	public T Visit(UnaryOperatorNode node);
 	public T Visit(BinaryOperatorNode node);
+	public T Visit(BlockNode node);
+	public T Visit(IfStatementNode node);
 }

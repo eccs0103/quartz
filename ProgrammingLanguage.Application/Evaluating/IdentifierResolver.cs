@@ -41,4 +41,14 @@ internal class IdentifierResolver(Module module) : IResolverVisitor<IdentifierNo
 	{
 		throw new NotImplementedException();
 	}
+
+	public IdentifierNode Visit(BlockNode node)
+	{
+		throw new NotImplementedException();
+	}
+
+	public IdentifierNode Visit(IfStatementNode node)
+	{
+		throw new NotImplementedException();
+	}
 }

@@ -13,6 +13,11 @@ internal class ValueNode(string tag, object? value, Range<Position> range) : Nod
 		return $"{Value ?? "null"}";
 	}
 
+	public static ValueNode NullAt(Range<Position> range)
+	{
+		return new ValueNode("Null", null, range);
+	}
+
 	public static ValueNode NullableAt(string tag, Range<Position> range)
 	{
 		return new ValueNode(tag, null, range);

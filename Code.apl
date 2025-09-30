@@ -1,16 +1,26 @@
-variable1 Number: 10;
-variable2 Number: 20;
+arg1 Number(10);
+arg2 Number(20);
+max Number;
+indication Number;
 
-if (variable1 > variable2) {
-	write(variable1);
-} else { 
-	write(variable2);
-}
+min Number(arg1);
+if (arg2 < arg1) {
+	min: arg2;
+};
+write(min);
 
-if (variable1 > variable2) {
-	write(variable1);
-} else if (variable1 = variable2) {
-	write(variable1, variable2);
+if (arg1 > arg2) {
+	max: arg1;
+} else { 
+	max: arg2;
+};
+write(max);
+
+if (arg1 > arg2) {
+	indication: -1;
+} else if (arg1 = arg2) {
+	indication: 0;
 } else {
-	write(variable2);
-}
+	indication: 1;
+};
+write(indication);

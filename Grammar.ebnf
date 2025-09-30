@@ -4,7 +4,15 @@ program
 statement
 	= declaration
 	| assignment
-	| expression;
+	| expression
+	| if_statement;
+
+if_statement
+	= "if", "(", expression, ")", block, [ "else", ( if_statement
+	| block ) ];
+
+block
+	= "{", { statement, ";" }, "}";
 
 declaration
 	= identifier, identifier, [ invocation ];
@@ -13,7 +21,14 @@ assignment
 	= identifier, ":", expression;
 
 expression
-	= additive;
+	= comparison;
+
+comparison
+	= additive, { ( "<"
+	| ">"
+	| "<="
+	| ">="
+	| "=" ), additive };
 
 additive
 	= multiplicative, { ( "+"
@@ -31,7 +46,6 @@ primary
 	= number
 	| boolean
 	| string
-	| "null"
 	| identifier, [ invocation ]
 	| "(", expression, ")";
 

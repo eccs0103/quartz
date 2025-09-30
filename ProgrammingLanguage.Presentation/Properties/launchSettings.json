@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ProgrammingLanguage.Presentation": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Applications\\Projects\\Personal\\Programming language\\Code.apl\""
+    }
+  }
+}

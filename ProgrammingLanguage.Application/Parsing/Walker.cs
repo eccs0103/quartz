@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using ProgrammingLanguage.Application.Exceptions;
 using ProgrammingLanguage.Application.Lexing;
 using ProgrammingLanguage.Shared.Helpers;
@@ -25,7 +26,17 @@ internal class Walker(Token[] tokens, Range<uint> range)
 	{
 	}
 
-	public bool GetToken([NotNullWhen(true)] out Token? token)
+	public override string ToString()
+	{
+		StringBuilder builder = new();
+		for (uint index = RangeIndex.Begin; index < RangeIndex.End; index++)
+		{
+			builder.Append(Tokens[index].Value);
+		}
+		return builder.ToString();
+	}
+
+	public bool Peek([NotNullWhen(true)] out Token? token)
 	{
 		if (!InRange)
 		{
@@ -36,9 +47,18 @@ internal class Walker(Token[] tokens, Range<uint> range)
 		return true;
 	}
 
+	public bool Peek([NotNullWhen(true)] out Token? token, int offset)
+	{
+		uint current = Index;
+		Index = (uint) (Index + offset);
+		bool result = Peek(out token);
+		Index = current;
+		return result;
+	}
+
 	public Walker GetSubwalker(in uint begin, in uint end)
 	{
-		return new(Tokens, new(begin, end))
+		return new Walker(Tokens, new(begin, end))
 		{
 			IndexWrapper = IndexWrapper
 		};
@@ -50,7 +70,7 @@ internal class Walker(Token[] tokens, Range<uint> range)
 		uint begin = Index + 1;
 		for (Index++; Index < RangeIndex.End; Index++)
 		{
-			if (!GetToken(out Token? token)) continue;
+			if (!Peek(out Token? token)) continue;
 			if (token.Represents(Types.Bracket, bracket)) counter++;
 			else if (token.Represents(Types.Bracket, pair)) counter--;
 			if (counter != 0) continue;

@@ -65,4 +65,14 @@ internal class ValueResolver(Module module) : IResolverVisitor<ValueNode>
 		Node result = operation.Invoke(nodeOperator, [nodeLeft, nodeRight], nodeLeft.RangePosition >> nodeRight.RangePosition);
 		return result.Accept(this);
 	}
+
+	public ValueNode Visit(BlockNode node)
+	{
+		throw new NotImplementedException();
+	}
+
+	public ValueNode Visit(IfStatementNode node)
+	{
+		throw new NotImplementedException();
+	}
 }

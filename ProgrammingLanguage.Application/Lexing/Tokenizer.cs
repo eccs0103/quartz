@@ -19,7 +19,7 @@ internal partial class Tokenizer
 		{ BracketsPattern(), Types.Bracket },
 		{ SeparatorPattern(), Types.Separator },
 	};
-	private static readonly HashSet<string> Keywords = ["true", "false"];
+	private static readonly HashSet<string> Keywords = ["true", "false", "if", "else"];
 
 	private static void FixKeyword(ref Types type, string value)
 	{
@@ -33,16 +33,16 @@ internal partial class Tokenizer
 	[GeneratedRegex(@"^\d+(\.\d+)?", RegexOptions.Compiled)]
 	private static partial Regex NumberPattern();
 
-	[GeneratedRegex(@"^""(.)*?(?<!\\)""", RegexOptions.Compiled)]
+	[GeneratedRegex(@"^""([^""\\]|\\.)*""", RegexOptions.Compiled)]
 	private static partial Regex StringPattern();
 
-	[GeneratedRegex(@"^(\+|-|\*|/|:)", RegexOptions.Compiled)]
+	[GeneratedRegex(@"^(<=|>=|<|>|=|\+|-|\*|/|:)", RegexOptions.Compiled)]
 	private static partial Regex OperatorPattern();
 
 	[GeneratedRegex(@"^[A-z]\w*", RegexOptions.Compiled)]
 	private static partial Regex IdentifierPattern();
 
-	[GeneratedRegex(@"^[()]", RegexOptions.Compiled)]
+	[GeneratedRegex(@"^[(){}]", RegexOptions.Compiled)]
 	private static partial Regex BracketsPattern();
 
 	[GeneratedRegex(@"^[;,]", RegexOptions.Compiled)]
