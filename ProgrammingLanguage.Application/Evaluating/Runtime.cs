@@ -6,19 +6,20 @@ namespace ProgrammingLanguage.Application.Evaluating;
 
 internal class Runtime
 {
-	private readonly Module Module = new();
+	private readonly Module Module = new("@System");
 	private readonly Structure Global;
 
 	public Runtime()
 	{
 		Global = Module.RegisterType("@Global", typeof(Type), ~Position.Zero);
+
 		ImportCore(~Position.Zero);
 	}
 
 	public void Evaluate(IEnumerable<Node> trees)
 	{
-		Evaluator executor = new(Module);
-		foreach (Node tree in trees) tree.Accept(executor);
+		Evaluator evaluator = new(Module);
+		foreach (Node tree in trees) tree.Accept(evaluator);
 	}
 
 	private void ImportCore(Range<Position> range)
@@ -37,19 +38,19 @@ internal class Runtime
 	{
 		Structure typeNumber = Module.RegisterType("Number", typeof(double), range);
 
-		typeNumber.RegisterOperation("+", [new("left", "Number"), new("right", "Number")], "Number", NumberPlus, range);
-		typeNumber.RegisterOperation("-", [new("left", "Number"), new("right", "Number")], "Number", NumberMinus, range);
-		typeNumber.RegisterOperation("*", [new("left", "Number"), new("right", "Number")], "Number", NumberMultiplication, range);
-		typeNumber.RegisterOperation("/", [new("left", "Number"), new("right", "Number")], "Number", NumberDivision, range);
+		typeNumber.RegisterOperation("+", ["Number", "Number"], "Number", NumberBinaryPlus, range);
+		typeNumber.RegisterOperation("-", ["Number", "Number"], "Number", NumberBinaryMinus, range);
+		typeNumber.RegisterOperation("*", ["Number", "Number"], "Number", NumberMultiplication, range);
+		typeNumber.RegisterOperation("/", ["Number", "Number"], "Number", NumberDivision, range);
 
-		typeNumber.RegisterOperation("+", [new("target", "Number")], "Number", NumberUnaryPlus, range);
-		typeNumber.RegisterOperation("-", [new("target", "Number")], "Number", NumberUnaryMinus, range);
+		typeNumber.RegisterOperation("+", ["Number"], "Number", NumberUnaryPlus, range);
+		typeNumber.RegisterOperation("-", ["Number"], "Number", NumberUnaryMinus, range);
 
-		typeNumber.RegisterOperation("=", [new("left", "Number"), new("right", "Number")], "Boolean", NumberEqual, range);
-		typeNumber.RegisterOperation("<", [new("left", "Number"), new("right", "Number")], "Boolean", NumberLess, range);
-		typeNumber.RegisterOperation("<=", [new("left", "Number"), new("right", "Number")], "Boolean", NumberLessOrEqual, range);
-		typeNumber.RegisterOperation(">", [new("left", "Number"), new("right", "Number")], "Boolean", NumberGreater, range);
-		typeNumber.RegisterOperation(">=", [new("left", "Number"), new("right", "Number")], "Boolean", NumberGreaterOrEqual, range);
+		typeNumber.RegisterOperation("=", ["Number", "Number"], "Boolean", NumberEqual, range);
+		typeNumber.RegisterOperation("<", ["Number", "Number"], "Boolean", NumberLess, range);
+		typeNumber.RegisterOperation("<=", ["Number", "Number"], "Boolean", NumberLessOrEqual, range);
+		typeNumber.RegisterOperation(">", ["Number", "Number"], "Boolean", NumberGreater, range);
+		typeNumber.RegisterOperation(">=", ["Number", "Number"], "Boolean", NumberGreaterOrEqual, range);
 	}
 
 	private void ImportBoolean(Range<Position> range)
@@ -70,83 +71,121 @@ internal class Runtime
 
 	private void ImportInOut(Range<Position> range)
 	{
-		Global.RegisterOperation("write", [new("target", "Number")], "Number", Write, range);
+		Global.RegisterOperation("write", ["Number"], "Number", Write, range);
+		Global.RegisterOperation("write", ["Boolean"], "Number", Write, range);
+		Global.RegisterOperation("write", ["String"], "Number", Write, range);
 	}
 
-	private static ValueNode NumberPlus(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberBinaryPlus(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Number", left + right, range);
 	}
 
-	private static ValueNode NumberMinus(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberBinaryMinus(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Number", left - right, range);
 	}
 
-	private static ValueNode NumberMultiplication(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberMultiplication(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Number", left * right, range);
 	}
 
-	private static ValueNode NumberDivision(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberDivision(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
-		// if (right == 0) throw new DivisionByZeroIssue(args[1].RangePosition);
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Number", left / right, range);
 	}
 
-	private static ValueNode NumberUnaryPlus(ValueNode[] args, Range<Position> range) => args[0];
-	private static ValueNode NumberUnaryMinus(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberUnaryPlus(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double target = args[0].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double target = iterator.Current.ValueAs<double>();
+		return new ValueNode("Number", target, range);
+	}
+	private static ValueNode NumberUnaryMinus(IEnumerable<ValueNode> args, Range<Position> range)
+	{
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double target = iterator.Current.ValueAs<double>();
 		return new ValueNode("Number", -target, range);
 	}
 
-	private static ValueNode NumberEqual(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberEqual(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Boolean", left == right, range);
 	}
 
-	private static ValueNode NumberLess(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberLess(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Boolean", left < right, range);
 	}
 
-	private static ValueNode NumberLessOrEqual(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberLessOrEqual(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Boolean", left <= right, range);
 	}
 
-	private static ValueNode NumberGreater(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberGreater(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Boolean", left > right, range);
 	}
 
-	private static ValueNode NumberGreaterOrEqual(ValueNode[] args, Range<Position> range)
+	private static ValueNode NumberGreaterOrEqual(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		double left = args[0].ValueAs<double>();
-		double right = args[1].ValueAs<double>();
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		double left = iterator.Current.ValueAs<double>();
+		iterator.MoveNext();
+		double right = iterator.Current.ValueAs<double>();
 		return new ValueNode("Boolean", left >= right, range);
 	}
 
-	private static ValueNode Write(ValueNode[] args, Range<Position> range)
+	private static ValueNode Write(IEnumerable<ValueNode> args, Range<Position> range)
 	{
-		Console.WriteLine(args[0].ToString());
+		using IEnumerator<ValueNode> iterator = args.GetEnumerator();
+		iterator.MoveNext();
+		Console.WriteLine(iterator.Current.ToString());
 		return ValueNode.NullableAt("Number", range);
 	}
 }

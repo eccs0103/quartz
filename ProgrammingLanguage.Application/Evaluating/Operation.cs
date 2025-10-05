@@ -5,27 +5,27 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal delegate ValueNode OperationContent(ValueNode[] arguments, Range<Position> range);
+internal delegate ValueNode OperationContent(IEnumerable<ValueNode> arguments, Range<Position> range);
 
-internal class Operation(string name, IEnumerable<Parameter> parameters, string returnTag, OperationContent function) : Property(name, "Operation", function)
+internal class Operation(string name, IEnumerable<string> parameters, string result, OperationContent function) : Property(name, "Operation", function)
 {
 	public OperationContent Content => Unsafe.As<OperationContent>(Value);
-	public readonly IEnumerable<Parameter> Parameters = parameters;
-	public readonly string ReturnTag = returnTag;
+	public readonly IEnumerable<string> Parameters = parameters;
+	public readonly string Result = result;
 
 	public ValueNode Invoke(IEnumerable<ValueNode> arguments, Range<Position> range)
 	{
 		List<ValueNode> results = [];
 		using IEnumerator<ValueNode> iterator = arguments.GetEnumerator();
-		foreach (Parameter expected in Parameters)
+		foreach (string expected in Parameters)
 		{
 			if (!iterator.MoveNext()) throw new NoOverloadIssue(Name, Convert.ToByte(results.Count), range);
 			ValueNode provided = iterator.Current;
-			if (provided.Tag != expected.Tag) throw new TypeMismatchIssue(expected.Tag, provided.Tag, provided.RangePosition);
+			if (provided.Tag != expected) throw new TypeMismatchIssue(expected, provided.Tag, provided.RangePosition);
 			results.Add(provided);
 		}
-		ValueNode result = Content.Invoke([.. results], range);
-		if (result.Tag != ReturnTag) throw new TypeMismatchIssue(result.Tag, ReturnTag, range);
+		ValueNode result = Content.Invoke(results, range);
+		if (result.Tag != Result) throw new TypeMismatchIssue(result.Tag, Result, range);
 		return result;
 	}
 }
