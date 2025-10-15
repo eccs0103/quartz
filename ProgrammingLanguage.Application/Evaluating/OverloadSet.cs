@@ -4,10 +4,10 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class OverloadSet(string name, Scope scope) : Property(name, "OverloadSet", new Dictionary<string, Operation>())
+internal class OverloadSet(string name, Scope location) : Property(name, "OverloadSet", new Dictionary<string, Operation>())
 {
 	private Dictionary<string, Operation> Operations => Unsafe.As<Dictionary<string, Operation>>(Value);
-	public readonly Scope Scope = scope;
+	private readonly Scope Scope = new(name, location);
 
 	private string Mangle(IEnumerable<string> tags)
 	{

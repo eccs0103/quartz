@@ -13,7 +13,7 @@ internal class Evaluator(Scope location) : IAstVisitor<ValueNode>
 
 	public ValueNode Visit(IdentifierNode node)
 	{
-		Property datum = location.Resolve(node.Name, node.RangePosition);
+		Property datum = location.Read(node.Name, node.RangePosition);
 		return new ValueNode(datum.Tag, datum.Value, node.RangePosition);
 	}
 
@@ -40,7 +40,7 @@ internal class Evaluator(Scope location) : IAstVisitor<ValueNode>
 	{
 		IdentifierNode nodeTarget = node.Target;
 		IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => argument.Accept(this));
-		Property property = location.Resolve(nodeTarget.Name, nodeTarget.RangePosition);
+		Property property = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
 		if (property is not OverloadSet set) throw new NotExistIssue($"'{nodeTarget.Name}' is not a function in {location}", nodeTarget.RangePosition);
 		Operation operation = set.ReadOperation(arguments.Select(result => result.Tag), nodeTarget.RangePosition);
 		return operation.Invoke(arguments, node.RangePosition);
@@ -50,7 +50,7 @@ internal class Evaluator(Scope location) : IAstVisitor<ValueNode>
 	{
 		IdentifierNode nodeOperator = node.Operator;
 		ValueNode nodeTarget = node.Target.Accept(this);
-		Property property = location.Resolve(nodeTarget.Tag, nodeTarget.RangePosition);
+		Property property = location.Read(nodeTarget.Tag, nodeTarget.RangePosition);
 		if (property is not Structure type) throw new NotExistIssue($"Type '{nodeTarget.Tag}' not found in {location}", nodeTarget.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeTarget.Tag], nodeOperator.RangePosition);
 		return operation.Invoke([nodeTarget], node.RangePosition);
@@ -61,7 +61,7 @@ internal class Evaluator(Scope location) : IAstVisitor<ValueNode>
 		IdentifierNode nodeOperator = node.Operator;
 		ValueNode nodeLeft = node.Left.Accept(this);
 		ValueNode nodeRight = node.Right.Accept(this);
-		Property property = location.Resolve(nodeLeft.Tag, nodeLeft.RangePosition);
+		Property property = location.Read(nodeLeft.Tag, nodeLeft.RangePosition);
 		if (property is not Structure type) throw new NotExistIssue($"Type '{nodeLeft.Tag}' not found in {location}", nodeLeft.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeLeft.Tag, nodeRight.Tag], nodeOperator.RangePosition);
 		return operation.Invoke([nodeLeft, nodeRight], node.RangePosition);

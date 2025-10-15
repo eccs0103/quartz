@@ -5,7 +5,7 @@ namespace ProgrammingLanguage.Application.Evaluating;
 
 internal class Module(string name)
 {
-	public readonly Scope Scope = new(name);
+	private readonly Scope Scope = new(name);
 
 	public Structure RegisterType(string name, Type equivalent, Range<Position> range)
 	{
@@ -16,7 +16,7 @@ internal class Module(string name)
 
 	public Structure ReadType(string name, Range<Position> range)
 	{
-		Property property = Scope.Resolve(name, range);
+		Property property = Scope.Read(name, range);
 		if (property is not Structure type) throw new NotExistIssue($"Identifier '{name}' in {Scope}", range);
 		return type;
 	}

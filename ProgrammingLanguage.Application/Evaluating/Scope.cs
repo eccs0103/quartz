@@ -5,32 +5,17 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class Scope
+internal class Scope(string name, Scope? parent = null)
 {
 	private readonly Dictionary<string, Property> Properties = [];
-	public readonly string Name;
-	public readonly Scope? Parent;
-	private readonly string Path;
+	public readonly string Name = name;
+	private readonly Scope? Parent = parent;
+	private readonly string Path = DeterminePath(parent, name);
 
-	public Scope(string name, Scope? parent = null)
+	private static string DeterminePath(Scope? parent, string name)
 	{
-		Name = name;
-		Parent = parent;
-		Path = DeterminePath(this);
-	}
-
-	private static string DeterminePath(Scope scope)
-	{
-		StringBuilder builder = new();
-		Scope? current = scope;
-		while (true)
-		{
-			builder.Insert(0, current.Name);
-			current = current.Parent;
-			if (current == null) break;
-			builder.Insert(0, ".");
-		}
-		return builder.ToString();
+		if (parent == null) return name;
+		return $"{parent.Path}.{name}";
 	}
 
 	public override string ToString()
@@ -44,7 +29,7 @@ internal class Scope
 		return property;
 	}
 
-	public bool TryResolve(string name, [NotNullWhen(true)] out Property? property)
+	public bool TryRead(string name, [NotNullWhen(true)] out Property? property)
 	{
 		Scope? current = this;
 		while (current != null)
@@ -56,15 +41,15 @@ internal class Scope
 		return false;
 	}
 
-	public Property Resolve(string name, Range<Position> range)
+	public Property Read(string name, Range<Position> range)
 	{
-		if (!TryResolve(name, out Property? property)) throw new NotExistIssue($"Identifier '{name}' in {this}", range);
+		if (!TryRead(name, out Property? property)) throw new NotExistIssue($"Identifier '{name}' in {this}", range);
 		return property;
 	}
 
 	public void Write(string name, string tag, object value, Range<Position> range)
 	{
-		Property property = Resolve(name, range);
+		Property property = Read(name, range);
 		if (!property.Mutable) throw new NotMutableIssue($"Identifier '{name}' in {this}", range);
 		if (property.Tag != tag) throw new TypeMismatchIssue(tag, property.Tag, range);
 		property.Value = value;

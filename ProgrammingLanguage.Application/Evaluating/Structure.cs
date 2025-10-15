@@ -7,7 +7,7 @@ namespace ProgrammingLanguage.Application.Evaluating;
 internal class Structure(string name, Type equivalent, Scope location) : Property(name, "Type", equivalent)
 {
 	public Type Equivalent => Unsafe.As<Type>(Value);
-	public readonly Scope Scope = new(name, location);
+	private readonly Scope Scope = new(name, location);
 
 	public Property RegisterConstant(string name, string tag, object value, Range<Position> range)
 	{
@@ -23,17 +23,17 @@ internal class Structure(string name, Type equivalent, Scope location) : Propert
 
 	public Property ReadProperty(string name, Range<Position> range)
 	{
-		return Scope.Resolve(name, range);
+		return Scope.Read(name, range);
 	}
 
-	public void WriteProperty(string name, string tag, object value, Range<Position> range)
+	public void WriteVariable(string name, string tag, object value, Range<Position> range)
 	{
 		Scope.Write(name, tag, value, range);
 	}
 
 	public Operation RegisterOperation(string name, IEnumerable<string> parameters, string result, OperationContent function, Range<Position> range)
 	{
-		if (!Scope.TryResolve(name, out Property? property))
+		if (!Scope.TryRead(name, out Property? property))
 		{
 			property = new OverloadSet(name, Scope);
 			Scope.Register(name, property, range);
@@ -44,7 +44,7 @@ internal class Structure(string name, Type equivalent, Scope location) : Propert
 
 	public Operation ReadOperation(string name, IEnumerable<string> parameters, Range<Position> range)
 	{
-		Property property = Scope.Resolve(name, range);
+		Property property = Scope.Read(name, range);
 		if (property is not OverloadSet set) throw new NotExistIssue($"Overload set '{name}' in {Scope}", range);
 		return set.ReadOperation(parameters, range);
 	}
