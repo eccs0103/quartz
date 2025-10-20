@@ -4,13 +4,13 @@ namespace ProgrammingLanguage.Application.Evaluating;
 
 internal interface IAstVisitor<out TReturn>
 {
-	public TReturn Visit(ValueNode node);
-	public TReturn Visit(IdentifierNode node);
-	public TReturn Visit(DeclarationNode node);
-	public TReturn Visit(AssignmentNode node);
-	public TReturn Visit(InvokationNode node);
-	public TReturn Visit(UnaryOperatorNode node);
-	public TReturn Visit(BinaryOperatorNode node);
-	public TReturn Visit(BlockNode node);
-	public TReturn Visit(IfStatementNode node);
+	public TReturn Visit(Scope location, ValueNode node);
+	public TReturn Visit(Scope location, IdentifierNode node);
+	public TReturn Visit(Scope location, DeclarationNode node);
+	public TReturn Visit(Scope location, AssignmentNode nod);
+	public TReturn Visit(Scope location, InvokationNode node);
+	public TReturn Visit(Scope location, UnaryOperatorNode node);
+	public TReturn Visit(Scope location, BinaryOperatorNode node);
+	public TReturn Visit(Scope location, BlockNode node);
+	public TReturn Visit(Scope location, IfStatementNode node);
 }

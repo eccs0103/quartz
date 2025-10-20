@@ -16,8 +16,9 @@ internal class Runtime
 	public void Evaluate(IEnumerable<Node> trees)
 	{
 		Structure global = Module.ReadType("@Global", ~Position.Zero);
-		Evaluator evaluator = new(global.Scope);
-		foreach (Node tree in trees) tree.Accept(evaluator);
+		Scope scope = new(global.Name);
+		Evaluator evaluator = new();
+		foreach (Node tree in trees) tree.Accept(evaluator, scope);
 	}
 
 	private static void ImportCore(Module module, Range<Position> range)
