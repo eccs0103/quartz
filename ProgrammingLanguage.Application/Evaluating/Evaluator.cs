@@ -10,13 +10,11 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		return node;
 	}
 
-	// Check
 	public ValueNode Visit(Scope location, IdentifierNode node)
 	{
 		Symbol symbol = location.Read(node.Name, node.RangePosition);
 		if (symbol is Datum datum) return new ValueNode(datum.Tag, datum.Value, node.RangePosition);
-		if (symbol is Class @class) return new ValueNode("Type", @class.Scope, node.RangePosition);
-		throw new NotExistIssue($"Identifier '{node.Name}' does not resolve to a value or type in {location}", node.RangePosition);
+		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
 	public ValueNode Visit(Scope location, DeclarationNode node)
@@ -73,7 +71,7 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 
 	public ValueNode Visit(Scope location, BlockNode node)
 	{
-		Scope scope = new("Block", location);
+		Scope scope = location.GetSubscope("Block");
 		foreach (Node statement in node.Statements) statement.Accept(this, scope);
 		return ValueNode.NullableAt("Number", node.RangePosition);
 	}

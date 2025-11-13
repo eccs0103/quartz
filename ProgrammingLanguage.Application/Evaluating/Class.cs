@@ -3,11 +3,8 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class Class(string name, Type equivalent, Scope location) : Symbol(name)
+internal class Class(string name, Scope location) : Symbol(name)
 {
-	public Scope Scope { get; } = location;
-	public Type Equivalent { get; } = equivalent;
-
 	public Datum RegisterConstant(string name, string tag, object value, Range<Position> range)
 	{
 		Datum constant = new(name, tag, value, false);
@@ -36,8 +33,8 @@ internal class Class(string name, Type equivalent, Scope location) : Symbol(name
 
 	public Operator RegisterOperator(string name, Range<Position> range)
 	{
-		Scope scope = new(name, location);
-		Operator @operator = new Operator(name, scope);
+		Scope scope = location.GetSubscope(name);
+		Operator @operator = new(name, scope);
 		location.Register(name, @operator, range);
 		return @operator;
 	}

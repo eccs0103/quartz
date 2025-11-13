@@ -4,12 +4,26 @@ using ProgrammingLanguage.Shared.Helpers;
 
 namespace ProgrammingLanguage.Application.Evaluating;
 
-internal class Scope(string name, Scope? parent = null)
+internal class Scope
 {
 	private readonly Dictionary<string, Symbol> Symbols = [];
-	public readonly string Name = name;
-	private readonly Scope? Parent = parent;
-	private readonly string Path = DeterminePath(parent, name);
+	public readonly string Name;
+	private readonly Scope? Parent;
+	private readonly string Path;
+
+	private Scope(string name, Scope? parent)
+	{
+		Name = name;
+		Parent = parent;
+		Path = DeterminePath(parent, name);
+	}
+	public Scope(string name) : this(name, null)
+	{
+	}
+	public Scope GetSubscope(string name)
+	{
+		return new Scope(name, this);
+	}
 
 	private static string DeterminePath(Scope? parent, string name)
 	{
