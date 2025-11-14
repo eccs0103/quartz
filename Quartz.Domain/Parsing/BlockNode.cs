@@ -5,7 +5,7 @@ namespace Quartz.Domain.Parsing;
 
 public class BlockNode(IEnumerable<Node> statements, Range<Position> range) : Node(range)
 {
-	public readonly IEnumerable<Node> Statements = statements;
+	public IEnumerable<Node> Statements { get; } = statements;
 
 	public override string ToString()
 	{

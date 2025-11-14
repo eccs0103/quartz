@@ -5,7 +5,7 @@ namespace Quartz.Domain.Parsing;
 
 public class UnaryOperatorNode(IdentifierNode @operator, Node target, Range<Position> range) : OperatorNode(@operator, range)
 {
-	public readonly Node Target = target;
+	public Node Target { get; } = target;
 
 	public override string ToString()
 	{

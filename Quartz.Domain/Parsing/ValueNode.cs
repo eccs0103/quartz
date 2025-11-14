@@ -5,8 +5,8 @@ namespace Quartz.Domain.Parsing;
 
 public class ValueNode(string tag, object? value, Range<Position> range) : Node(range)
 {
-	public readonly string Tag = tag;
-	public readonly object? Value = value;
+	public string Tag { get; } = tag;
+	public object? Value { get; } = value;
 
 	public override string ToString()
 	{

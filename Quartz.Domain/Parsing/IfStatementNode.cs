@@ -6,9 +6,9 @@ namespace Quartz.Domain.Parsing;
 
 public class IfStatementNode(Node condition, BlockNode then, Node? @else, Range<Position> range) : Node(range)
 {
-	public readonly Node Condition = condition;
-	public readonly BlockNode Then = then;
-	public readonly Node? Else = @else;
+	public Node Condition { get; } = condition;
+	public BlockNode Then { get; } = then;
+	public Node? Else { get; } = @else;
 
 	public override string ToString()
 	{

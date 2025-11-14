@@ -5,8 +5,8 @@ namespace Quartz.Domain.Parsing;
 
 public class BinaryOperatorNode(IdentifierNode @operator, Node left, Node right, Range<Position> range) : OperatorNode(@operator, range)
 {
-	public readonly Node Left = left;
-	public readonly Node Right = right;
+	public Node Left { get; } = left;
+	public Node Right { get; } = right;
 
 	public override string ToString()
 	{

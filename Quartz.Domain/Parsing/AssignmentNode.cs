@@ -5,8 +5,8 @@ namespace Quartz.Domain.Parsing;
 
 public class AssignmentNode(IdentifierNode identifier, Node value, Range<Position> range) : Node(range)
 {
-	public readonly IdentifierNode Identifier = identifier;
-	public readonly Node Value = value;
+	public IdentifierNode Identifier { get; } = identifier;
+	public Node Value { get; } = value;
 
 	public override string ToString()
 	{

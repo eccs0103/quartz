@@ -2,10 +2,10 @@
 
 public class Position(in uint column, in uint line)
 {
-	public static readonly Position Zero = new(0, 0);
+	public static Position Zero { get; } = new(0, 0);
 
-	public readonly uint Column = column;
-	public readonly uint Line = line;
+	public uint Column { get; } = column;
+	public uint Line { get; } = line;
 
 	public override string ToString()
 	{

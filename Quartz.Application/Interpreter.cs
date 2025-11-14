@@ -13,11 +13,11 @@ public class Interpreter(Interpreter.Options options)
 		public bool LogParsing { get; set; } = false;
 	}
 
-	private static readonly Tokenizer Tokenizer = new();
-	private static readonly Parser Parser = new();
-	private static readonly Runtime Runtime = new();
-	private readonly bool LogLexing = options.LogLexing;
-	private readonly bool LogParsing = options.LogParsing;
+	private static Tokenizer Tokenizer { get; } = new();
+	private static Parser Parser { get; } = new();
+	private static Runtime Runtime { get; } = new();
+	private bool LogLexing { get; } = options.LogLexing;
+	private bool LogParsing { get; } = options.LogParsing;
 
 	public Interpreter() : this(new Options())
 	{

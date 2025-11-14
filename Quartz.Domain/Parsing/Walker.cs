@@ -10,8 +10,8 @@ namespace Quartz.Domain.Parsing;
 
 internal class Walker(Token[] tokens, Range<uint> range)
 {
-	private readonly Token[] Tokens = tokens;
-	public readonly Range<uint> RangeIndex = range;
+	private Token[] Tokens { get; } = tokens;
+	public Range<uint> RangeIndex { get; } = range;
 	private Wrapper<uint> IndexWrapper = new(0);
 
 	public uint Index
@@ -20,7 +20,7 @@ internal class Walker(Token[] tokens, Range<uint> range)
 		set => IndexWrapper.Value = value;
 	}
 	public bool InRange => Max(RangeIndex.Begin, 0) <= Index && Index < Min(Tokens.Length, RangeIndex.End);
-	public readonly Range<Position> RangePosition = (tokens.FirstOrDefault()?.RangePosition.Begin ?? Position.Zero) >> (tokens.LastOrDefault()?.RangePosition.End ?? Position.Zero);
+	public Range<Position> RangePosition { get; } = (tokens.FirstOrDefault()?.RangePosition.Begin ?? Position.Zero) >> (tokens.LastOrDefault()?.RangePosition.End ?? Position.Zero);
 
 	public Walker(Token[] tokens) : this(tokens, new(0, Convert.ToUInt32(tokens.Length)))
 	{

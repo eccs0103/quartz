@@ -6,10 +6,10 @@ namespace Quartz.Domain.Evaluating;
 
 public class Scope
 {
-	private readonly Dictionary<string, Symbol> Symbols = [];
-	public readonly string Name;
-	private readonly Scope? Parent;
-	private readonly string Path;
+	private Dictionary<string, Symbol> Symbols { get; } = [];
+	public string Name { get; }
+	private Scope? Parent { get; }
+	private string Path { get; }
 
 	private Scope(string name, Scope? parent)
 	{

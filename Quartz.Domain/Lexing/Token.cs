@@ -15,9 +15,9 @@ public class Token(Token.Types type, string value, Range<Position> range)
 		Separator,
 	}
 
-	public readonly Types Type = type;
-	public readonly string Value = value;
-	public readonly Range<Position> RangePosition = range;
+	public Types Type { get; } = type;
+	public string Value { get; } = value;
+	public Range<Position> RangePosition { get; } = range;
 
 	public override string ToString()
 	{

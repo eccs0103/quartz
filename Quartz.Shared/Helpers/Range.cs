@@ -2,8 +2,8 @@
 
 public class Range<T>(in T begin, in T end)
 {
-	public readonly T Begin = begin;
-	public readonly T End = end;
+	public T Begin { get; } = begin;
+	public T End { get; } = end;
 
 	public Range(Range<T> range) : this(range.Begin, range.End)
 	{

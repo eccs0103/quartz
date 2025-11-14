@@ -4,5 +4,5 @@ namespace Quartz.Domain.Parsing;
 
 public abstract class OperatorNode(IdentifierNode @operator, Range<Position> range) : Node(range)
 {
-	public readonly IdentifierNode Operator = @operator;
+	public IdentifierNode Operator { get; } = @operator;
 }

@@ -8,7 +8,7 @@ namespace Quartz.Domain.Parsing;
 
 public class Parser
 {
-	private static readonly Dictionary<string, string> Brackets = new()
+	private static Dictionary<string, string> Brackets { get; } = new()
 	{
 		{ "(", ")" },
 		{ "{", "}" },
@@ -17,7 +17,7 @@ public class Parser
 	public List<Node> Parse(Token[] tokens)
 	{
 		Walker walker = new(tokens);
-		return [..StatementsParse(walker)];
+		return [.. StatementsParse(walker)];
 	}
 
 	private IEnumerable<Node> StatementsParse(Walker walker)
@@ -82,7 +82,7 @@ public class Parser
 		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
 		Walker subwalker = walker.GetSubwalker(open, close);
 		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(close, ~walker.RangePosition.End);
-		IEnumerable<Node> statements = [..StatementsParse(subwalker)];
+		IEnumerable<Node> statements = [.. StatementsParse(subwalker)];
 		walker.Index++;
 		return new BlockNode(statements, token1.RangePosition >> token2.RangePosition);
 	}

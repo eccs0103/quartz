@@ -5,7 +5,7 @@ namespace Quartz.Domain.Parsing;
 
 public class IdentifierNode(string name, Range<Position> range) : Node(range)
 {
-	public readonly string Name = name;
+	public string Name { get; } = name;
 
 	public override string ToString()
 	{

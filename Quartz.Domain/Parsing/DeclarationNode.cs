@@ -5,9 +5,9 @@ namespace Quartz.Domain.Parsing;
 
 public class DeclarationNode(IdentifierNode type, IdentifierNode identifier, Node value, Range<Position> range) : Node(range)
 {
-	public readonly IdentifierNode Type = type;
-	public readonly IdentifierNode Identifier = identifier;
-	public readonly Node Value = value;
+	public IdentifierNode Type { get; } = type;
+	public IdentifierNode Identifier { get; } = identifier;
+	public Node Value { get; } = value;
 
 	public override string ToString()
 	{

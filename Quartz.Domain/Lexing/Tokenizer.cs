@@ -9,7 +9,7 @@ namespace Quartz.Domain.Lexing;
 
 public partial class Tokenizer
 {
-	private static readonly Dictionary<Regex, Types?> Patterns = new()
+	private static Dictionary<Regex, Types?> Patterns { get; } = new()
 	{
 		{ StringPattern(), Types.String },
 		{ WhitespacePattern(), null },
@@ -19,7 +19,7 @@ public partial class Tokenizer
 		{ BracketsPattern(), Types.Bracket },
 		{ SeparatorPattern(), Types.Separator },
 	};
-	private static readonly HashSet<string> Keywords = ["true", "false", "if", "else"];
+	private static HashSet<string> Keywords { get; } = ["true", "false", "if", "else"];
 
 	private static void FixKeyword(ref Types type, string value)
 	{

@@ -5,8 +5,8 @@ namespace Quartz.Domain.Evaluating;
 
 public class Runtime
 {
-	private readonly RuntimeBuilder Builder = new();
-	private readonly Evaluator Evaluator = new();
+	private RuntimeBuilder Builder { get; } = new();
+	private Evaluator Evaluator { get; } = new();
 
 	public Runtime()
 	{
