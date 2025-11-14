@@ -33,7 +33,7 @@ public class Scope
 
 	public override string ToString()
 	{
-		return Path;
+		return $"<{Path}>";
 	}
 
 	public Symbol Register(string name, Symbol symbol, Range<Position> range)
@@ -58,14 +58,5 @@ public class Scope
 	{
 		if (!TryRead(name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{name}' in {this}", range);
 		return symbol;
-	}
-
-	public void Write(string name, string tag, object value, Range<Position> range)
-	{
-		Symbol symbol = Read(name, range);
-		if (symbol is not Datum datum) throw new NotMutableIssue($"Identifier '{name}' is not a variable in {this}", range);
-		if (!datum.Mutable) throw new NotMutableIssue($"Identifier '{name}' is constant in {this}", range);
-		if (datum.Tag != tag) throw new TypeMismatchIssue(tag, datum.Tag, range);
-		datum.Value = value;
 	}
 }

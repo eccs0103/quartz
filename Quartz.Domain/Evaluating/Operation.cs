@@ -9,6 +9,11 @@ internal class Operation(string name, IEnumerable<string> parameters, string res
 	public IEnumerable<string> Parameters { get; } = parameters;
 	public string Result { get; } = result;
 
+	public override void Assign(ValueNode value, Range<Position> range)
+	{
+		throw new NotMutableIssue($"Operation '{Name}'", range);
+	}
+
 	public ValueNode Invoke(IEnumerable<ValueNode> arguments, Scope scope, Range<Position> range)
 	{
 		List<ValueNode> results = [];

@@ -25,15 +25,16 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		if (nodeType.Name != nodeValue.Tag) throw new TypeMismatchIssue(nodeValue.Tag, nodeType.Name, nodeValue.RangePosition);
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue.Value!, true);
 		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);
-		return ValueNode.NullableAt("Number", node.RangePosition);
+		return ValueNode.NullAt(node.RangePosition);
 	}
 
 	public ValueNode Visit(Scope location, AssignmentNode node)
 	{
 		IdentifierNode nodeIdentifier = node.Identifier;
 		ValueNode nodeValue = node.Value.Accept(this, location);
-		location.Write(nodeIdentifier.Name, nodeValue.Tag, nodeValue.Value!, nodeIdentifier.RangePosition);
-		return ValueNode.NullableAt("Number", node.RangePosition);
+		Symbol symbol = location.Read(nodeIdentifier.Name, nodeIdentifier.RangePosition);
+		symbol.Assign(nodeValue, nodeIdentifier.RangePosition);
+		return ValueNode.NullAt(node.RangePosition);
 	}
 
 	public ValueNode Visit(Scope location, InvokationNode node)
@@ -76,7 +77,7 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 	{
 		Scope scope = location.GetSubscope("Block");
 		foreach (Node statement in node.Statements) statement.Accept(this, scope);
-		return ValueNode.NullableAt("Number", node.RangePosition);
+		return ValueNode.NullAt(node.RangePosition);
 	}
 
 	public ValueNode Visit(Scope location, IfStatementNode node)
@@ -85,6 +86,6 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		if (condition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", condition.Tag, node.Condition.RangePosition);
 		Node? nodeBranch = condition.ValueAs<bool>() ? node.Then : node.Else;
 		nodeBranch?.Accept(this, location);
-		return ValueNode.NullableAt("Number", node.RangePosition);
+		return ValueNode.NullAt(node.RangePosition);
 	}
 }

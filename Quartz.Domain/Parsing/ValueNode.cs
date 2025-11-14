@@ -18,11 +18,6 @@ public class ValueNode(string tag, object? value, Range<Position> range) : Node(
 		return new ValueNode("Null", null, range);
 	}
 
-	public static ValueNode NullableAt(string tag, Range<Position> range)
-	{
-		return new ValueNode(tag, null, range);
-	}
-
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
 	{
 		return visitor.Visit(location, this);

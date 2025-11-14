@@ -5,6 +5,7 @@ statement
 	= declaration
 	| assignment
 	| expression
+	| block
 	| if_statement;
 
 if_statement

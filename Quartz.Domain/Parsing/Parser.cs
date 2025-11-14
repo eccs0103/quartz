@@ -38,7 +38,7 @@ public class Parser
 
 		if (token.Represents(Types.Keyword, "if")) return IfStatementParse(walker);
 
-		// if (token.Represents(Types.Bracket, "{")) return BlockParse(walker);
+		if (token.Represents(Types.Bracket, "{")) return BlockParse(walker);
 
 		if (!token.Represents(Types.Identifier)) return ExpressionParse(walker);
 
@@ -99,7 +99,7 @@ public class Parser
 
 		if (!walker.Peek(out Token? token3) || !token3.Represents(Types.Bracket, "("))
 		{
-			ValueNode nullable = ValueNode.NullableAt(type.Name, type.RangePosition);
+			ValueNode nullable = new ValueNode(type.Name, null, type.RangePosition);
 			return new DeclarationNode(type, identifier, nullable, identifier.RangePosition >> type.RangePosition);
 		}
 

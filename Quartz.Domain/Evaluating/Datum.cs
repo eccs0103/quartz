@@ -1,18 +1,19 @@
+using Quartz.Domain.Exceptions;
+using Quartz.Domain.Parsing;
+using Quartz.Shared.Helpers;
+
 namespace Quartz.Domain.Evaluating;
 
 internal class Datum(string name, string tag, object value, bool mutable) : Symbol(name)
 {
 	public string Tag { get; } = tag;
 	public bool Mutable { get; } = mutable;
+	public object Value { get; private set; } = value;
 
-	private object _Value = value;
-	public object Value
+	public override void Assign(ValueNode value, Range<Position> range)
 	{
-		get => _Value;
-		set
-		{
-			if (!Mutable) throw new InvalidOperationException($"Unable to modify immutable datum '{Name}'");
-			_Value = value;
-		}
+		if (!Mutable) throw new NotMutableIssue($"Datum '{Name}'", range);
+		if (Tag != value.Tag) throw new TypeMismatchIssue(Tag, value.Tag, value.RangePosition);
+		Value = value.Value!;
 	}
 }

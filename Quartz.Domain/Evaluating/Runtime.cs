@@ -18,6 +18,9 @@ public class Runtime
 			module.DeclareClass("Function", type =>
 			{
 			});
+			module.DeclareClass("Null", type =>
+			{
+			});
 			module.DeclareClass("Boolean", type =>
 			{
 			});
@@ -95,20 +98,20 @@ public class Runtime
 			{
 				type.DeclareConstant("pi", "Number", PI);
 				type.DeclareConstant("e", "Number", E);
-				type.DeclareOperation("write", ["Number"], "Number", args =>
+				type.DeclareOperation("write", ["Number"], "Null", args =>
 				{
 					Console.WriteLine(args[0].ToString());
-					return 0;
+					return null!;
 				});
-				type.DeclareOperation("write", ["Boolean"], "Number", args =>
+				type.DeclareOperation("write", ["Boolean"], "Null", args =>
 				{
 					Console.WriteLine(args[0].ToString());
-					return 0;
+					return null!;
 				});
-				type.DeclareOperation("write", ["String"], "Number", args =>
+				type.DeclareOperation("write", ["String"], "Null", args =>
 				{
 					Console.WriteLine(args[0].ToString());
-					return 0;
+					return null!;
 				});
 			});
 		});

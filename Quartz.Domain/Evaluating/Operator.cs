@@ -1,11 +1,17 @@
 using Quartz.Domain.Exceptions;
+using Quartz.Domain.Parsing;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
 internal class Operator(string name, Scope location) : Symbol(name)
 {
-	private static string Mangle(string name, IEnumerable<string> tags)
+	public override void Assign(ValueNode value, Range<Position> range)
+	{
+		throw new NotMutableIssue($"Operator '{Name}'", range);
+	}
+
+	public static string Mangle(string name, IEnumerable<string> tags)
 	{
 		return $"{name}({string.Join(", ", tags)})";
 	}

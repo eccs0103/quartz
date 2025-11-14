@@ -1,10 +1,16 @@
 using Quartz.Domain.Exceptions;
+using Quartz.Domain.Parsing;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
 internal class Class(string name, Scope location) : Symbol(name)
 {
+	public override void Assign(ValueNode value, Range<Position> range)
+	{
+		throw new NotMutableIssue($"Class '{Name}'", range);
+	}
+
 	public Datum RegisterConstant(string name, string tag, object value, Range<Position> range)
 	{
 		Datum constant = new(name, tag, value, false);
@@ -24,11 +30,6 @@ internal class Class(string name, Scope location) : Symbol(name)
 		Symbol symbol = location.Read(name, range);
 		if (symbol is not Datum datum) throw new NotExistIssue($"Datum '{name}' in {location}", range);
 		return datum;
-	}
-
-	public void WriteVariable(string name, string tag, object value, Range<Position> range)
-	{
-		location.Write(name, tag, value, range);
 	}
 
 	public Operator RegisterOperator(string name, Range<Position> range)
