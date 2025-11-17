@@ -1,3 +1,8 @@
+## 0.4.3 (17.11.2025)
+- Semicolons (`;`) at the end of blocks are now optional.
+- Allowed the use of extra (superfluous) semicolons.
+- Added support for single-statement blocks without braces (`{`, `}`).
+
 ## 0.4.2 (14.11.2025)
 - Improved OOP structure.
 - Added the ability to add primitive blocks.
