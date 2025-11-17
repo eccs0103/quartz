@@ -26,6 +26,12 @@ public class Runtime
 			});
 			module.DeclareClass("String", type =>
 			{
+				type.DeclareOperation("+", ["String", "String"], "String", args =>
+				{
+					string left = args[0].ValueAs<string>();
+					string right = args[1].ValueAs<string>();
+					return left + right;
+				});
 			});
 			module.DeclareClass("Number", type =>
 			{
@@ -98,19 +104,26 @@ public class Runtime
 			{
 				type.DeclareConstant("pi", "Number", PI);
 				type.DeclareConstant("e", "Number", E);
+				type.DeclareOperation("read", ["String"], "String", args =>
+				{
+					Console.Write(args[0].ValueAs<string>());
+					string? input = Console.ReadLine();
+					ArgumentNullException.ThrowIfNull(input);
+					return input;
+				});
 				type.DeclareOperation("write", ["Number"], "Null", args =>
 				{
-					Console.WriteLine(args[0].ToString());
+					Console.WriteLine(args[0].ValueAs<string>());
 					return null!;
 				});
 				type.DeclareOperation("write", ["Boolean"], "Null", args =>
 				{
-					Console.WriteLine(args[0].ToString());
+					Console.WriteLine(args[0].ValueAs<string>());
 					return null!;
 				});
 				type.DeclareOperation("write", ["String"], "Null", args =>
 				{
-					Console.WriteLine(args[0].ToString());
+					Console.WriteLine(args[0].ValueAs<string>());
 					return null!;
 				});
 			});
