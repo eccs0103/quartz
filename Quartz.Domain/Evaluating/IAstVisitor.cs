@@ -13,4 +13,8 @@ public interface IAstVisitor<out TReturn>
 	public TReturn Visit(Scope location, BinaryOperatorNode node);
 	public TReturn Visit(Scope location, BlockNode node);
 	public TReturn Visit(Scope location, IfStatementNode node);
+	public TReturn Visit(Scope location, WhileStatementNode node);
+	public TReturn Visit(Scope location, RepeatStatementNode node);
+	public TReturn Visit(Scope location, BreakStatementNode node);
+	public TReturn Visit(Scope location, ContinueStatementNode node);
 }

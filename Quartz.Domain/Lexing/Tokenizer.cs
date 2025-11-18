@@ -19,7 +19,19 @@ public partial class Tokenizer
 		{ BracketsPattern(), Types.Bracket },
 		{ SeparatorPattern(), Types.Separator },
 	};
-	private static HashSet<string> Keywords { get; } = ["true", "false", "if", "else"];
+	private static HashSet<string> Keywords { get; } =
+	[
+		"true",
+		"false",
+		"if",
+		"else",
+		"while",
+		"repeat",
+		"for",
+		"in",
+		"continue",
+		"break"
+	];
 
 	private static void FixKeyword(ref Types type, string value)
 	{
