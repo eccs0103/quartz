@@ -23,6 +23,18 @@ public class Runtime
 			});
 			module.DeclareClass("Boolean", static (type) =>
 			{
+				type.DeclareOperation("!", ["Boolean"], "Boolean", static (bool @this) =>
+				{
+					return !@this;
+				});
+				type.DeclareOperation("&", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
+				{
+					return @this && other;
+				});
+				type.DeclareOperation("|", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
+				{
+					return @this || other;
+				});
 			});
 			module.DeclareClass("String", static (type) =>
 			{

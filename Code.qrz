@@ -4,4 +4,4 @@ while (true) {
 	if (name != "Arman") continue;
 	break;
 }
-write("Hello " + name);
+write("Hello " + name + "!");
