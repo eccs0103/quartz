@@ -26,92 +26,92 @@ public class Runtime
 			});
 			module.DeclareClass("String", static (type) =>
 			{
-				type.DeclareOperation("+", ["String", "String"], "String", static (string left, string right) =>
+				type.DeclareOperation("+", ["String", "String"], "String", static (string @this, string other) =>
 				{
-					return left + right;
+					return @this + other;
 				});
-				type.DeclareOperation("=", ["String", "String"], "Boolean", static (string left, string right) =>
+				type.DeclareOperation("=", ["String", "String"], "Boolean", static (string @this, string other) =>
 				{
-					return left == right;
+					return @this == other;
 				});
-				type.DeclareOperation("!=", ["String", "String"], "Boolean", static (string left, string right) =>
+				type.DeclareOperation("!=", ["String", "String"], "Boolean", static (string @this, string other) =>
 				{
-					return left != right;
+					return @this != other;
 				});
 			});
 			module.DeclareClass("Number", static (type) =>
 			{
-				type.DeclareOperation("+", ["Number"], "Number", static (double target) =>
+				type.DeclareOperation("+", ["Number"], "Number", static (double @this) =>
 				{
-					return +target;
+					return +@this;
 				});
-				type.DeclareOperation("+", ["Number", "Number"], "Number", static (double left, double right) =>
+				type.DeclareOperation("+", ["Number", "Number"], "Number", static (double @this, double other) =>
 				{
-					return left + right;
+					return @this + other;
 				});
-				type.DeclareOperation("-", ["Number"], "Number", static (double target) =>
+				type.DeclareOperation("-", ["Number"], "Number", static (double @this) =>
 				{
-					return -target;
+					return -@this;
 				});
-				type.DeclareOperation("-", ["Number", "Number"], "Number", static (double left, double right) =>
+				type.DeclareOperation("-", ["Number", "Number"], "Number", static (double @this, double other) =>
 				{
-					return left - right;
+					return @this - other;
 				});
-				type.DeclareOperation("*", ["Number", "Number"], "Number", static (double left, double right) =>
+				type.DeclareOperation("*", ["Number", "Number"], "Number", static (double @this, double other) =>
 				{
-					return left * right;
+					return @this * other;
 				});
-				type.DeclareOperation("/", ["Number", "Number"], "Number", static (double left, double right) =>
+				type.DeclareOperation("/", ["Number", "Number"], "Number", static (double @this, double other) =>
 				{
-					return left / right;
+					return @this / other;
 				});
-				type.DeclareOperation("=", ["Number", "Number"], "Boolean", static (double left, double right) =>
+				type.DeclareOperation("=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
 				{
-					return left == right;
+					return @this == other;
 				});
-				type.DeclareOperation("!=", ["Number", "Number"], "Boolean", static (double left, double right) =>
+				type.DeclareOperation("!=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
 				{
-					return left != right;
+					return @this != other;
 				});
-				type.DeclareOperation("<", ["Number", "Number"], "Boolean", static (double left, double right) =>
+				type.DeclareOperation("<", ["Number", "Number"], "Boolean", static (double @this, double other) =>
 				{
-					return left < right;
+					return @this < other;
 				});
-				type.DeclareOperation("<=", ["Number", "Number"], "Boolean", static (double left, double right) =>
+				type.DeclareOperation("<=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
 				{
-					return left <= right;
+					return @this <= other;
 				});
-				type.DeclareOperation(">", ["Number", "Number"], "Boolean", static (double left, double right) =>
+				type.DeclareOperation(">", ["Number", "Number"], "Boolean", static (double @this, double other) =>
 				{
-					return left > right;
+					return @this > other;
 				});
-				type.DeclareOperation(">=", ["Number", "Number"], "Boolean", static (double left, double right) =>
+				type.DeclareOperation(">=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
 				{
-					return left >= right;
+					return @this >= other;
 				});
 			});
 			module.DeclareClass(RuntimeBuilder.NameWorkspace, static (type) =>
 			{
 				type.DeclareConstant("pi", "Number", PI);
 				type.DeclareConstant("e", "Number", E);
-				type.DeclareOperation("read", ["String"], "String", static (string args) =>
+				type.DeclareOperation("read", ["String"], "String", static (string message) =>
 				{
-					Console.Write(args);
+					Console.Write(message);
 					string? input = Console.ReadLine();
 					ArgumentNullException.ThrowIfNull(input);
 					return input;
 				});
-				type.DeclareOperation("write", ["Number"], "Null", static (double args) =>
+				type.DeclareOperation("write", ["Number"], "Null", static (double value) =>
 				{
-					Console.WriteLine(args);
+					Console.WriteLine(value);
 				});
-				type.DeclareOperation("write", ["Boolean"], "Null", static (bool args) =>
+				type.DeclareOperation("write", ["Boolean"], "Null", static (bool value) =>
 				{
-					Console.WriteLine(args);
+					Console.WriteLine(value);
 				});
-				type.DeclareOperation("write", ["String"], "Null", static (string args) =>
+				type.DeclareOperation("write", ["String"], "Null", static (string value) =>
 				{
-					Console.WriteLine(args);
+					Console.WriteLine(value);
 				});
 			});
 		});
