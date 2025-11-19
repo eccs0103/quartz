@@ -131,12 +131,12 @@ public class Runtime
 				});
 				type.DeclareOperation("write", ["Number"], "Null", (args) =>
 				{
-					Console.WriteLine(args[0].ValueAs<string>());
+					Console.WriteLine(args[0].ValueAs<double>());
 					return null!;
 				});
 				type.DeclareOperation("write", ["Boolean"], "Null", (args) =>
 				{
-					Console.WriteLine(args[0].ValueAs<string>());
+					Console.WriteLine(args[0].ValueAs<bool>());
 					return null!;
 				});
 				type.DeclareOperation("write", ["String"], "Null", (args) =>

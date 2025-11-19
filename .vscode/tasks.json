@@ -6,7 +6,8 @@
 			"command": "dotnet",
 			"type": "process",
 			"args": [ "build", "${workspaceFolder}/Quartz.Presentation/Quartz.Presentation.csproj" ],
-			"problemMatcher": "$msCompile"
+			"problemMatcher": "$msCompile",
+			"isBuildCommand": true,
 		}
 	]
 }
