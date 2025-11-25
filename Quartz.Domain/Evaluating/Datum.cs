@@ -13,7 +13,7 @@ internal class Datum(string name, string tag, object value, bool mutable) : Symb
 	public override void Assign(ValueNode value, Range<Position> range)
 	{
 		if (!Mutable) throw new NotMutableIssue($"Datum '{Name}'", range);
-		if (Tag != value.Tag) throw new TypeMismatchIssue(Tag, value.Tag, value.RangePosition);
+		if (!TypeHelper.IsCompatible(Tag, value.Tag)) throw new TypeMismatchIssue(Tag, value.Tag, value.RangePosition);
 		Value = value.Value!;
 	}
 }

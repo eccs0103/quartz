@@ -21,10 +21,31 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 	{
 		IdentifierNode nodeType = node.Type;
 		IdentifierNode nodeIdentifier = node.Identifier;
-		ValueNode nodeValue = node.Value.Accept(this, location);
-		if (nodeType.Name != nodeValue.Tag) throw new TypeMismatchIssue(nodeValue.Tag, nodeType.Name, nodeValue.RangePosition);
+
+		// Переменная для значения (которое мы или вычислим, или создадим автоматически)
+		ValueNode nodeValue;
+
+		// Сценарий 1: Пользователь дал значение (name String = "Arman";)
+		if (node.Value != null)
+		{
+			nodeValue = node.Value.Accept(this, location);
+			// Проверяем совместимость типов через наш TypeHelper
+			if (!TypeHelper.IsCompatible(nodeType.Name, nodeValue.Tag)) throw new TypeMismatchIssue(nodeType.Name, nodeValue.Tag, nodeValue.RangePosition);
+		}
+		// Сценарий 2: Пользователь НЕ дал значение (name String?; или name Null;)
+		else
+		{
+			// Проверяем, разрешено ли этому типу быть пустым
+			if (!TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
+			// Если разрешено -> Автоматически создаем значение "Null"
+			// Используем ~Position.Zero или позицию идентификатора, так как реального значения нет
+			nodeValue = new ValueNode("Null", null, nodeIdentifier.RangePosition);
+		}
+
+		// Регистрируем переменную
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue.Value!, true);
 		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);
+
 		return ValueNode.NullAt(node.RangePosition);
 	}
 
