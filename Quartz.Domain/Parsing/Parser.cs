@@ -191,8 +191,7 @@ public class Parser
 
 		if (!walker.Peek(out Token? token3) || !token3.Represents(Types.Bracket, "("))
 		{
-			ValueNode nullable = new ValueNode(type.Name, null, type.RangePosition);
-			return new DeclarationNode(type, identifier, nullable, identifier.RangePosition >> type.RangePosition);
+			return new DeclarationNode(type, identifier, null, identifier.RangePosition >> type.RangePosition);
 		}
 
 		string open = token3.Value;

@@ -8,7 +8,7 @@ class Program
 	private static void Main(string[] paths)
 	{
 		Console.ForegroundColor = ConsoleColor.White;
-		Options options = new() { LogLexing = false, LogParsing = false };
+		Options options = new() { LogLexing = false, LogParsing = true };
 		Interpreter interpreter = new(options);
 
 		foreach (string path in paths)

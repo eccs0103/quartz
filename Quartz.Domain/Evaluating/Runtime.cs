@@ -12,6 +12,17 @@ public class Runtime
 	{
 		Builder.DeclareModule(static (module) =>
 		{
+			/* module.DeclareClass("Any", static (type) =>
+			{
+				type.DeclareOperation("is_equal", ["Any", "Any"], "Boolean", static (object a, object b) =>
+				{
+					return a.Equals(b);
+				});
+				type.DeclareOperation("is_same", ["Any", "Any"], "Boolean", static (object a, object b) =>
+				{
+					return ReferenceEquals(a, b);
+				});
+			}); */
 			module.DeclareClass("Type", static (type) =>
 			{
 			});
