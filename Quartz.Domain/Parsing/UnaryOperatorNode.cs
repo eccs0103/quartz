@@ -9,7 +9,7 @@ public class UnaryOperatorNode(IdentifierNode @operator, Node target, Range<Posi
 
 	public override string ToString()
 	{
-		return $"({Operator} {Target})";
+		return $"{Operator}{Target}";
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)

@@ -9,7 +9,9 @@ public class BlockNode(IEnumerable<Node> statements, Range<Position> range) : No
 
 	public override string ToString()
 	{
-		return string.Join('\n', ["{", .. Statements.Select(static node => node.ToString()), "}"]);
+		if (!Statements.Any()) return "{ }";
+		string content = string.Join("\n", Statements.Select(s => "\t" + s.ToString()));
+		return $"{{\n{content}\n}}";
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)

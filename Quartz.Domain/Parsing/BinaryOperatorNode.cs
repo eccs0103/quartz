@@ -10,7 +10,7 @@ public class BinaryOperatorNode(IdentifierNode @operator, Node left, Node right,
 
 	public override string ToString()
 	{
-		return $"({Left} {Operator} {Right})";
+		return $"{Left} {Operator} {Right}";
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)

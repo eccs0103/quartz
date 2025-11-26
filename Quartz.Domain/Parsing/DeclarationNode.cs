@@ -12,9 +12,8 @@ public class DeclarationNode(IdentifierNode type, IdentifierNode identifier, Nod
 
 	public override string ToString()
 	{
-		StringBuilder builder = new($"({Identifier} {Type}");
-		if (Value != null) builder.Append($": {Value}");
-		return builder.Append(')').ToString();
+		if (Value == null) return $"{Identifier} {Type};";
+		return $"{Identifier} {Type}: {Value};";
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)

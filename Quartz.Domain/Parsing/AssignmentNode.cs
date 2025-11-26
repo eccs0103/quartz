@@ -10,7 +10,7 @@ public class AssignmentNode(IdentifierNode identifier, Node value, Range<Positio
 
 	public override string ToString()
 	{
-		return $"({Identifier}: {Value})";
+		return $"{Identifier}: {Value}";
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
