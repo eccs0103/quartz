@@ -59,4 +59,9 @@ public class Scope
 		if (!TryRead(name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{name}' in {this}", range);
 		return symbol;
 	}
+
+	public T? Find<T>(Predicate<T> predicate) where T : Symbol
+	{
+		return Symbols.Values.OfType<T>().FirstOrDefault(symbol => predicate(symbol));
+	}
 }

@@ -11,9 +11,9 @@ internal class Module(string name, Scope location) : Symbol(name)
 		throw new NotMutableIssue($"Module '{Name}'", range);
 	}
 
-	public Class RegisterClass(string name, Scope scope, Range<Position> range)
+	public Class RegisterClass(string name, Class? parent, Scope scope, Range<Position> range)
 	{
-		Class @class = new(name, scope);
+		Class @class = new(name, scope) { Parent = parent };
 		location.Register(name, @class, range);
 		return @class;
 	}

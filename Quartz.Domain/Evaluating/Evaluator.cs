@@ -56,7 +56,7 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => argument.Accept(this, location)).Select(Unwrap);
 		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
 		if (symbol is not Operator @operator) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
-		Operation operation = @operator.ReadOperation(arguments.Select(result => result.Tag), nodeTarget.RangePosition);
+		Operation operation = @operator.TryReadOperation(arguments.Select(result => result.Tag)) ?? throw new NotExistIssue($"Operation '{nodeTarget.Name}'", nodeTarget.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke(arguments, scope, node.RangePosition);
 	}
@@ -67,8 +67,7 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		ValueNode nodeTarget = Unwrap(node.Target.Accept(this, location));
 		Symbol symbol = location.Read(nodeTarget.Tag, nodeTarget.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeTarget.Tag}' in {location}", nodeTarget.RangePosition);
-		Operator @operator = type.ReadOperator(nodeOperator.Name, nodeOperator.RangePosition);
-		Operation operation = @operator.ReadOperation([nodeTarget.Tag], nodeOperator.RangePosition);
+		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeTarget.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([nodeTarget], scope, node.RangePosition);
 	}
@@ -80,12 +79,11 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		ValueNode nodeRight = Unwrap(node.Right.Accept(this, location));
 		Symbol symbol = location.Read(nodeLeft.Tag, nodeLeft.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeLeft.Tag}' in {location}", nodeLeft.RangePosition);
-		Operator @operator = type.ReadOperator(nodeOperator.Name, nodeOperator.RangePosition);
-		Operation operation = @operator.ReadOperation([nodeLeft.Tag, nodeRight.Tag], nodeOperator.RangePosition);
+		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeLeft.Tag, nodeRight.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([nodeLeft, nodeRight], scope, node.RangePosition);
 	}
-	
+
 	private static string Unwrap(string tag)
 	{
 		return tag.EndsWith('?') ? tag[..^1] : tag;

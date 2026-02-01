@@ -1,4 +1,4 @@
-write("--- Quartz Nullable Type System Test ---");
+write("--- Quartz Nullable & Any System Test ---");
 
 write("1. Standard Strict Initialization");
 n1 Number(100);
@@ -36,10 +36,10 @@ n3 : 300;
 write("n3 is now:");
 write(n3);
 
-write("9. Boolean Nullable Logic");
+write("9. Boolean Nullable Logic (inherited =)");
 flag Boolean?(true);
 if (flag = true) {
-    write("Flag is true (checked via =)");
+    write("Flag is true (checked via = from Any)");
 }
 
 write("10. Loop with Nullable Counter");
@@ -49,3 +49,26 @@ while (i < 3) {
     write(i);
     i : i + 1;
 };
+
+write("11. Any Type Polymorphism & Universal Equality");
+any_var Any(0);
+
+any_var : 123;
+if (any_var = 123) { write("Any holds Number 123"); }
+
+any_var : "string value";
+if (any_var = "string value") { write("Any holds String"); }
+
+any_var : true;
+if (any_var = true) { write("Any holds Boolean true"); }
+if (any_var != false) { write("Any (true) != false"); }
+
+write("12. Mixed Type Equality (Any vs Any)");
+num Number(5);
+str String("5");
+if (num != str) { write("Number 5 != String '5'"); }
+
+write("13. Null Equality via Any");
+null_var Null;
+any_nullable Any?;
+if (any_nullable = null_var) { write("Uninitialized Any? is equal to Null"); }

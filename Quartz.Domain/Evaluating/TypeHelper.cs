@@ -4,6 +4,7 @@ internal static class TypeHelper
 {
 	public static bool IsCompatible(string target, string value)
 	{
+		if (target == "Any") return true;
 		if (target == value) return true;
 		if (!target.EndsWith('?')) return false;
 		if (value == "Null") return true;

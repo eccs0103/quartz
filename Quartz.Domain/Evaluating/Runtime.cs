@@ -12,17 +12,24 @@ public class Runtime
 	{
 		Builder.DeclareModule(static (module) =>
 		{
-			/* module.DeclareClass("Any", static (type) =>
+			module.DeclareClass("Any", null, static (type) =>
 			{
 				type.DeclareOperation("is_equal", ["Any", "Any"], "Boolean", static (object a, object b) =>
 				{
+					if (a == null) return b == null;
 					return a.Equals(b);
 				});
-				type.DeclareOperation("is_same", ["Any", "Any"], "Boolean", static (object a, object b) =>
+				type.DeclareOperation("=", ["Any", "Any"], "Boolean", static (object a, object b) =>
 				{
-					return ReferenceEquals(a, b);
+					if (a == null) return b == null;
+					return a.Equals(b);
 				});
-			}); */
+				type.DeclareOperation("!=", ["Any", "Any"], "Boolean", static (object a, object b) =>
+				{
+					if (a == null) return b != null;
+					return !a.Equals(b);
+				});
+			});
 			module.DeclareClass("Type", static (type) =>
 			{
 			});
@@ -46,28 +53,12 @@ public class Runtime
 				{
 					return @this || other;
 				});
-				type.DeclareOperation("=", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
-				{
-					return @this == other;
-				});
-				type.DeclareOperation("!=", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
-				{
-					return @this != other;
-				});
 			});
 			module.DeclareClass("String", static (type) =>
 			{
 				type.DeclareOperation("+", ["String", "String"], "String", static (string @this, string other) =>
 				{
 					return @this + other;
-				});
-				type.DeclareOperation("=", ["String", "String"], "Boolean", static (string @this, string other) =>
-				{
-					return @this == other;
-				});
-				type.DeclareOperation("!=", ["String", "String"], "Boolean", static (string @this, string other) =>
-				{
-					return @this != other;
 				});
 			});
 			module.DeclareClass("Number", static (type) =>
@@ -95,14 +86,6 @@ public class Runtime
 				type.DeclareOperation("/", ["Number", "Number"], "Number", static (double @this, double other) =>
 				{
 					return @this / other;
-				});
-				type.DeclareOperation("=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
-				{
-					return @this == other;
-				});
-				type.DeclareOperation("!=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
-				{
-					return @this != other;
 				});
 				type.DeclareOperation("<", ["Number", "Number"], "Boolean", static (double @this, double other) =>
 				{

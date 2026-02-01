@@ -66,7 +66,7 @@ class Program
 		while (true)
 		{
 			string? input = Console.ReadLine();
-			ArgumentNullException.ThrowIfNull(input, nameof(input));
+			if (input == null) yield break;
 			yield return input;
 		}
 	}
