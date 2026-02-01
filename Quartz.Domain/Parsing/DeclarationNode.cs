@@ -1,4 +1,3 @@
-using System.Text;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
 
@@ -12,8 +11,8 @@ public class DeclarationNode(IdentifierNode type, IdentifierNode identifier, Nod
 
 	public override string ToString()
 	{
-		if (Value == null) return $"{Identifier} {Type};";
-		return $"{Identifier} {Type}: {Value};";
+		if (Value == null) return $"{Identifier} {Type}";
+		return $"{Identifier} {Type}({Value})";
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)

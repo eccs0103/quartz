@@ -1,41 +1,7 @@
-celsius Number(36.6);
-fahrenheit Number(32 + celsius * 1.8);
-write(fahrenheit);
-
-arg1 Number(10);
-arg2 Number(20);
-max Number;
-indication Number;
-
-min Number(arg1);
-if (arg2 < arg1) {
-	min: arg2;
-}
-write(min);
-
-if (arg1 > arg2) {
-	max: arg1;
-} else { 
-	max: arg2;
-};
-write(max);
-
-if (arg1 > arg2) {
-	indication: -1;
-} else if (arg1 = arg2) {
-	indication: 0;
-} else {
-	indication: 1;
-};;;
-write(indication);
-
 name String;
 while (true) {
 	name: read("Enter your name: ");
-	if (name != "Arman") {
-		write("Tell your real name!");
-		continue;
-	}
+	if (name != "Arman") continue;
 	break;
 }
 write("Hello " + name + "!");

@@ -15,13 +15,11 @@ public class IfStatementNode(Node condition, Node then, Node? @else, Range<Posit
 		StringBuilder builder = new();
 		builder.Append($"if ({Condition}) ");
 		builder.Append(Then);
-
-		if (Else is not null)
+		if (Else != null)
 		{
 			builder.Append(" else ");
 			builder.Append(Else);
 		}
-
 		return builder.ToString();
 	}
 

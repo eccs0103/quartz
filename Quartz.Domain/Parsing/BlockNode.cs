@@ -1,3 +1,4 @@
+using System.Text;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
 
@@ -9,9 +10,17 @@ public class BlockNode(IEnumerable<Node> statements, Range<Position> range) : No
 
 	public override string ToString()
 	{
-		if (!Statements.Any()) return "{ }";
-		string content = string.Join("\n", Statements.Select(s => "\t" + s.ToString()));
-		return $"{{\n{content}\n}}";
+		const string indent = "  ";
+		StringBuilder builder = new();
+		builder.AppendLine("{");
+		foreach (Node statement in Statements)
+		{
+			string @string = $"{statement}";
+			builder.Append(indent);
+			builder.AppendLine(@string.Replace("\n", $"\n{indent}"));
+		}
+		builder.Append('}');
+		return builder.ToString();
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)

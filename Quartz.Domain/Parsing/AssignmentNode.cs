@@ -18,4 +18,3 @@ public class AssignmentNode(IdentifierNode identifier, Node value, Range<Positio
 		return visitor.Visit(location, this);
 	}
 }
-
