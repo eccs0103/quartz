@@ -53,7 +53,7 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 	public ValueNode Visit(Scope location, InvokationNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => argument.Accept(this, location));
+		IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => argument.Accept(this, location)).Select(Unwrap);
 		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
 		if (symbol is not Operator @operator) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		Operation operation = @operator.ReadOperation(arguments.Select(result => result.Tag), nodeTarget.RangePosition);
@@ -64,7 +64,7 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 	public ValueNode Visit(Scope location, UnaryOperatorNode node)
 	{
 		IdentifierNode nodeOperator = node.Operator;
-		ValueNode nodeTarget = node.Target.Accept(this, location);
+		ValueNode nodeTarget = Unwrap(node.Target.Accept(this, location));
 		Symbol symbol = location.Read(nodeTarget.Tag, nodeTarget.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeTarget.Tag}' in {location}", nodeTarget.RangePosition);
 		Operator @operator = type.ReadOperator(nodeOperator.Name, nodeOperator.RangePosition);
@@ -76,14 +76,27 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 	public ValueNode Visit(Scope location, BinaryOperatorNode node)
 	{
 		IdentifierNode nodeOperator = node.Operator;
-		ValueNode nodeLeft = node.Left.Accept(this, location);
-		ValueNode nodeRight = node.Right.Accept(this, location);
+		ValueNode nodeLeft = Unwrap(node.Left.Accept(this, location));
+		ValueNode nodeRight = Unwrap(node.Right.Accept(this, location));
 		Symbol symbol = location.Read(nodeLeft.Tag, nodeLeft.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeLeft.Tag}' in {location}", nodeLeft.RangePosition);
 		Operator @operator = type.ReadOperator(nodeOperator.Name, nodeOperator.RangePosition);
 		Operation operation = @operator.ReadOperation([nodeLeft.Tag, nodeRight.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([nodeLeft, nodeRight], scope, node.RangePosition);
+	}
+	
+	private static string Unwrap(string tag)
+	{
+		return tag.EndsWith('?') ? tag[..^1] : tag;
+	}
+
+	private static ValueNode Unwrap(ValueNode node)
+	{
+		if (node.Value is null) return new ValueNode("Null", null, node.RangePosition);
+		string tag = Unwrap(node.Tag);
+		if (tag == node.Tag) return node;
+		return new ValueNode(tag, node.Value, node.RangePosition);
 	}
 
 	public ValueNode Visit(Scope location, BlockNode node)

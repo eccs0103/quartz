@@ -189,6 +189,12 @@ public class Parser
 		IdentifierNode type = new(token2.Value, token2.RangePosition);
 		walker.Index++;
 
+		if (walker.Peek(out Token? optional) && optional.Represents(Types.Operator, "?"))
+		{
+			type = new IdentifierNode(type.Name + "?", type.RangePosition >> optional.RangePosition);
+			walker.Index++;
+		}
+
 		if (!walker.Peek(out Token? token3) || !token3.Represents(Types.Bracket, "("))
 		{
 			return new DeclarationNode(type, identifier, null, identifier.RangePosition >> type.RangePosition);

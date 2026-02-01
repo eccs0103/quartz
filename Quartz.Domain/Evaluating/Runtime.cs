@@ -46,6 +46,14 @@ public class Runtime
 				{
 					return @this || other;
 				});
+				type.DeclareOperation("=", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
+				{
+					return @this == other;
+				});
+				type.DeclareOperation("!=", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
+				{
+					return @this != other;
+				});
 			});
 			module.DeclareClass("String", static (type) =>
 			{
@@ -135,6 +143,10 @@ public class Runtime
 				type.DeclareOperation("write", ["String"], "Null", static (string value) =>
 				{
 					Console.WriteLine(value);
+				});
+				type.DeclareOperation("write", ["Null"], "Null", static () =>
+				{
+					Console.WriteLine("null");
 				});
 			});
 		});

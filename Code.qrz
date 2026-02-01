@@ -1,8 +1,51 @@
-name String;
-while (true) {
-	name: read("Enter your name: ");
-	if (name != "Arman") continue;
-	break;
-}
-write("Hello " + name + "!");
+write("--- Quartz Nullable Type System Test ---");
 
+write("1. Standard Strict Initialization");
+n1 Number(100);
+write(n1);
+
+write("2. Nullable (Explicit Value)");
+n2 Number?(200);
+write(n2);
+
+write("3. Nullable (Implicit Null)");
+n3 Number?;
+write(n3);
+
+write("4. Null Type (Void equivalent)");
+void_var Null;
+write(void_var);
+
+write("5. String Nullable");
+s1 String?("Hello");
+s2 String?;
+write(s1);
+write(s2);
+
+write("6. Arithmetic Unwrapping (Number + Number?)");
+res1 Number(n1 + n2);
+write(res1);
+
+write("7. Arithmetic Unwrapping (Number? + Number?)");
+n4 Number?(50);
+n5 Number?(60);
+write(n4 + n5);
+
+write("8. Assignment to Nullable");
+n3 : 300;
+write("n3 is now:");
+write(n3);
+
+write("9. Boolean Nullable Logic");
+flag Boolean?(true);
+if (flag = true) {
+    write("Flag is true (checked via =)");
+}
+
+write("10. Loop with Nullable Counter");
+i Number?(0);
+while (i < 3) {
+    write("Loop iteration:");
+    write(i);
+    i : i + 1;
+};
