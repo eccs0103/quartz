@@ -7,7 +7,7 @@ using static Quartz.Domain.Lexing.Token;
 
 namespace Quartz.Domain.Lexing;
 
-public partial class Tokenizer
+public partial class Lexer
 {
 	private static Dictionary<Regex, Types?> Patterns { get; } = new()
 	{

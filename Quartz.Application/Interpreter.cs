@@ -13,7 +13,7 @@ public class Interpreter(Interpreter.Options options)
 		public bool LogParsing { get; set; } = false;
 	}
 
-	private static Tokenizer Tokenizer { get; } = new();
+	private static Lexer Tokenizer { get; } = new();
 	private static Parser Parser { get; } = new();
 	private static Runtime Runtime { get; } = new();
 	private bool LogLexing { get; } = options.LogLexing;
