@@ -53,7 +53,7 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 	public ValueNode Visit(Scope location, InvokationNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => argument.Accept(this, location)).Select(Unwrap);
+		IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => Unwrap(argument.Accept(this, location)));
 		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
 		if (symbol is not Operator @operator) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		Operation operation = @operator.TryReadOperation(arguments.Select(result => result.Tag)) ?? throw new NotExistIssue($"Operation '{nodeTarget.Name}'", nodeTarget.RangePosition);

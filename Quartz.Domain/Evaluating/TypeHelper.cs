@@ -8,7 +8,7 @@ internal static class TypeHelper
 		if (target == value) return true;
 		if (!target.EndsWith('?')) return false;
 		if (value == "Null") return true;
-		return target[..^1] == value;
+		return target.AsSpan(0, target.Length - 1).SequenceEqual(value.AsSpan());
 	}
 
 	public static bool IsOptional(string tag)

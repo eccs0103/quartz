@@ -39,15 +39,15 @@ write(n3);
 write("9. Boolean Nullable Logic (inherited =)");
 flag Boolean?(true);
 if (flag = true) {
-    write("Flag is true (checked via = from Any)");
+	write("Flag is true (checked via = from Any)");
 }
 
 write("10. Loop with Nullable Counter");
 i Number?(0);
 while (i < 3) {
-    write("Loop iteration:");
-    write(i);
-    i : i + 1;
+	write("Loop iteration:");
+	write(i);
+	i : i + 1;
 };
 
 write("11. Any Type Polymorphism & Universal Equality");
