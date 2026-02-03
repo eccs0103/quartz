@@ -6,7 +6,6 @@ statement
 	| block
 	| if_statement
 	| while_statement
-	| repeat_statement
 	(* | for_statement *);
 
 simple_statement
@@ -18,9 +17,6 @@ simple_statement
 
 while_statement
 	= "while", "(", expression, ")", statement;
-
-repeat_statement
-	= "repeat", "(", expression, ")", statement;
 
 (* for_statement
 	= "for", "(", identifier, identifier, "in", expression, ")", statement; *)

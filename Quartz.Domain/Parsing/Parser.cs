@@ -42,7 +42,6 @@ public class Parser
 		if (token1.Represents(Types.Keyword, "if")) return IfStatementParse(walker);
 
 		if (token1.Represents(Types.Keyword, "while")) return WhileStatementParse(walker);
-		if (token1.Represents(Types.Keyword, "repeat")) return RepeatStatementParse(walker);
 		// if (token1.Represents(Types.Keyword, "for")) return ForStatementParse(walker);
 
 		if (token1.Represents(Types.Bracket, "{")) return BlockParse(walker);
@@ -85,18 +84,7 @@ public class Parser
 		return new WhileStatementNode(condition, body, token1.RangePosition >> body.RangePosition);
 	}
 
-	private Node RepeatStatementParse(Walker walker)
-	{
-		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Keyword, "repeat")) throw new ExpectedIssue("repeat", walker.RangePosition);
-		walker.Index++;
 
-		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, "(")) throw new ExpectedIssue("(", ~token1.RangePosition.End);
-		Node count = ExpressionParse(walker.GetSubwalker("(", ")"));
-		walker.Index++;
-
-		Node body = StatementParse(walker);
-		return new RepeatStatementNode(count, body, token1.RangePosition >> body.RangePosition);
-	}
 
 	/* private Node ForStatementParse(Walker walker)
 	{

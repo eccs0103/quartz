@@ -26,7 +26,6 @@ public partial class Lexer
 		"if",
 		"else",
 		"while",
-		"repeat",
 		"for",
 		"in",
 		"continue",

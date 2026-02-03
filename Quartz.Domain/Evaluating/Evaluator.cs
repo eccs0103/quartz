@@ -127,22 +127,6 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		return ValueNode.NullAt(node.RangePosition);
 	}
 
-	public ValueNode Visit(Scope location, RepeatStatementNode node)
-	{
-		ValueNode nodeCount = node.Count.Accept(this, location);
-		if (nodeCount.Tag != "Number") throw new TypeMismatchIssue("Number", nodeCount.Tag, nodeCount.RangePosition);
-		long count = Convert.ToInt64(nodeCount.ValueAs<double>());
-		while (true)
-		{
-			if (count <= 0) break;
-			try { node.Body.Accept(this, location); }
-			catch (ContinueSignal) { continue; }
-			catch (BreakSignal) { break; }
-			count--;
-		}
-		return ValueNode.NullAt(node.RangePosition);
-	}
-
 	public ValueNode Visit(Scope location, BreakStatementNode node)
 	{
 		throw new BreakSignal();
