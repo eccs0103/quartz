@@ -34,7 +34,7 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		Scope scope = location.GetSubscope(name);
 		Operator @operator = GetOperator(name, ~Position.Zero);
-		@operator.RegisterOperation(parameters, result, (args, _, range) => new ValueNode(result, content(args), range), scope, ~Position.Zero);
+		@operator.RegisterOperation(parameters, result, (args, _, range) => new ValueNode(result, content.Invoke(args), range), scope, ~Position.Zero);
 		return this;
 	}
 
@@ -42,7 +42,7 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		return DeclareOperation(name, parameters, result, args =>
 		{
-			content();
+			content.Invoke();
 			return null!;
 		});
 	}
@@ -51,7 +51,7 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		return DeclareOperation(name, parameters, result, args =>
 		{
-			content(args[0].ValueAs<T1>());
+			content.Invoke(args[0].ValueAs<T1>());
 			return null!;
 		});
 	}
@@ -60,7 +60,7 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		return DeclareOperation(name, parameters, result, args =>
 		{
-			content(args[0].ValueAs<T1>(), args[1].ValueAs<T2>());
+			content.Invoke(args[0].ValueAs<T1>(), args[1].ValueAs<T2>());
 			return null!;
 		});
 	}
@@ -69,7 +69,7 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		return DeclareOperation(name, parameters, result, args =>
 		{
-			content(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>());
+			content.Invoke(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>());
 			return null!;
 		});
 	}
@@ -78,33 +78,33 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		return DeclareOperation(name, parameters, result, args =>
 		{
-			content(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>(), args[3].ValueAs<T4>());
+			content.Invoke(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>(), args[3].ValueAs<T4>());
 			return null!;
 		});
 	}
 
 	public ClassBuilder DeclareOperation<TResult>(string name, IEnumerable<string> parameters, string result, Func<TResult> content)
 	{
-		return DeclareOperation(name, parameters, result, args => content()!);
+		return DeclareOperation(name, parameters, result, args => content.Invoke()!);
 	}
 
 	public ClassBuilder DeclareOperation<T1, TResult>(string name, IEnumerable<string> parameters, string result, Func<T1, TResult> content)
 	{
-		return DeclareOperation(name, parameters, result, args => content(args[0].ValueAs<T1>())!);
+		return DeclareOperation(name, parameters, result, args => content.Invoke(args[0].ValueAs<T1>())!);
 	}
 
 	public ClassBuilder DeclareOperation<T1, T2, TResult>(string name, IEnumerable<string> parameters, string result, Func<T1, T2, TResult> content)
 	{
-		return DeclareOperation(name, parameters, result, args => content(args[0].ValueAs<T1>(), args[1].ValueAs<T2>())!);
+		return DeclareOperation(name, parameters, result, args => content.Invoke(args[0].ValueAs<T1>(), args[1].ValueAs<T2>())!);
 	}
 
 	public ClassBuilder DeclareOperation<T1, T2, T3, TResult>(string name, IEnumerable<string> parameters, string result, Func<T1, T2, T3, TResult> content)
 	{
-		return DeclareOperation(name, parameters, result, args => content(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>())!);
+		return DeclareOperation(name, parameters, result, args => content.Invoke(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>())!);
 	}
 
 	public ClassBuilder DeclareOperation<T1, T2, T3, T4, TResult>(string name, IEnumerable<string> parameters, string result, Func<T1, T2, T3, T4, TResult> content)
 	{
-		return DeclareOperation(name, parameters, result, args => content(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>(), args[3].ValueAs<T4>())!);
+		return DeclareOperation(name, parameters, result, args => content.Invoke(args[0].ValueAs<T1>(), args[1].ValueAs<T2>(), args[2].ValueAs<T3>(), args[3].ValueAs<T4>())!);
 	}
 }

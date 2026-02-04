@@ -84,8 +84,6 @@ public class Parser
 		return new WhileStatementNode(condition, body, token1.RangePosition >> body.RangePosition);
 	}
 
-
-
 	/* private Node ForStatementParse(Walker walker)
 	{
 		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Keyword, "for")) throw new ExpectedIssue("for", walker.RangePosition);

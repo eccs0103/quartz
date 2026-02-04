@@ -2,7 +2,7 @@
 	"profiles": {
 		"Quartz.Presentation": {
 			"commandName": "Project",
-			"commandLineArgs": "\"D:\\Domains\\Projects\\Personal\\Quartz\\Code.qrz\""
+			"commandLineArgs": "\".\\Code.qrz\""
 		}
 	}
 }

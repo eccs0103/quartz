@@ -30,16 +30,16 @@ public class Runtime
 					return !a.Equals(b);
 				});
 			});
-			module.DeclareClass("Type", static (type) =>
+			module.DeclareClass("Type", "Any", static (type) =>
 			{
 			});
-			module.DeclareClass("Function", static (type) =>
+			module.DeclareClass("Function", "Any", static (type) =>
 			{
 			});
-			module.DeclareClass("Null", static (type) =>
+			module.DeclareClass("Null", "Any", static (type) =>
 			{
 			});
-			module.DeclareClass("Boolean", static (type) =>
+			module.DeclareClass("Boolean", "Any", static (type) =>
 			{
 				type.DeclareOperation("!", ["Boolean"], "Boolean", static (bool @this) =>
 				{
@@ -54,14 +54,14 @@ public class Runtime
 					return @this || other;
 				});
 			});
-			module.DeclareClass("String", static (type) =>
+			module.DeclareClass("String", "Any", static (type) =>
 			{
 				type.DeclareOperation("+", ["String", "String"], "String", static (string @this, string other) =>
 				{
 					return @this + other;
 				});
 			});
-			module.DeclareClass("Number", static (type) =>
+			module.DeclareClass("Number", "Any", static (type) =>
 			{
 				type.DeclareOperation("+", ["Number"], "Number", static (double @this) =>
 				{
@@ -104,7 +104,7 @@ public class Runtime
 					return @this >= other;
 				});
 			});
-			module.DeclareClass(RuntimeBuilder.NameWorkspace, static (type) =>
+			module.DeclareClass(RuntimeBuilder.NameWorkspace, "Any", static (type) =>
 			{
 				type.DeclareConstant("pi", "Number", PI);
 				type.DeclareConstant("e", "Number", E);

@@ -5,9 +5,11 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-internal class Class(string name, Scope location) : Symbol(name)
+internal class Class(string name, Scope location, Class? @base) : Symbol(name)
 {
-	public Class? Parent { get; set; }
+	public Class(string name, Scope location) : this(name, location, null)
+	{
+	}
 
 	public override void Assign(ValueNode value, Range<Position> range)
 	{
@@ -31,7 +33,7 @@ internal class Class(string name, Scope location) : Symbol(name)
 	public Datum ReadProperty(string name, Range<Position> range)
 	{
 		if (location.TryRead(name, out Symbol? symbol) && symbol is Datum datum) return datum;
-		if (Parent != null) return Parent.ReadProperty(name, range);
+		if (@base != null) return @base.ReadProperty(name, range);
 		throw new NotExistIssue($"Datum '{name}' in {location}", range);
 	}
 
@@ -49,7 +51,7 @@ internal class Class(string name, Scope location) : Symbol(name)
 			@operator = operator2;
 			return true;
 		}
-		if (Parent != null) return Parent.TryReadOperator(name, out @operator);
+		if (@base != null) return @base.TryReadOperator(name, out @operator);
 		@operator = null;
 		return false;
 	}
@@ -61,14 +63,14 @@ internal class Class(string name, Scope location) : Symbol(name)
 			Operation? operation = @operator.TryReadOperation(parameters);
 			if (operation != null) return operation;
 		}
-		if (Parent != null) return Parent.ReadOperation(name, parameters, range);
+		if (@base != null) return @base.ReadOperation(name, parameters, range);
 		throw new NotExistIssue($"Operation '{name}{Operator.Mangle(parameters)}' in {location}", range);
 	}
 
 	public Operator ReadOperator(string name, Range<Position> range)
 	{
 		if (location.TryRead(name, out Symbol? symbol) && symbol is Operator @operator) return @operator;
-		if (Parent != null) return Parent.ReadOperator(name, range);
+		if (@base != null) return @base.ReadOperator(name, range);
 		throw new NotExistIssue($"Operator '{name}' in {location}", range);
 	}
 }

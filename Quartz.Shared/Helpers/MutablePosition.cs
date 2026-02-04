@@ -6,8 +6,8 @@ public class MutablePosition(uint column, uint line) : Position(column, line)
 	{
 	}
 
-	public new uint Column = column;
-	public new uint Line = line;
+	public new uint Column { get; set; } = column;
+	public new uint Line { get; set; } = line;
 
 	public override string ToString()
 	{

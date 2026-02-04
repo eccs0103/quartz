@@ -22,4 +22,3 @@ public class Position(in uint column, in uint line)
 		return new Range<Position>(position >> position);
 	}
 }
-
