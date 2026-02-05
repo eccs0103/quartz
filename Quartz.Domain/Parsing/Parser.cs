@@ -253,7 +253,7 @@ public class Parser
 
 	private Node UnaryParse(Walker walker)
 	{
-		if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, "+", "-")) return PrimaryParse(walker);
+		if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, "+", "-", "!")) return PrimaryParse(walker);
 		IdentifierNode @operator = new(token.Value, token.RangePosition);
 		walker.Index++;
 		Node target = PrimaryParse(walker);
