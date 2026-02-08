@@ -14,17 +14,17 @@ public class Runtime
 		{
 			module.DeclareClass("Any", null, static (type) =>
 			{
-				type.DeclareOperation("is_equal", ["Any", "Any"], "Boolean", static (object @this, object other) =>
+				type.DeclareOperation("is_equal", ["Any"], "Boolean", static (object @this, object other) =>
 				{
 					if (@this == null) return other == null;
 					return @this.Equals(other);
 				});
-				type.DeclareOperation("=", ["Any", "Any"], "Boolean", static (object @this, object other) =>
+				type.DeclareOperation("=", ["Any"], "Boolean", static (object @this, object other) =>
 				{
 					if (@this == null) return other == null;
 					return @this.Equals(other);
 				});
-				type.DeclareOperation("!=", ["Any", "Any"], "Boolean", static (object @this, object other) =>
+				type.DeclareOperation("!=", ["Any"], "Boolean", static (object @this, object other) =>
 				{
 					if (@this == null) return other != null;
 					return !@this.Equals(other);
@@ -32,65 +32,65 @@ public class Runtime
 			});
 			module.DeclareClass("Number", "Any", static (type) =>
 			{
-				type.DeclareOperation("+", ["Number"], "Number", static (double @this) =>
+				type.DeclareOperation("+", [], "Number", static (double @this) =>
 				{
 					return +@this;
 				});
-				type.DeclareOperation("+", ["Number", "Number"], "Number", static (double @this, double other) =>
+				type.DeclareOperation("+", ["Number"], "Number", static (double @this, double other) =>
 				{
 					return @this + other;
 				});
-				type.DeclareOperation("-", ["Number"], "Number", static (double @this) =>
+				type.DeclareOperation("-", [], "Number", static (double @this) =>
 				{
 					return -@this;
 				});
-				type.DeclareOperation("-", ["Number", "Number"], "Number", static (double @this, double other) =>
+				type.DeclareOperation("-", ["Number"], "Number", static (double @this, double other) =>
 				{
 					return @this - other;
 				});
-				type.DeclareOperation("*", ["Number", "Number"], "Number", static (double @this, double other) =>
+				type.DeclareOperation("*", ["Number"], "Number", static (double @this, double other) =>
 				{
 					return @this * other;
 				});
-				type.DeclareOperation("/", ["Number", "Number"], "Number", static (double @this, double other) =>
+				type.DeclareOperation("/", ["Number"], "Number", static (double @this, double other) =>
 				{
 					return @this / other;
 				});
-				type.DeclareOperation("<", ["Number", "Number"], "Boolean", static (double @this, double other) =>
+				type.DeclareOperation("<", ["Number"], "Boolean", static (double @this, double other) =>
 				{
 					return @this < other;
 				});
-				type.DeclareOperation("<=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
+				type.DeclareOperation("<=", ["Number"], "Boolean", static (double @this, double other) =>
 				{
 					return @this <= other;
 				});
-				type.DeclareOperation(">", ["Number", "Number"], "Boolean", static (double @this, double other) =>
+				type.DeclareOperation(">", ["Number"], "Boolean", static (double @this, double other) =>
 				{
 					return @this > other;
 				});
-				type.DeclareOperation(">=", ["Number", "Number"], "Boolean", static (double @this, double other) =>
+				type.DeclareOperation(">=", ["Number"], "Boolean", static (double @this, double other) =>
 				{
 					return @this >= other;
 				});
 			});
 			module.DeclareClass("Boolean", "Any", static (type) =>
 			{
-				type.DeclareOperation("!", ["Boolean"], "Boolean", static (bool @this) =>
+				type.DeclareOperation("!", [], "Boolean", static (bool @this) =>
 				{
 					return !@this;
 				});
-				type.DeclareOperation("&", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
+				type.DeclareOperation("&", ["Boolean"], "Boolean", static (bool @this, bool other) =>
 				{
 					return @this && other;
 				});
-				type.DeclareOperation("|", ["Boolean", "Boolean"], "Boolean", static (bool @this, bool other) =>
+				type.DeclareOperation("|", ["Boolean"], "Boolean", static (bool @this, bool other) =>
 				{
 					return @this || other;
 				});
 			});
 			module.DeclareClass("String", "Any", static (type) =>
 			{
-				type.DeclareOperation("+", ["String", "String"], "String", static (string @this, string other) =>
+				type.DeclareOperation("+", ["String"], "String", static (string @this, string other) =>
 				{
 					return @this + other;
 				});

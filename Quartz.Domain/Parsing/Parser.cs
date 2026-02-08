@@ -287,7 +287,7 @@ public class Parser
 			const string open = "(";
 			if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, open)) return identifier;
 			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
-			IEnumerable<Node> arguments = ArgumentsParse(walker.GetSubwalker(open, close));
+			IEnumerable<Node> arguments = [.. ArgumentsParse(walker.GetSubwalker(open, close))];
 			if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, close)) throw new ExpectedIssue(close, ~identifier.RangePosition.End);
 			walker.Index++;
 			return new InvokationNode(identifier, arguments, identifier.RangePosition >> token2.RangePosition);

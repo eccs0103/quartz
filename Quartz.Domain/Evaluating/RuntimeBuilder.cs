@@ -11,6 +11,6 @@ internal class RuntimeBuilder
 
 	public void DeclareModule(Action<ModuleBuilder> configure)
 	{
-		configure(new ModuleBuilder(Global, Location));
+		configure.Invoke(new ModuleBuilder(Global, Location));
 	}
 }

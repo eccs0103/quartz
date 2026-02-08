@@ -34,6 +34,7 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		Scope scope = location.GetSubscope(name);
 		Operator @operator = GetOperator(name, ~Position.Zero);
+		if (type.Name != RuntimeBuilder.NameWorkspace) parameters = parameters.Prepend(type.Name);
 		@operator.RegisterOperation(parameters, result, (args, _, range) => new ValueNode(result, content.Invoke(args), range), scope, ~Position.Zero);
 		return this;
 	}
