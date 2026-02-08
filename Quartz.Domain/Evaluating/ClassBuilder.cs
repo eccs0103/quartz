@@ -33,24 +33,22 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		Scope scope = location.GetSubscope(name);
 		Operator @operator = GetOperator(name, ~Position.Zero);
-		
-		if (type.Name != RuntimeBuilder.NameWorkspace)
+
+		if (type.Name == RuntimeBuilder.NameWorkspace)
 		{
-			parameters = parameters.Prepend(type.Name);
-			@operator.RegisterOperation(parameters, result, (arguments, scopeCall, range) => 
-			{
-				return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
-			}, scope, ~Position.Zero);
-		}
-		else
-		{
-			@operator.RegisterOperation(parameters, result, (arguments, scopeCall, range) => 
+			@operator.RegisterOperation(parameters, result, (arguments, scopeCall, range) =>
 			{
 				Instance workspace = new(RuntimeBuilder.NameWorkspace, null, range, scopeCall);
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}, scope, ~Position.Zero);
+			return this;
 		}
-		
+
+		parameters = parameters.Prepend(type.Name);
+		@operator.RegisterOperation(parameters, result, (arguments, scopeCall, range) =>
+		{
+			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
+		}, scope, ~Position.Zero);
 		return this;
 	}
 }

@@ -17,14 +17,16 @@ internal class Class(string name, Scope location, Class? @base) : Symbol(name)
 
 	public Datum RegisterConstant(string name, string tag, object value, Range<Position> range)
 	{
-		Datum constant = new(name, tag, value, false);
+		Instance instance = new(tag, value, range, location);
+		Datum constant = new(name, tag, instance, false);
 		location.Register(name, constant, range);
 		return constant;
 	}
 
 	public Datum RegisterVariable(string name, string tag, object value, Range<Position> range)
 	{
-		Datum variable = new(name, tag, value, true);
+		Instance instance = new(tag, value, range, location);
+		Datum variable = new(name, tag, instance, true);
 		location.Register(name, variable, range);
 		return variable;
 	}

@@ -13,7 +13,7 @@ internal class Evaluator : IAstVisitor<Instance>
 	public Instance Visit(Scope location, IdentifierNode node)
 	{
 		Symbol symbol = location.Read(node.Name, node.RangePosition);
-		if (symbol is Datum datum) return new Instance(datum.Tag, datum.Value, node.RangePosition, location);
+		if (symbol is Datum datum) return new Instance(datum.Tag, datum.Value.ValueAs<object?>(), node.RangePosition, location);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
@@ -35,7 +35,7 @@ internal class Evaluator : IAstVisitor<Instance>
 			nodeValue = new Instance("Null", null, nodeIdentifier.RangePosition, location);
 		}
 
-		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue.ValueAs<object>(), true);
+		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue, true);
 		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);
 
 		return new Instance("Null", null, node.RangePosition, location);
