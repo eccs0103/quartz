@@ -1,13 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
-using Quartz.Domain.Parsing;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
 internal class Module(string name, Scope location) : Symbol(name)
 {
-	public override void Assign(ValueNode value, Range<Position> range)
+	public override void Assign(Instance value, Range<Position> range)
 	{
 		throw new NotMutableIssue($"Module '{Name}'", range);
 	}

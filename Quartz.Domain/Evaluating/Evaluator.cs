@@ -3,27 +3,27 @@ using Quartz.Domain.Parsing;
 
 namespace Quartz.Domain.Evaluating;
 
-internal class Evaluator() : IAstVisitor<ValueNode>
+internal class Evaluator : IAstVisitor<Instance>
 {
-	public ValueNode Visit(Scope location, ValueNode node)
+	public Instance Visit(Scope location, ValueNode node)
 	{
-		return node;
+		return new Instance(node.Tag, node.Value, node.RangePosition, location);
 	}
 
-	public ValueNode Visit(Scope location, IdentifierNode node)
+	public Instance Visit(Scope location, IdentifierNode node)
 	{
 		Symbol symbol = location.Read(node.Name, node.RangePosition);
-		if (symbol is Datum datum) return new ValueNode(datum.Tag, datum.Value, node.RangePosition);
+		if (symbol is Datum datum) return new Instance(datum.Tag, datum.Value, node.RangePosition, location);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
 	/// TODO Refactor
-	public ValueNode Visit(Scope location, DeclarationNode node)
+	public Instance Visit(Scope location, DeclarationNode node)
 	{
 		IdentifierNode nodeType = node.Type;
 		IdentifierNode nodeIdentifier = node.Identifier;
 
-		ValueNode nodeValue;
+		Instance nodeValue;
 		if (node.Value != null)
 		{
 			nodeValue = node.Value.Accept(this, location);
@@ -32,28 +32,28 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		else
 		{
 			if (!TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
-			nodeValue = new ValueNode("Null", null, nodeIdentifier.RangePosition);
+			nodeValue = new Instance("Null", null, nodeIdentifier.RangePosition, location);
 		}
 
-		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue.Value!, true);
+		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue.ValueAs<object>(), true);
 		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);
 
-		return ValueNode.NullAt(node.RangePosition);
+		return new Instance("Null", null, node.RangePosition, location);
 	}
 
-	public ValueNode Visit(Scope location, AssignmentNode node)
+	public Instance Visit(Scope location, AssignmentNode node)
 	{
 		IdentifierNode nodeIdentifier = node.Identifier;
-		ValueNode nodeValue = node.Value.Accept(this, location);
+		Instance nodeValue = node.Value.Accept(this, location);
 		Symbol symbol = location.Read(nodeIdentifier.Name, nodeIdentifier.RangePosition);
 		symbol.Assign(nodeValue, nodeIdentifier.RangePosition);
-		return ValueNode.NullAt(node.RangePosition);
+		return new Instance("Null", null, node.RangePosition, location);
 	}
 
-	public ValueNode Visit(Scope location, InvokationNode node)
+	public Instance Visit(Scope location, InvokationNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		IEnumerable<ValueNode> arguments = node.Arguments.Select(argument => Unwrap(argument.Accept(this, location)));
+		IEnumerable<Instance> arguments = node.Arguments.Select(argument => argument.Accept(this, location).Unwrap());
 		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
 		if (symbol is not Operator @operator) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		Operation operation = @operator.TryReadOperation(arguments.Select(result => result.Tag)) ?? throw new NotExistIssue($"Operation '{nodeTarget.Name}'", nodeTarget.RangePosition);
@@ -61,10 +61,10 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		return operation.Invoke(arguments, scope, node.RangePosition);
 	}
 
-	public ValueNode Visit(Scope location, UnaryOperatorNode node)
+	public Instance Visit(Scope location, UnaryOperatorNode node)
 	{
 		IdentifierNode nodeOperator = node.Operator;
-		ValueNode nodeTarget = Unwrap(node.Target.Accept(this, location));
+		Instance nodeTarget = node.Target.Accept(this, location).Unwrap();
 		Symbol symbol = location.Read(nodeTarget.Tag, nodeTarget.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeTarget.Tag}' in {location}", nodeTarget.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeTarget.Tag], nodeOperator.RangePosition);
@@ -72,11 +72,11 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		return operation.Invoke([nodeTarget], scope, node.RangePosition);
 	}
 
-	public ValueNode Visit(Scope location, BinaryOperatorNode node)
+	public Instance Visit(Scope location, BinaryOperatorNode node)
 	{
 		IdentifierNode nodeOperator = node.Operator;
-		ValueNode nodeLeft = Unwrap(node.Left.Accept(this, location));
-		ValueNode nodeRight = Unwrap(node.Right.Accept(this, location));
+		Instance nodeLeft = node.Left.Accept(this, location).Unwrap();
+		Instance nodeRight = node.Right.Accept(this, location).Unwrap();
 		Symbol symbol = location.Read(nodeLeft.Tag, nodeLeft.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeLeft.Tag}' in {location}", nodeLeft.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeLeft.Tag, nodeRight.Tag], nodeOperator.RangePosition);
@@ -84,55 +84,42 @@ internal class Evaluator() : IAstVisitor<ValueNode>
 		return operation.Invoke([nodeLeft, nodeRight], scope, node.RangePosition);
 	}
 
-	private static string Unwrap(string tag)
-	{
-		return tag.EndsWith('?') ? tag[..^1] : tag;
-	}
-
-	private static ValueNode Unwrap(ValueNode node)
-	{
-		if (node.Value is null) return new ValueNode("Null", null, node.RangePosition);
-		string tag = Unwrap(node.Tag);
-		if (tag == node.Tag) return node;
-		return new ValueNode(tag, node.Value, node.RangePosition);
-	}
-
-	public ValueNode Visit(Scope location, BlockNode node)
+	public Instance Visit(Scope location, BlockNode node)
 	{
 		Scope scope = location.GetSubscope("Block");
 		foreach (Node statement in node.Statements) statement.Accept(this, scope);
-		return ValueNode.NullAt(node.RangePosition);
+		return new Instance("Null", null, node.RangePosition, location);
 	}
 
-	public ValueNode Visit(Scope location, IfStatementNode node)
+	public Instance Visit(Scope location, IfStatementNode node)
 	{
-		ValueNode nodeCondition = node.Condition.Accept(this, location);
+		Instance nodeCondition = node.Condition.Accept(this, location);
 		if (nodeCondition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", nodeCondition.Tag, nodeCondition.RangePosition);
 		Node? nodeBranch = nodeCondition.ValueAs<bool>() ? node.Then : node.Else;
 		nodeBranch?.Accept(this, location);
-		return ValueNode.NullAt(node.RangePosition);
+		return new Instance("Null", null, node.RangePosition, location);
 	}
 
-	public ValueNode Visit(Scope location, WhileStatementNode node)
+	public Instance Visit(Scope location, WhileStatementNode node)
 	{
 		while (true)
 		{
-			ValueNode nodeCondition = node.Condition.Accept(this, location);
+			Instance nodeCondition = node.Condition.Accept(this, location);
 			if (nodeCondition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", nodeCondition.Tag, nodeCondition.RangePosition);
 			if (!nodeCondition.ValueAs<bool>()) break;
 			try { node.Body.Accept(this, location); }
 			catch (ContinueSignal) { continue; }
 			catch (BreakSignal) { break; }
 		}
-		return ValueNode.NullAt(node.RangePosition);
+		return new Instance("Null", null, node.RangePosition, location);
 	}
 
-	public ValueNode Visit(Scope location, BreakStatementNode node)
+	public Instance Visit(Scope location, BreakStatementNode node)
 	{
 		throw new BreakSignal();
 	}
 
-	public ValueNode Visit(Scope location, ContinueStatementNode node)
+	public Instance Visit(Scope location, ContinueStatementNode node)
 	{
 		throw new ContinueSignal();
 	}
