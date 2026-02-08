@@ -38,7 +38,7 @@ internal class ClassBuilder(Class type, Scope location)
 		{
 			@operator.RegisterOperation(parameters, result, (arguments, scopeCall, range) =>
 			{
-				Instance workspace = new(RuntimeBuilder.NameWorkspace, null, range, scopeCall);
+				Instance workspace = new(RuntimeBuilder.NameWorkspace, Null.Instance, range, scopeCall);
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}, scope, ~Position.Zero);
 			return this;

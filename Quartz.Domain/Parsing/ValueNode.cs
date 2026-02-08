@@ -17,11 +17,6 @@ public class ValueNode(string tag, object? value, Range<Position> range) : Node(
 		return Value?.ToString() ?? "null";
 	}
 
-	public static ValueNode NullAt(Range<Position> range)
-	{
-		return new ValueNode("Null", null, range);
-	}
-
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
 	{
 		return visitor.Visit(location, this);

@@ -177,7 +177,7 @@ public class Runtime
 					Instance value = arguments[0];
 					Instance text = value.RunOperation("to_string", []);
 					Console.WriteLine(text.ValueAs<string>());
-					return new Instance("Null", null, range, scope);
+					return new Instance("Null", Null.Instance, range, scope);
 				});
 			});
 		});

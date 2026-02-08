@@ -7,13 +7,14 @@ internal class Evaluator : IAstVisitor<Instance>
 {
 	public Instance Visit(Scope location, ValueNode node)
 	{
-		return new Instance(node.Tag, node.Value, node.RangePosition, location);
+		object value = node.Value ?? Null.Instance;
+		return new Instance(node.Tag, value, node.RangePosition, location);
 	}
 
 	public Instance Visit(Scope location, IdentifierNode node)
 	{
 		Symbol symbol = location.Read(node.Name, node.RangePosition);
-		if (symbol is Datum datum) return new Instance(datum.Tag, datum.Value.ValueAs<object?>(), node.RangePosition, location);
+		if (symbol is Datum datum) return new Instance(datum.Tag, datum.Value.ValueAs<object>(), node.RangePosition, location);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
@@ -32,13 +33,13 @@ internal class Evaluator : IAstVisitor<Instance>
 		else
 		{
 			if (!TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
-			nodeValue = new Instance("Null", null, nodeIdentifier.RangePosition, location);
+			nodeValue = new Instance("Null", Null.Instance, nodeIdentifier.RangePosition, location);
 		}
 
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue, true);
 		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);
 
-		return new Instance("Null", null, node.RangePosition, location);
+		return new Instance("Null", Null.Instance, node.RangePosition, location);
 	}
 
 	public Instance Visit(Scope location, AssignmentNode node)
@@ -47,13 +48,13 @@ internal class Evaluator : IAstVisitor<Instance>
 		Instance nodeValue = node.Value.Accept(this, location);
 		Symbol symbol = location.Read(nodeIdentifier.Name, nodeIdentifier.RangePosition);
 		symbol.Assign(nodeValue, nodeIdentifier.RangePosition);
-		return new Instance("Null", null, node.RangePosition, location);
+		return new Instance("Null", Null.Instance, node.RangePosition, location);
 	}
 
 	public Instance Visit(Scope location, InvokationNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		IEnumerable<Instance> arguments = node.Arguments.Select(argument => argument.Accept(this, location).Unwrap());
+		IEnumerable<Instance> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
 		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
 		if (symbol is not Operator @operator) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		Operation operation = @operator.TryReadOperation(arguments.Select(result => result.Tag)) ?? throw new NotExistIssue($"Operation '{nodeTarget.Name}'", nodeTarget.RangePosition);
@@ -64,7 +65,7 @@ internal class Evaluator : IAstVisitor<Instance>
 	public Instance Visit(Scope location, UnaryOperatorNode node)
 	{
 		IdentifierNode nodeOperator = node.Operator;
-		Instance nodeTarget = node.Target.Accept(this, location).Unwrap();
+		Instance nodeTarget = TypeHelper.Unwrap(node.Target.Accept(this, location));
 		Symbol symbol = location.Read(nodeTarget.Tag, nodeTarget.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeTarget.Tag}' in {location}", nodeTarget.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeTarget.Tag], nodeOperator.RangePosition);
@@ -75,8 +76,8 @@ internal class Evaluator : IAstVisitor<Instance>
 	public Instance Visit(Scope location, BinaryOperatorNode node)
 	{
 		IdentifierNode nodeOperator = node.Operator;
-		Instance nodeLeft = node.Left.Accept(this, location).Unwrap();
-		Instance nodeRight = node.Right.Accept(this, location).Unwrap();
+		Instance nodeLeft = TypeHelper.Unwrap(node.Left.Accept(this, location));
+		Instance nodeRight = TypeHelper.Unwrap(node.Right.Accept(this, location));
 		Symbol symbol = location.Read(nodeLeft.Tag, nodeLeft.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{nodeLeft.Tag}' in {location}", nodeLeft.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [nodeLeft.Tag, nodeRight.Tag], nodeOperator.RangePosition);
@@ -88,7 +89,7 @@ internal class Evaluator : IAstVisitor<Instance>
 	{
 		Scope scope = location.GetSubscope("Block");
 		foreach (Node statement in node.Statements) statement.Accept(this, scope);
-		return new Instance("Null", null, node.RangePosition, location);
+		return new Instance("Null", Null.Instance, node.RangePosition, location);
 	}
 
 	public Instance Visit(Scope location, IfStatementNode node)
@@ -97,7 +98,7 @@ internal class Evaluator : IAstVisitor<Instance>
 		if (nodeCondition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", nodeCondition.Tag, nodeCondition.RangePosition);
 		Node? nodeBranch = nodeCondition.ValueAs<bool>() ? node.Then : node.Else;
 		nodeBranch?.Accept(this, location);
-		return new Instance("Null", null, node.RangePosition, location);
+		return new Instance("Null", Null.Instance, node.RangePosition, location);
 	}
 
 	public Instance Visit(Scope location, WhileStatementNode node)
@@ -111,7 +112,7 @@ internal class Evaluator : IAstVisitor<Instance>
 			catch (ContinueSignal) { continue; }
 			catch (BreakSignal) { break; }
 		}
-		return new Instance("Null", null, node.RangePosition, location);
+		return new Instance("Null", Null.Instance, node.RangePosition, location);
 	}
 
 	public Instance Visit(Scope location, BreakStatementNode node)

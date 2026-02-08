@@ -3,26 +3,17 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Instance(string tag, object? value, Range<Position> range, Scope location)
+public class Instance(string tag, object value, Range<Position> range, Scope location)
 {
 	public string Tag { get; } = tag;
 	public Range<Position> RangePosition => range;
+	public Scope Location => location;
 
 	public T ValueAs<T>()
 	{
 		if (value is T result) return result;
-		if (value == null && default(T) == null) return default!;
-		string tag = value?.GetType().Name ?? "Null";
+		string tag = value.GetType().Name;
 		throw new InvalidCastException($"Unable to convert '{value}' from {tag} to {typeof(T).Name}");
-	}
-
-	public Instance Unwrap()
-	{
-		object? value = ValueAs<object?>();
-		if (value == null) return new Instance("Null", null, RangePosition, location);
-		string tag = Tag.EndsWith('?') ? Tag[..^1] : Tag;
-		if (tag == Tag) return this;
-		return new Instance(tag, value, RangePosition, location);
 	}
 
 	public Instance RunOperation(string name, IEnumerable<Instance> arguments)
