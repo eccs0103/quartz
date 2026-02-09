@@ -8,15 +8,15 @@ internal class Evaluator : IAstVisitor<Instance>
 {
 	public Instance Visit(Scope location, ValueNode node)
 	{
-		object value = node.Value ?? Empty.Instance;
-		return new Instance(node.Tag, value);
+		object value = node.Value ?? Instance.Empty;
+		return new Instance<object>(node.Tag, value);
 	}
 
 	public Instance Visit(Scope location, IdentifierNode node)
 	{
 		Symbol symbol = location.Read(node.Name, node.RangePosition);
 		if (symbol is Datum datum) return datum.Value;
-		if (symbol is Class type) return new Instance("Type", type);
+		if (symbol is Class type) return new Instance<Class>("Type", type);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
@@ -92,7 +92,7 @@ internal class Evaluator : IAstVisitor<Instance>
 	{
 		Instance nodeCondition = node.Condition.Accept(this, location);
 		if (nodeCondition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", nodeCondition.Tag, node.Condition.RangePosition);
-		Node? nodeBranch = nodeCondition.ValueAs<bool>() ? node.Then : node.Else;
+		Node? nodeBranch = nodeCondition.As<bool>().Value ? node.Then : node.Else;
 		nodeBranch?.Accept(this, location);
 		return Instance.Null;
 	}
@@ -103,7 +103,7 @@ internal class Evaluator : IAstVisitor<Instance>
 		{
 			Instance nodeCondition = node.Condition.Accept(this, location);
 			if (nodeCondition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", nodeCondition.Tag, node.Condition.RangePosition);
-			if (!nodeCondition.ValueAs<bool>()) break;
+			if (!nodeCondition.As<bool>().Value) break;
 			try { node.Body.Accept(this, location); }
 			catch (ContinueSignal) { continue; }
 			catch (BreakSignal) { break; }

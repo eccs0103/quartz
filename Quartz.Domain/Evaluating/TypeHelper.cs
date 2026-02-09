@@ -24,10 +24,10 @@ public static class TypeHelper
 
 	public static Instance Unwrap(Instance instance)
 	{
-		if (instance.Value is Empty) return Instance.Null;
+		if (instance.Value == Instance.Empty) return Instance.Null;
 		string tag = UnwrapTag(instance.Tag);
 		if (tag == instance.Tag) return instance;
-		return new Instance(tag, instance.Value);
+		return new Instance<object>(tag, instance.Value);
 	}
 
 	private static string UnwrapTag(string tag)
