@@ -3,7 +3,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-internal class Datum(string name, string tag, Instance value, bool mutable) : Symbol(name)
+public class Datum(string name, string tag, Instance value, bool mutable) : Symbol(name)
 {
 	public string Tag { get; } = tag;
 	public bool Mutable { get; } = mutable;

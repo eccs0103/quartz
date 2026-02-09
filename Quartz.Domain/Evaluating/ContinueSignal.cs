@@ -1,5 +1,5 @@
 namespace Quartz.Domain.Evaluating;
 
-internal class ContinueSignal() : Exception()
+public class ContinueSignal() : Exception()
 {
 }

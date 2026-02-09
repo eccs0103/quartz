@@ -1,5 +1,5 @@
 namespace Quartz.Domain.Evaluating;
 
-internal class BreakSignal() : Exception()
+public class BreakSignal() : Exception()
 {
 }

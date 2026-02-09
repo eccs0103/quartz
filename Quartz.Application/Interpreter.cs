@@ -2,6 +2,9 @@
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
+using Quartz.Application.Lexing;
+using Quartz.Application.Parsing;
+using Quartz.Application.Evaluating;
 
 namespace Quartz.Application;
 

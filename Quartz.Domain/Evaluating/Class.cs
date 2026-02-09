@@ -4,7 +4,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-internal class Class(string name, Scope location, Class? @base) : Symbol(name)
+public class Class(string name, Scope location, Class? @base) : Symbol(name)
 {
 	public Class(string name, Scope location) : this(name, location, null)
 	{

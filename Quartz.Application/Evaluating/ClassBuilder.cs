@@ -1,7 +1,8 @@
 using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
+using Quartz.Domain.Evaluating;
 
-namespace Quartz.Domain.Evaluating;
+namespace Quartz.Application.Evaluating;
 
 internal class ClassBuilder(Class type, Scope location)
 {

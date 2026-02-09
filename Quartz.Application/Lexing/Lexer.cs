@@ -3,9 +3,10 @@ using System.Text.RegularExpressions;
 using Quartz.Domain.Exceptions;
 using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
+using Quartz.Domain.Lexing;
 using static Quartz.Domain.Lexing.Token;
 
-namespace Quartz.Domain.Lexing;
+namespace Quartz.Application.Lexing;
 
 public partial class Lexer
 {

@@ -4,7 +4,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-internal class Module(string name, Scope location) : Symbol(name)
+public class Module(string name, Scope location) : Symbol(name)
 {
 	public override void Assign(Instance value, Range<Position> range)
 	{

@@ -3,7 +3,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-internal class Operator(string name, Scope location) : Symbol(name)
+public class Operator(string name, Scope location) : Symbol(name)
 {
 	public override void Assign(Instance value, Range<Position> range)
 	{

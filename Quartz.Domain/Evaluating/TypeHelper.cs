@@ -1,6 +1,6 @@
 namespace Quartz.Domain.Evaluating;
 
-internal static class TypeHelper
+public static class TypeHelper
 {
 	public static bool IsCompatible(string target, string value)
 	{

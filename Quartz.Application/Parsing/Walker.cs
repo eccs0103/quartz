@@ -6,7 +6,7 @@ using Quartz.Shared.Helpers;
 using static System.Math;
 using static Quartz.Domain.Lexing.Token;
 
-namespace Quartz.Domain.Parsing;
+namespace Quartz.Application.Parsing;
 
 internal class Walker(Token[] tokens, Range<uint> range)
 {

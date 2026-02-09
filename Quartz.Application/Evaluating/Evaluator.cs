@@ -1,7 +1,8 @@
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Parsing;
+using Quartz.Domain.Evaluating;
 
-namespace Quartz.Domain.Evaluating;
+namespace Quartz.Application.Evaluating;
 
 internal class Evaluator : IAstVisitor<Instance>
 {

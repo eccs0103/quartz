@@ -1,6 +1,7 @@
 using Quartz.Shared.Helpers;
+using Quartz.Domain.Evaluating;
 
-namespace Quartz.Domain.Evaluating;
+namespace Quartz.Application.Evaluating;
 
 internal class ModuleBuilder(Module module, Scope location)
 {

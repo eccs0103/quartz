@@ -2,9 +2,10 @@ using System.Globalization;
 using System.Text.Json;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
+using Quartz.Domain.Parsing;
 using static Quartz.Domain.Lexing.Token;
 
-namespace Quartz.Domain.Parsing;
+namespace Quartz.Application.Parsing;
 
 public class Parser
 {
