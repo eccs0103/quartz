@@ -44,11 +44,16 @@ class Program
 
 	private static string? InternalFetch(string address)
 	{
+		FileInfo file = new(address);
 		try
 		{
-			FileInfo file = new(address);
 			using StreamReader reader = file.OpenText();
 			return reader.ReadToEnd();
+		}
+		catch (FileNotFoundException)
+		{
+			Console.WriteLine(file.FullName);
+			return null;
 		}
 		catch (Exception)
 		{

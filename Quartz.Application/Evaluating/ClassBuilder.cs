@@ -7,7 +7,7 @@ internal class ClassBuilder(Class type, Scope location)
 {
 	public ClassBuilder DeclareVariable(string name, string tag, object value)
 	{
-		Instance instance = new(tag, value, location);
+		Instance instance = new(tag, value);
 		Datum variable = new(name, tag, instance, true);
 		location.Register(name, variable, ~Position.Zero);
 		return this;
@@ -15,7 +15,7 @@ internal class ClassBuilder(Class type, Scope location)
 
 	public ClassBuilder DeclareConstant(string name, string tag, object value)
 	{
-		Instance instance = new(tag, value, location);
+		Instance instance = new(tag, value);
 		Datum constant = new(name, tag, instance, false);
 		location.Register(name, constant, ~Position.Zero);
 		return this;
@@ -38,7 +38,7 @@ internal class ClassBuilder(Class type, Scope location)
 		{
 			Instance Wrapper(Instance[] arguments, Scope scopeCall, Range<Position> range)
 			{
-				Instance workspace = new(RuntimeBuilder.NameWorkspace, Null.Instance, scopeCall);
+				Instance workspace = new(RuntimeBuilder.NameWorkspace, Empty.Instance);
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(Operator.Mangle(parameters), parameters, result, Wrapper, scope);

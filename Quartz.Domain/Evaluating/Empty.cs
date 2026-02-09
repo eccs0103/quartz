@@ -1,10 +1,10 @@
 namespace Quartz.Domain.Evaluating;
 
-public class Null
+public class Empty
 {
-	public static Null Instance { get; } = new();
+	public static Empty Instance { get; } = new();
 
-	private Null()
+	private Empty()
 	{
 	}
 

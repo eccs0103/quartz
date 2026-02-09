@@ -34,7 +34,10 @@ block
 	= "{", { statement }, "}";
 
 declaration
-	= identifier, identifier, [ invocation ];
+	= identifier, type, [ invocation ];
+
+type
+	= identifier, [ "<", type, ">" ], [ "?" ];
 
 assignment
 	= identifier, ":", expression;

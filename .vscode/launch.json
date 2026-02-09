@@ -6,7 +6,7 @@
 			"type": "coreclr",
 			"request": "launch",
 			"preLaunchTask": "build",
-			"program": "${workspaceFolder}/Quartz.Presentation/bin/Debug/net8.0/Quartz.Presentation.dll",
+			"program": "${workspaceFolder}/Quartz.Presentation/bin/Debug/net10.0/Quartz.Presentation.dll",
 			"args": [ "Code.qrz" ],
 			"cwd": "${workspaceFolder}",
 			"internalConsoleOptions": "neverOpen",

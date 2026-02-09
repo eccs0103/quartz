@@ -1,6 +1,6 @@
+using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Parsing;
-using Quartz.Domain.Evaluating;
 
 namespace Quartz.Application.Evaluating;
 
@@ -8,39 +8,34 @@ internal class Evaluator : IAstVisitor<Instance>
 {
 	public Instance Visit(Scope location, ValueNode node)
 	{
-		object value = node.Value ?? Null.Instance;
-		return new Instance(node.Tag, value, location);
+		object value = node.Value ?? Empty.Instance;
+		return new Instance(node.Tag, value);
 	}
 
 	public Instance Visit(Scope location, IdentifierNode node)
 	{
 		Symbol symbol = location.Read(node.Name, node.RangePosition);
 		if (symbol is Datum datum) return datum.Value;
+		if (symbol is Class type) return new Instance("Type", type);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
-	/// TODO Refactor
 	public Instance Visit(Scope location, DeclarationNode node)
 	{
 		IdentifierNode nodeType = node.Type;
 		IdentifierNode nodeIdentifier = node.Identifier;
 
-		Instance nodeValue;
-		if (node.Value != null)
-		{
-			nodeValue = node.Value.Accept(this, location);
-			if (!TypeHelper.IsCompatible(nodeType.Name, nodeValue.Tag)) throw new TypeMismatchIssue(nodeType.Name, nodeValue.Tag, node.Value.RangePosition);
-		}
-		else
-		{
-			if (!TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
-			nodeValue = new Instance("Null", Null.Instance, location);
-		}
+		if (node.Value is null && !TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
 
-		Datum variable = new(nodeIdentifier.Name, nodeType.Name, nodeValue, true);
+		Instance instance = node.Value?.Accept(this, location) ?? Instance.Null;
+
+		if (node.Value is not null && !TypeHelper.IsCompatible(nodeType.Name, instance.Tag))
+			throw new TypeMismatchIssue(nodeType.Name, instance.Tag, node.Value.RangePosition);
+
+		Datum variable = new(nodeIdentifier.Name, nodeType.Name, instance, true);
 		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);
 
-		return new Instance("Null", Null.Instance, location);
+		return Instance.Null;
 	}
 
 	public Instance Visit(Scope location, AssignmentNode node)
@@ -49,7 +44,7 @@ internal class Evaluator : IAstVisitor<Instance>
 		Instance nodeValue = node.Value.Accept(this, location);
 		Symbol symbol = location.Read(nodeIdentifier.Name, nodeIdentifier.RangePosition);
 		symbol.Assign(nodeValue, nodeIdentifier.RangePosition);
-		return new Instance("Null", Null.Instance, location);
+		return Instance.Null;
 	}
 
 	public Instance Visit(Scope location, InvokationNode node)
@@ -90,7 +85,7 @@ internal class Evaluator : IAstVisitor<Instance>
 	{
 		Scope scope = location.GetSubscope("Block");
 		foreach (Node statement in node.Statements) statement.Accept(this, scope);
-		return new Instance("Null", Null.Instance, location);
+		return Instance.Null;
 	}
 
 	public Instance Visit(Scope location, IfStatementNode node)
@@ -99,7 +94,7 @@ internal class Evaluator : IAstVisitor<Instance>
 		if (nodeCondition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", nodeCondition.Tag, node.Condition.RangePosition);
 		Node? nodeBranch = nodeCondition.ValueAs<bool>() ? node.Then : node.Else;
 		nodeBranch?.Accept(this, location);
-		return new Instance("Null", Null.Instance, location);
+		return Instance.Null;
 	}
 
 	public Instance Visit(Scope location, WhileStatementNode node)
@@ -113,7 +108,7 @@ internal class Evaluator : IAstVisitor<Instance>
 			catch (ContinueSignal) { continue; }
 			catch (BreakSignal) { break; }
 		}
-		return new Instance("Null", Null.Instance, location);
+		return Instance.Null;
 	}
 
 	public Instance Visit(Scope location, BreakStatementNode node)

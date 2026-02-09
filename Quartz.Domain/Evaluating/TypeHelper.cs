@@ -6,23 +6,34 @@ public static class TypeHelper
 	{
 		if (target == "Any") return true;
 		if (target == value) return true;
-		if (!target.EndsWith('?')) return false;
+
+		bool isNullable = target.EndsWith('?') || (target.StartsWith("Nullable<") && target.EndsWith(">"));
+		if (!isNullable) return false;
+
 		if (value == "Null") return true;
-		return target.AsSpan(0, target.Length - 1).SequenceEqual(value.AsSpan());
+		return IsCompatible(UnwrapTag(target), value);
 	}
 
 	public static bool IsOptional(string tag)
 	{
 		if (tag == "Null") return true;
 		if (tag.EndsWith('?')) return true;
+		if (tag.StartsWith("Nullable<") && tag.EndsWith('>')) return true;
 		return false;
 	}
 
 	public static Instance Unwrap(Instance instance)
 	{
-		if (instance.ValueAs<object>() is Null) return new Instance("Null", Null.Instance, instance.Location);
-		string tag = instance.Tag.EndsWith('?') ? instance.Tag[..^1] : instance.Tag;
+		if (instance.Value is Empty) return Instance.Null;
+		string tag = UnwrapTag(instance.Tag);
 		if (tag == instance.Tag) return instance;
-		return new Instance(tag, instance.ValueAs<object>(), instance.Location);
+		return new Instance(tag, instance.Value);
+	}
+
+	private static string UnwrapTag(string tag)
+	{
+		if (tag.EndsWith('?')) return tag[..^1];
+		if (tag.StartsWith("Nullable<") && tag.EndsWith('>')) return tag[9..^1];
+		return tag;
 	}
 }
