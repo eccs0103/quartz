@@ -10,16 +10,9 @@ public class Operator(string name, Scope location) : Symbol(name)
 		throw new NotMutableIssue($"Operator '{Name}'", range);
 	}
 
-	public static string Mangle(IEnumerable<string> tags)
+	public void Add(Operation operation, Range<Position> range)
 	{
-		return $"({string.Join(", ", tags)})";
-	}
-
-	public Operation RegisterOperation(IEnumerable<string> parameters, string result, OperationContent function, Scope scope, Range<Position> range)
-	{
-		Operation operation = new(Mangle(parameters), parameters, result, function, scope);
 		location.Register(operation.Name, operation, range);
-		return operation;
 	}
 
 	public Operation? TryReadOperation(IEnumerable<string> parameters)
@@ -37,5 +30,10 @@ public class Operator(string name, Scope location) : Symbol(name)
 			}
 			return !provided.MoveNext();
 		});
+	}
+
+	public static string Mangle(IEnumerable<string> tags)
+	{
+		return $"({string.Join(", ", tags)})";
 	}
 }

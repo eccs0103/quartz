@@ -14,7 +14,9 @@ internal class ModuleBuilder(Module module, Scope location)
 		Class? typeBase = null;
 		if (@base != null) module.TryReadClass(@base, out typeBase);
 
-		Class type = module.RegisterClass(name, typeBase, scope, ~Position.Zero);
+		Class type = new(name, scope, typeBase);
+		location.Register(name, type, ~Position.Zero);
+
 		configure.Invoke(new ClassBuilder(type, scope));
 		return this;
 	}

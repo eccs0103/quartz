@@ -15,34 +15,11 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 		throw new NotMutableIssue($"Class '{Name}'", range);
 	}
 
-	public Datum RegisterConstant(string name, string tag, object value, Range<Position> range)
-	{
-		Instance instance = new(tag, value, location);
-		Datum constant = new(name, tag, instance, false);
-		location.Register(name, constant, range);
-		return constant;
-	}
-
-	public Datum RegisterVariable(string name, string tag, object value, Range<Position> range)
-	{
-		Instance instance = new(tag, value, location);
-		Datum variable = new(name, tag, instance, true);
-		location.Register(name, variable, range);
-		return variable;
-	}
-
 	public Datum ReadProperty(string name, Range<Position> range)
 	{
 		if (location.TryRead(name, out Symbol? symbol) && symbol is Datum datum) return datum;
 		if (@base != null) return @base.ReadProperty(name, range);
 		throw new NotExistIssue($"Datum '{name}' in {location}", range);
-	}
-
-	public Operator RegisterOperator(string name, Range<Position> range)
-	{
-		Operator @operator = new(name, location.GetSubscope(name));
-		location.Register(name, @operator, range);
-		return @operator;
 	}
 
 	public bool TryReadOperator(string name, [NotNullWhen(true)] out Operator? @operator)
@@ -57,6 +34,12 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 		return false;
 	}
 
+	public Operator ReadOperator(string name, Range<Position> range)
+	{
+		if (TryReadOperator(name, out Operator? @operator)) return @operator;
+		throw new NotExistIssue($"Operator '{name}' in {location}", range);
+	}
+
 	public Operation ReadOperation(string name, IEnumerable<string> parameters, Range<Position> range)
 	{
 		if (TryReadOperator(name, out Operator? @operator))
@@ -65,13 +48,6 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 			if (operation != null) return operation;
 		}
 		if (@base != null) return @base.ReadOperation(name, parameters, range);
-		throw new NotExistIssue($"Operation '{name}{Operator.Mangle(parameters)}' in {location}", range);
-	}
-
-	public Operator ReadOperator(string name, Range<Position> range)
-	{
-		if (location.TryRead(name, out Symbol? symbol) && symbol is Operator @operator) return @operator;
-		if (@base != null) return @base.ReadOperator(name, range);
-		throw new NotExistIssue($"Operator '{name}' in {location}", range);
+		throw new NoOverloadIssue(name, 0, range);
 	}
 }

@@ -11,27 +11,14 @@ public class Module(string name, Scope location) : Symbol(name)
 		throw new NotMutableIssue($"Module '{Name}'", range);
 	}
 
-	public Class RegisterClass(string name, Class? @base, Scope scope, Range<Position> range)
-	{
-		Class @class = new(name, scope, @base);
-		location.Register(name, @class, range);
-		return @class;
-	}
-
-	public Class ReadClass(string name, Range<Position> range)
-	{
-		if (TryReadClass(name, out Class? @class)) return @class;
-		throw new NotExistIssue($"Class '{name}' in {location}", range);
-	}
-
-	public bool TryReadClass(string name, [NotNullWhen(true)] out Class? @class)
+	public bool TryReadClass(string name, [NotNullWhen(true)] out Class? type)
 	{
 		if (location.TryRead(name, out Symbol? symbol) && symbol is Class class2)
 		{
-			@class = class2;
+			type = class2;
 			return true;
 		}
-		@class = null;
+		type = null;
 		return false;
 	}
 }
