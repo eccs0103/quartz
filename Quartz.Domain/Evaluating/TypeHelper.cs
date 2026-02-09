@@ -20,9 +20,9 @@ public static class TypeHelper
 
 	public static Instance Unwrap(Instance instance)
 	{
-		if (instance.ValueAs<object>() is Null) return new Instance("Null", Null.Instance, instance.RangePosition, instance.Location);
+		if (instance.ValueAs<object>() is Null) return new Instance("Null", Null.Instance, instance.Location);
 		string tag = instance.Tag.EndsWith('?') ? instance.Tag[..^1] : instance.Tag;
 		if (tag == instance.Tag) return instance;
-		return new Instance(tag, instance.ValueAs<object>(), instance.RangePosition, instance.Location);
+		return new Instance(tag, instance.ValueAs<object>(), instance.Location);
 	}
 }

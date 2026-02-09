@@ -17,7 +17,7 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 
 	public Datum RegisterConstant(string name, string tag, object value, Range<Position> range)
 	{
-		Instance instance = new(tag, value, range, location);
+		Instance instance = new(tag, value, location);
 		Datum constant = new(name, tag, instance, false);
 		location.Register(name, constant, range);
 		return constant;
@@ -25,7 +25,7 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 
 	public Datum RegisterVariable(string name, string tag, object value, Range<Position> range)
 	{
-		Instance instance = new(tag, value, range, location);
+		Instance instance = new(tag, value, location);
 		Datum variable = new(name, tag, instance, true);
 		location.Register(name, variable, range);
 		return variable;

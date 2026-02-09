@@ -12,7 +12,7 @@ public class Datum(string name, string tag, Instance value, bool mutable) : Symb
 	public override void Assign(Instance value, Range<Position> range)
 	{
 		if (!Mutable) throw new NotMutableIssue($"Datum '{Name}'", range);
-		if (!TypeHelper.IsCompatible(Tag, value.Tag)) throw new TypeMismatchIssue(Tag, value.Tag, value.RangePosition.Begin.Equals(Position.Zero) ? range : value.RangePosition);
+		if (!TypeHelper.IsCompatible(Tag, value.Tag)) throw new TypeMismatchIssue(Tag, value.Tag, range);
 		Value = value;
 	}
 }

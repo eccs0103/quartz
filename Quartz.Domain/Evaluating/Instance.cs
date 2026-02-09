@@ -3,10 +3,9 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Instance(string tag, object value, Range<Position> range, Scope location)
+public class Instance(string tag, object value, Scope location)
 {
 	public string Tag { get; } = tag;
-	public Range<Position> RangePosition => range;
 	public Scope Location => location;
 
 	public T ValueAs<T>()
@@ -16,14 +15,14 @@ public class Instance(string tag, object value, Range<Position> range, Scope loc
 		throw new InvalidCastException($"Unable to convert '{value}' from {tag} to {typeof(T).Name}");
 	}
 
-	public Instance RunOperation(string name, IEnumerable<Instance> arguments)
+	public Instance RunOperation(string name, IEnumerable<Instance> arguments, Range<Position> range)
 	{
 		IEnumerable<string> types = arguments.Select(arg => arg.Tag).Prepend(Tag);
-		Symbol symbol = location.Read(Tag, RangePosition);
-		if (symbol is not Class type) throw new NotExistIssue($"Type '{Tag}' in {location}", RangePosition);
-		Operation operation = type.ReadOperation(name, types, RangePosition);
+		Symbol symbol = location.Read(Tag, range);
+		if (symbol is not Class type) throw new NotExistIssue($"Type '{Tag}' in {location}", range);
+		Operation operation = type.ReadOperation(name, types, range);
 		IEnumerable<Instance> args = arguments.Prepend(this);
-		Instance result = operation.Invoke(args, location, RangePosition);
+		Instance result = operation.Invoke(args, location, range);
 		return result;
 	}
 }

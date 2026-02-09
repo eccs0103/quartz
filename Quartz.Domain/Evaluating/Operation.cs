@@ -21,7 +21,7 @@ public class Operation(string name, IEnumerable<string> parameters, string resul
 		{
 			if (!iterator.MoveNext()) throw new NoOverloadIssue(Name, Convert.ToByte(results.Count), range);
 			Instance provided = iterator.Current;
-			if (!TypeHelper.IsCompatible(expected, provided.Tag)) throw new TypeMismatchIssue(expected, provided.Tag, provided.RangePosition.Begin.Equals(Position.Zero) ? range : provided.RangePosition);
+			if (!TypeHelper.IsCompatible(expected, provided.Tag)) throw new TypeMismatchIssue(expected, provided.Tag, range);
 			results.Add(provided);
 		}
 		Instance result = content.Invoke([.. results], scope, range);
