@@ -8,15 +8,14 @@ public class Instance(string tag, object value)
 	public static Instance Null { get; } = new("Null", Empty.Instance);
 
 	public string Tag { get; } = tag;
+	public object Value { get; } = value;
 
 	public T ValueAs<T>()
 	{
-		if (value is T result) return result;
-		string tag = value.GetType().Name;
-		throw new InvalidCastException($"Unable to convert '{value}' from {tag} to {typeof(T).Name}");
+		if (Value is T result) return result;
+		string tag = Value.GetType().Name;
+		throw new InvalidCastException($"Unable to convert '{Value}' from {tag} to {typeof(T).Name}");
 	}
-
-	public object Value => ValueAs<object>();
 
 	public Instance RunOperation(string name, IEnumerable<Instance> arguments, Scope location, Range<Position> range)
 	{
