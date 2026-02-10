@@ -1,91 +1,168 @@
-write("--- Exhaustive Quartz Language Feature Test ---");
+write("--- QUARTZ LANGUAGE COMPREHENSIVE TEST SUITE ---");
 
-write("\n1. Numbers, constants and arithmetic");
-radius Number(3);
-circumference Number(2 * pi * radius);
-area Number(pi * radius * radius);
-write(radius);
-write(circumference);
-write(area);
+write("\n[SECTION 1] Arithmetic & Precedence");
+first_number Number(10);
+second_number Number(3);
+sum_result Number(first_number + second_number);
+difference_result Number(first_number - second_number);
+product_result Number(first_number * second_number);
+quotient_result Number(first_number / second_number);
 
-write("\n2. Unary operators");
-negative_radius Number(-radius);
-positive_radius Number(+radius);
-write(negative_radius);
-write(positive_radius);
+write("10 + 3 = "); write(sum_result);
+write("10 - 3 = "); write(difference_result);
+write("10 * 3 = "); write(product_result);
+write("10 / 3 = "); write(quotient_result);
 
-write("\n3. Nullable types and assignment");
-optional_radius Number?;
-optional_radius : 5;
-optional_radius_explicit Number?(7);
-write(optional_radius);
-write(optional_radius_explicit);
+operator_precedence_one Number(2 + 3 * 4);
+write("2 + 3 * 4 (expect 14) = "); write(operator_precedence_one);
 
-write("\n4. Nullable arithmetic (unwrapping)");
-sum_of_radii Number(radius + optional_radius);
-write(sum_of_radii);
+operator_precedence_parentheses Number((2 + 3) * 4);
+write("(2 + 3) * 4 (expect 20) = "); write(operator_precedence_parentheses);
 
-write("\n5. Comparisons and if-branches");
-is_large_area Boolean(area > 28);
-write(is_large_area);
-if (area >= 28) write("Area is >= 28"); else write("Area is < 28");
+operator_precedence_unary Number(-3 * 2);
+write("-3 * 2 (expect -6) = "); write(operator_precedence_unary);
+write("-(3 * 2) (expect -6) = "); write(-(3 * 2));
 
-write("\n6. Strings and concatenation");
-greeting String("Hello");
-subject String("Quartz");
-full_message String(greeting + ", " + subject + "!");
-write(full_message);
+write("\n[SECTION 2] Boolean Logic & Comparisons");
+boolean_true Boolean(true);
+boolean_false Boolean(false);
 
-write("\n7. Any polymorphism and equality");
-universal_holder Any(0);
-universal_holder : 123;
-if (universal_holder = 123) write("universal_holder holds Number 123");
-universal_holder : "a text";
-if (universal_holder = "a text") write("universal_holder holds String 'a text'");
-universal_holder : true;
-if (universal_holder = true) write("universal_holder holds Boolean true");
+write("true & true = "); write(boolean_true & boolean_true);
+write("true & false = "); write(boolean_true & boolean_false);
+write("false & true = "); write(boolean_false & boolean_true);
+write("false & false = "); write(boolean_false & boolean_false);
 
-mixed_number Number(5);
-mixed_string String("5");
-if (mixed_number != mixed_string) write("Number 5 != String '5'");
+write("true | true = "); write(boolean_true | boolean_true);
+write("true | false = "); write(boolean_true | boolean_false);
+write("false | true = "); write(boolean_false | boolean_true);
+write("false | false = "); write(boolean_false | boolean_false);
 
-write("\n8. Null and optional Any");
-nullable_any Any?;
-null_value Null;
-if (nullable_any = null_value) write("nullable_any equals Null (uninitialized optional Any)");
+write("!true = "); write(!boolean_true);
+write("!false = "); write(!boolean_false);
 
-write("\n9. Loops, break and continue");
-counter Number(0);
-while (counter < 5) {
-	if (counter = 2) {
-		counter : counter + 1;
-		continue;
-	}
-	if (counter = 4) {
-		write("breaking at 4");
-		break;
-	}
-	write(counter);
-	counter : counter + 1;
+comparison_left Number(5);
+comparison_right Number(10);
+write("5 < 10 = "); write(comparison_left < comparison_right);
+write("5 > 10 = "); write(comparison_left > comparison_right);
+write("5 <= 5 = "); write(comparison_left <= 5);
+write("5 >= 5 = "); write(comparison_left >= 5);
+write("5 = 5 = "); write(comparison_left = 5);
+write("5 != 10 = "); write(comparison_left != comparison_right);
+
+logic_combination_result Boolean((5 < 10) & (10 > 5));
+write("(5 < 10) & (10 > 5) = "); write(logic_combination_result);
+
+write("\n[SECTION 3] Types & Polymorphism");
+polymorphic_value Any(123);
+write("Any holds Number: "); write(polymorphic_value);
+
+polymorphic_value : "String value";
+write("Any holds String: "); write(polymorphic_value);
+
+polymorphic_value : true;
+write("Any holds Boolean: "); write(polymorphic_value);
+
+polymorphic_value : null;
+write("Any holds Null: "); write(polymorphic_value);
+
+optional_number Number?;
+write("Uninitialized Number? is: "); write(optional_number);
+optional_number : 100;
+write("Initialized Number? is: "); write(optional_number);
+
+write("\n[SECTION 4] Strings");
+greeting_part String("Hello");
+subject_part String("World");
+full_sentence String(greeting_part + " " + subject_part + "!");
+write("Concatenation: "); write(full_sentence);
+
+write("\n[SECTION 5] Control Flow: Conditions");
+condition_check_value Number(10);
+if (condition_check_value > 5) {
+	write("condition_check_value > 5 (Correct)");
+} else {
+	write("condition_check_value <= 5 (Incorrect)");
 }
 
-write("\n10. Workspace constants");
-write(pi);
-write(e);
+if (condition_check_value < 5) {
+	write("condition_check_value < 5 (Incorrect)");
+} else {
+	write("condition_check_value >= 5 (Correct)");
+}
 
-write("\n11. Operator overload selection and unary/binary forms");
-value_one Number(8);
-value_two Number(2);
-unary_plus_result Number(+value_one);
-binary_add_result Number(value_one + value_two);
-binary_mul_result Number(value_one * value_two);
-unary_minus_result Number(-value_two);
-write(unary_plus_result);
-write(binary_add_result);
-write(binary_mul_result);
-write(unary_minus_result);
+write("\n[SECTION 6] Control Flow: Loops (While)");
+loop_counter Number(0);
+write("Counting to 5:");
+while (loop_counter < 5) {
+	loop_counter : loop_counter + 1;
+	write("Count: "); write(loop_counter);
+}
 
-write("\n12. Blocks and nested scopes");
-{ write("inside anonymous block"); }
+write("Loop with break (stop at 3):");
+loop_counter : 0;
+while (loop_counter < 10) {
+	loop_counter : loop_counter + 1;
+	if (loop_counter = 3) {
+		write("Breaking at 3");
+		break;
+	}
+	write(loop_counter);
+}
 
-write("\n--- End of exhaustive test ---");
+write("Loop with continue (skip 2):");
+loop_counter : 0;
+while (loop_counter < 4) {
+	loop_counter : loop_counter + 1;
+	if (loop_counter = 2) {
+		write("Skipping 2");
+		continue;
+	}
+	write("Value: "); write(loop_counter);
+}
+
+write("\n[SECTION 7] Scopes & Blocks");
+outer_scope_value Number(100);
+{
+	inner_scope_value Number(200);
+	write("Inside block: outer="); write(outer_scope_value); write(", inner="); write(inner_scope_value);
+	outer_scope_value : 101;
+	
+	shadowed_variable Number(999);
+	write("Block shadow: "); write(shadowed_variable);
+}
+shadowed_variable Number(1);
+write("Outside block: outer="); write(outer_scope_value); 
+write(" (modified), shadow="); write(shadowed_variable);
+write(" (new var)");
+
+
+write("\n[SECTION 8] Algorithms: Factorial");
+factorial_target Number(5);
+factorial_accumulator Number(1);
+iteration_index Number(1);
+while (iteration_index <= factorial_target) {
+	factorial_accumulator : factorial_accumulator * iteration_index;
+	iteration_index : iteration_index + 1;
+}
+write("Factorial of 5 is: "); write(factorial_accumulator);
+
+
+write("\n[SECTION 9] Algorithms: Fibonacci");
+fibonacci_limit Number(10);
+fibonacci_previous Number(0);
+fibonacci_current Number(1);
+fibonacci_swap_temp Number(0);
+iteration_index : 0;
+write("Fibonacci first 10:");
+while (iteration_index < fibonacci_limit) {
+	write(fibonacci_previous);
+	fibonacci_swap_temp : fibonacci_previous + fibonacci_current;
+	fibonacci_previous : fibonacci_current;
+	fibonacci_current : fibonacci_swap_temp;
+	iteration_index : iteration_index + 1;
+}
+
+write("\n[SECTION 10] Complex Expression Casting");
+write("Complex Calc: "); write((10 + 2) * 5 - 20 / 4);
+
+write("\n--- TEST COMPLETE ---");

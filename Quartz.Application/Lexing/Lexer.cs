@@ -49,7 +49,7 @@ public partial class Lexer
 	[GeneratedRegex(@"^""([^""\\]|\\.)*""", RegexOptions.Compiled)]
 	private static partial Regex StringPattern();
 
-	[GeneratedRegex(@"^(<=|>=|!=|!|=|\+|-|\*|/|:|\?)", RegexOptions.Compiled)]
+	[GeneratedRegex(@"^(<=|>=|!=|!|=|\+|-|\*|/|:|\?|&|\|)", RegexOptions.Compiled)]
 	private static partial Regex OperatorPattern();
 
 	[GeneratedRegex(@"^[A-z]\w*", RegexOptions.Compiled)]

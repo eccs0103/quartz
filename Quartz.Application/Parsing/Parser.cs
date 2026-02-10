@@ -230,7 +230,33 @@ public class Parser
 
 	private Node ExpressionParse(Walker walker)
 	{
-		return ComparisonParse(walker);
+		return LogicalOrParse(walker);
+	}
+
+	private Node LogicalOrParse(Walker walker)
+	{
+		Node left = LogicalAndParse(walker);
+		while (walker.Peek(out Token? token) && token.Represents(Types.Operator, "|"))
+		{
+			IdentifierNode @operator = new(token.Value, token.RangePosition);
+			walker.Index++;
+			Node right = LogicalAndParse(walker);
+			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
+		}
+		return left;
+	}
+
+	private Node LogicalAndParse(Walker walker)
+	{
+		Node left = ComparisonParse(walker);
+		while (walker.Peek(out Token? token) && token.Represents(Types.Operator, "&"))
+		{
+			IdentifierNode @operator = new(token.Value, token.RangePosition);
+			walker.Index++;
+			Node right = ComparisonParse(walker);
+			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
+		}
+		return left;
 	}
 
 	private Node ComparisonParse(Walker walker)
