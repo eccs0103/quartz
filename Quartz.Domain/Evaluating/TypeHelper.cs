@@ -6,7 +6,7 @@ public static class TypeHelper
 	{
 		if (target == "Any") return true;
 		if (target == value) return true;
-		bool isNullable = target.EndsWith('?') || (target.StartsWith("Nullable<") && target.EndsWith(">"));
+		bool isNullable = target.EndsWith('?') || (target.StartsWith("Nullable<") && target.EndsWith('>'));
 		if (!isNullable) return false;
 		if (value == "Null") return true;
 		return IsCompatible(UnwrapTag(target), value);

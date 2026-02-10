@@ -17,6 +17,7 @@ internal class Evaluator : IAstVisitor<Instance>
 		Symbol symbol = location.Read(node.Name, node.RangePosition);
 		if (symbol is Datum datum) return datum.Value;
 		if (symbol is Class type) return new Instance<Class>("Type", type);
+		if (symbol is Generic generic) return new Instance<Generic>("Generic", generic);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
@@ -39,7 +40,7 @@ internal class Evaluator : IAstVisitor<Instance>
 			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition);
 		}
 
-		Class instance = generic.Instantiate(node.Name, types);
+		Class instance = generic.Instantiate(node.Name, types, node.RangePosition);
 		location.Register(node.Name, instance, node.RangePosition);
 		return new Instance<Class>("Type", instance);
 	}

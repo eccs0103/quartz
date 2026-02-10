@@ -343,6 +343,28 @@ public class Parser
 			IdentifierNode identifier = new(token.Value, token.RangePosition);
 			walker.Index++;
 
+			if (walker.Peek(out Token? tokenGeneric) && tokenGeneric.Represents(Types.Bracket, "<"))
+			{
+				uint fallback = walker.Index;
+				try
+				{
+					string openGeneric = tokenGeneric.Value;
+					if (!Brackets.TryGetValue(openGeneric, out string? closeGeneric)) throw new UnmatchedBracketIssue(openGeneric, tokenGeneric.RangePosition);
+					
+					Walker subwalker = walker.GetSubwalker(openGeneric, closeGeneric);
+					IEnumerable<IdentifierNode> generics = [.. GenericsParse(subwalker)];
+
+					if (walker.Index != subwalker.RangeIndex.End) throw new ExpectedIssue(closeGeneric, ~identifier.RangePosition.End);
+					
+					walker.Index++; // Skip the '>'
+					return new GenericNode(identifier, generics, identifier.RangePosition >> tokenGeneric.RangePosition);
+				}
+				catch (Issue)
+				{
+					walker.Index = fallback;
+				}
+			}
+
 			const string open = "(";
 			if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, open)) return identifier;
 			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);

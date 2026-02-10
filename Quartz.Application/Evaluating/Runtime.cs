@@ -175,6 +175,14 @@ public class Runtime
 					return new Instance<string>("String", value.Name);
 				});
 			});
+			module.DeclareClass("Generic", "Any", [], static (type, _) =>
+			{
+				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
+				{
+					Generic value = @this.As<Generic>().Value;
+					return new Instance<string>("String", value.Name);
+				});
+			});
 			module.DeclareClass(RuntimeBuilder.NameWorkspace, "Any", [], static (type, _) =>
 			{
 				type.DeclareConstant("pi", "Number", PI);

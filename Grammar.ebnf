@@ -5,7 +5,7 @@ statement
 	= ( [ simple_statement ], ";" )
 	| block
 	| if_statement
-	| while_statement
+	| while_statement 
 	(* | for_statement *);
 
 simple_statement
@@ -46,13 +46,20 @@ assignment
 	= identifier, ":", expression;
 
 expression
-	= comparison;
+	= logical_or;
+
+logical_or
+	= logical_and, { "|", logical_and };
+
+logical_and
+	= comparison, { "&", comparison };
 
 comparison
 	= additive, { ( "<"
 	| ">"
 	| "<="
 	| ">="
+	| "!="
 	| "=" ), additive };
 
 additive
@@ -65,13 +72,14 @@ multiplicative
 
 unary
 	= [ ( "+"
-	| "-" ) ], primary;
+	| "-"
+	| "!" ) ], primary;
 
 primary
 	= number
 	| boolean
 	| string
-	| identifier, [ invocation ]
+	| identifier, [ "<", generics, ">" ], [ invocation ]
 	| "(", expression, ")";
 
 invocation

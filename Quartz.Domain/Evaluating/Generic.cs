@@ -5,7 +5,7 @@ namespace Quartz.Domain.Evaluating;
 
 public class Generic(string name, IEnumerable<string> generics, Action<Class, IEnumerable<Class>, Scope> builder, Scope location) : Symbol(name)
 {
-	public Class Instantiate(string name, IEnumerable<Class> arguments)
+	public Class Instantiate(string name, IEnumerable<Class> arguments, Range<Position> range)
 	{
 		Scope scope = location.GetSubscope(name);
 
@@ -14,11 +14,11 @@ public class Generic(string name, IEnumerable<string> generics, Action<Class, IE
 
 		while (enumeratorGenerics.MoveNext())
 		{
-			if (!enumeratorArguments.MoveNext()) throw new Exception("Invalid generic arguments count");
+			if (!enumeratorArguments.MoveNext()) throw new ExpectedIssue($"more arguments", range);
 			scope.Register(enumeratorGenerics.Current, enumeratorArguments.Current, ~Position.Zero);
 		}
 
-		if (enumeratorArguments.MoveNext()) throw new Exception("Invalid generic arguments count");
+		if (enumeratorArguments.MoveNext()) throw new ExpectedIssue($"more arguments", range);
 
 		Class type = new(name, scope);
 		builder.Invoke(type, arguments, scope);
