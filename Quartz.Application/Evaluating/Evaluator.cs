@@ -22,26 +22,25 @@ internal class Evaluator : IAstVisitor<Instance>
 
 	public Instance Visit(Scope location, GenericNode node)
 	{
-		Symbol symbol = location.Read(node.Target.Name, node.Target.RangePosition);
-		if (symbol is not Generic generic) throw new TypeMismatchIssue("Generic", symbol.Name, node.Target.RangePosition);
-
-		List<Class> arguments = [];
-		foreach (IdentifierNode nodeArgument in node.Generics)
+		IdentifierNode nodeTarget = node.Target;
+		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
+		if (symbol is not Generic generic) throw new TypeMismatchIssue("Generic", symbol.Name, nodeTarget.RangePosition);
+		List<Class> types = [];
+		foreach (IdentifierNode nodeGeneric in node.Generics)
 		{
-			Instance argumentInstance = nodeArgument.Accept(this, location);
-			if (argumentInstance.Tag != "Type" || argumentInstance.Value is not Class argumentClass) throw new TypeMismatchIssue("Class", argumentInstance.Tag, nodeArgument.RangePosition);
-			arguments.Add(argumentClass);
+			Instance value = nodeGeneric.Accept(this, location);
+			if (value.Tag != "Type" || value.Value is not Class type) throw new TypeMismatchIssue("Class", value.Tag, nodeGeneric.RangePosition);
+			types.Add(type);
 		}
 
-		string name = node.ToString();
-		if (location.TryRead(name, out Symbol? existing))
+		if (location.TryRead(node.Name, out Symbol? existing))
 		{
-			if (existing is Class existingClass) return new Instance<Class>("Type", existingClass);
-			throw new UnexpectedIssue($"Identifier '{name}' is not a Class", node.RangePosition);
+			if (existing is Class type) return new Instance<Class>("Type", type);
+			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition);
 		}
 
-		Class instance = generic.Instantiate(name, arguments);
-		location.Register(name, instance, node.RangePosition);
+		Class instance = generic.Instantiate(node.Name, types);
+		location.Register(node.Name, instance, node.RangePosition);
 		return new Instance<Class>("Type", instance);
 	}
 

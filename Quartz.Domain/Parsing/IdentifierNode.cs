@@ -9,7 +9,7 @@ public class IdentifierNode(string name, Range<Position> range) : Node(range)
 
 	public override string ToString()
 	{
-		return $"{Name}";
+		return Name;
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)

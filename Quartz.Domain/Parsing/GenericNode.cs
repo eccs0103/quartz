@@ -3,14 +3,19 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
 
-public class GenericNode(IdentifierNode type, IEnumerable<IdentifierNode> generics, Range<Position> range) : IdentifierNode($"{type.Name}<{string.Join(", ", generics.Select(g => g.Name))}>", range)
+public class GenericNode(IdentifierNode target, IEnumerable<IdentifierNode> generics, Range<Position> range) : IdentifierNode(Mangle(target, generics), range)
 {
-	public IdentifierNode Target { get; } = type;
+	public IdentifierNode Target { get; } = target;
 	public IEnumerable<IdentifierNode> Generics { get; } = generics;
+
+	public static string Mangle(IdentifierNode target, IEnumerable<IdentifierNode> generics)
+	{
+		return $"{target.Name}<{string.Join(", ", generics.Select(generic => generic.Name))}>";
+	}
 
 	public override string ToString()
 	{
-		return $"{Target}<{string.Join(", ", Generics)}>";
+		return Name;
 	}
 
 	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
