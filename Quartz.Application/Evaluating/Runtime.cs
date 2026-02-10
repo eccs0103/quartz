@@ -14,7 +14,7 @@ public class Runtime
 	{
 		Builder.DeclareModule(static (module) =>
 		{
-			module.DeclareClass("Any", null, static (type) =>
+			module.DeclareClass("Any", null, [], static (type, _) =>
 			{
 				type.DeclareOperation("=", ["Any"], "Boolean", static (@this, arguments, scope, range) =>
 				{
@@ -42,25 +42,25 @@ public class Runtime
 					return new Instance<string>("String", $"[{@this.Tag}]");
 				});
 			});
-			module.DeclareClass("Null", "Any", static (type) =>
+			module.DeclareClass("Null", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
 					return new Instance<string>("String", "null");
 				});
 			});
-			module.DeclareTemplate("Nullable", ["Content"], static (type, args) =>
+			module.DeclareClass("Nullable", null, ["Content"], static (type, args) =>
 			{
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
 					return @this.RunOperation("to_string", [], scope, range);
 				});
-				type.DeclareOperation("get_value", [], args[0].Name, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("get_value", [], args.First().Name, static (@this, arguments, scope, range) =>
 				{
 					return TypeHelper.Unwrap(@this);
 				});
 			});
-			module.DeclareClass("Number", "Any", static (type) =>
+			module.DeclareClass("Number", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("+", [], "Number", static (@this, arguments, scope, range) =>
 				{
@@ -126,7 +126,7 @@ public class Runtime
 					return new Instance<string>("String", result);
 				});
 			});
-			module.DeclareClass("Boolean", "Any", static (type) =>
+			module.DeclareClass("Boolean", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("!", [], "Boolean", static (@this, arguments, scope, range) =>
 				{
@@ -151,7 +151,7 @@ public class Runtime
 					return new Instance<string>("String", result ? "true" : "false");
 				});
 			});
-			module.DeclareClass("String", "Any", static (type) =>
+			module.DeclareClass("String", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("+", ["String"], "String", static (@this, arguments, scope, range) =>
 				{
@@ -164,10 +164,10 @@ public class Runtime
 					return @this;
 				});
 			});
-			module.DeclareClass("Function", "Any", static (type) =>
+			module.DeclareClass("Function", "Any", [], static (type, _) =>
 			{
 			});
-			module.DeclareClass("Type", "Any", static (type) =>
+			module.DeclareClass("Type", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
@@ -175,7 +175,7 @@ public class Runtime
 					return new Instance<string>("String", value.Name);
 				});
 			});
-			module.DeclareClass(RuntimeBuilder.NameWorkspace, "Any", static (type) =>
+			module.DeclareClass(RuntimeBuilder.NameWorkspace, "Any", [], static (type, _) =>
 			{
 				type.DeclareConstant("pi", "Number", PI);
 				type.DeclareConstant("e", "Number", E);

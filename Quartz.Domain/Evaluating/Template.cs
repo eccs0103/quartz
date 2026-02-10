@@ -2,19 +2,25 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Template(string name, string[] generics, Action<Class, Class[]> builder, Scope location) : Symbol(name)
+public class Template(string name, IEnumerable<string> generics, Action<Class, IEnumerable<Class>, Scope> builder, Scope location) : Symbol(name)
 {
-	public Class Instantiate(string name, Class[] arguments)
+	public Class Instantiate(string name, IEnumerable<Class> arguments)
 	{
-		Class type = new(name, location.GetSubscope(name));
-		if (generics.Length != arguments.Length) throw new Exception("Invalid generic arguments count");
+		Scope scope = location.GetSubscope(name);
+		Class type = new(name, scope);
 
-		for (int i = 0; i < generics.Length; i++)
+		using IEnumerator<string> enumeratorGenerics = generics.GetEnumerator();
+		using IEnumerator<Class> enumeratorArguments = arguments.GetEnumerator();
+
+		while (enumeratorGenerics.MoveNext())
 		{
-			type.Location.Register(generics[i], arguments[i], ~Position.Zero);
+			if (!enumeratorArguments.MoveNext()) throw new Exception("Invalid generic arguments count");
+			type.Define(enumeratorGenerics.Current, enumeratorArguments.Current);
 		}
 
-		builder(type, arguments);
+		if (enumeratorArguments.MoveNext()) throw new Exception("Invalid generic arguments count");
+
+		builder(type, arguments, scope);
 		return type;
 	}
 

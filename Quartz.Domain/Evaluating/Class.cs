@@ -6,10 +6,13 @@ namespace Quartz.Domain.Evaluating;
 
 public class Class(string name, Scope location, Class? @base) : Symbol(name)
 {
-	public Scope Location => location;
-
 	public Class(string name, Scope location) : this(name, location, null)
 	{
+	}
+
+	public void Define(string name, Symbol symbol)
+	{
+		location.Register(name, symbol, ~Position.Zero);
 	}
 
 	public override void Assign(Instance value, Range<Position> range)

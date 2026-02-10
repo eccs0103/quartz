@@ -178,31 +178,20 @@ public class Parser
 		{
 			walker.Index++;
 			List<string> arguments = [];
-			Range<Position> range;
-
+			
 			while (true)
 			{
 				IdentifierNode inner = TypeParse(walker);
 				arguments.Add(inner.Name);
 
-				if (walker.Peek(out Token? separator) && separator.Represents(Types.Separator, ","))
-				{
-					walker.Index++;
-					continue;
-				}
-
-				if (walker.Peek(out Token? close) && close.Represents(Types.Bracket, ">"))
-				{
-					range = close.RangePosition;
-					walker.Index++;
-					break;
-				}
-
-				throw new ExpectedIssue(">", ~inner.RangePosition.End);
+				if (!walker.Peek(out Token? separator) || !separator.Represents(Types.Separator, ",")) break;
+				walker.Index++;
 			}
 
+			if (!walker.Peek(out Token? close) || !close.Represents(Types.Bracket, ">")) throw new ExpectedIssue(">", ~walker.RangePosition.End);
 			string newName = $"{type.Name}<{string.Join(", ", arguments)}>";
-			type = new IdentifierNode(newName, type.RangePosition >> range);
+			type = new IdentifierNode(newName, type.RangePosition >> close.RangePosition);
+			walker.Index++;
 		}
 
 		if (walker.Peek(out Token? optional) && optional.Represents(Types.Operator, "?"))

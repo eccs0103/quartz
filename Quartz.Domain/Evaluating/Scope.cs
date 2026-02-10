@@ -51,19 +51,19 @@ public class Scope
 			current = current.Parent;
 		}
 
-		if (ParseGeneric(name, out string? templateName, out string[]? arguments))
+		if (ParseGeneric(name, out string? templateName, out IEnumerable<string>? arguments))
 		{
 			if (TryRead(templateName, out Symbol? templateSymbol) && templateSymbol is Template template)
 			{
-				Class[] classes = new Class[arguments.Length];
-				for (int i = 0; i < arguments.Length; i++)
+				List<Class> classes = [];
+				foreach (string argument in arguments)
 				{
-					if (!TryRead(arguments[i], out Symbol? argSymbol) || argSymbol is not Class argClass)
+					if (!TryRead(argument, out Symbol? argSymbol) || argSymbol is not Class argClass)
 					{
 						symbol = null;
 						return false;
 					}
-					classes[i] = argClass;
+					classes.Add(argClass);
 				}
 
 				symbol = template.Instantiate(name, classes);
@@ -76,7 +76,7 @@ public class Scope
 		return false;
 	}
 
-	private static bool ParseGeneric(string input, [NotNullWhen(true)] out string? name, [NotNullWhen(true)] out string[]? arguments)
+	private static bool ParseGeneric(string input, [NotNullWhen(true)] out string? name, [NotNullWhen(true)] out IEnumerable<string>? arguments)
 	{
 		int bracketStart = input.IndexOf('<');
 		int bracketEnd = input.LastIndexOf('>');
@@ -112,7 +112,7 @@ public class Scope
 		}
 		args.Add(content[last..].Trim());
 
-		arguments = [.. args];
+		arguments = args;
 		return true;
 	}
 
