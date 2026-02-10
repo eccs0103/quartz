@@ -162,7 +162,20 @@ while (iteration_index < fibonacci_limit) {
 	iteration_index : iteration_index + 1;
 }
 
-write("\n[SECTION 10] Complex Expression Casting");
+write("\n[SECTION 10] Templates (Generic types)");
+explicit_nullable Nullable<Number>(42);
+write("Explicit Nullable<Number>(42): "); write(explicit_nullable);
+
+explicit_nullable : null;
+write("Assigned null: "); write(explicit_nullable);
+
+explicit_nullable : 7;
+write("Re-assigned 7: "); write(explicit_nullable);
+
+generic_string Nullable<String>("Templates work!");
+write("Nullable<String>: "); write(generic_string);
+
+write("\n[SECTION 11] Complex Expression Casting");
 write("Complex Calc: "); write((10 + 2) * 5 - 20 / 4);
 
 write("\n--- TEST COMPLETE ---");

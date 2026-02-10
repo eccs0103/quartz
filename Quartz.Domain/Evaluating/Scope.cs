@@ -50,8 +50,70 @@ public class Scope
 			if (current.Symbols.TryGetValue(name, out symbol)) return true;
 			current = current.Parent;
 		}
+
+		if (ParseGeneric(name, out string? templateName, out string[]? arguments))
+		{
+			if (TryRead(templateName, out Symbol? templateSymbol) && templateSymbol is Template template)
+			{
+				Class[] classes = new Class[arguments.Length];
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (!TryRead(arguments[i], out Symbol? argSymbol) || argSymbol is not Class argClass)
+					{
+						symbol = null;
+						return false;
+					}
+					classes[i] = argClass;
+				}
+
+				symbol = template.Instantiate(name, classes);
+				Register(name, symbol, ~Position.Zero);
+				return true;
+			}
+		}
+
 		symbol = null;
 		return false;
+	}
+
+	private static bool ParseGeneric(string input, [NotNullWhen(true)] out string? name, [NotNullWhen(true)] out string[]? arguments)
+	{
+		int bracketStart = input.IndexOf('<');
+		int bracketEnd = input.LastIndexOf('>');
+
+		if (bracketStart == -1 || bracketEnd == -1 || bracketEnd != input.Length - 1)
+		{
+			name = null;
+			arguments = null;
+			return false;
+		}
+
+		name = input[..bracketStart];
+		string content = input.Substring(bracketStart + 1, bracketEnd - bracketStart - 1);
+		
+		List<string> args = [];
+		int balance = 0;
+		int last = 0;
+		for (int i = 0; i < content.Length; i++)
+		{
+			if (content[i] == '<')
+			{
+				balance++;
+			}
+			else if (content[i] == '>')
+			{
+				balance--;
+			}
+			else if (content[i] == ',' && balance == 0)
+			{
+				args.Add(content[last..i].Trim());
+				last = i + 1;
+			}
+		}
+		args.Add(content[last..].Trim());
+
+		arguments = [.. args];
+		return true;
 	}
 
 	public Symbol Read(string name, Range<Position> range)

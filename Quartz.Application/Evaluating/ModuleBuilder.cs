@@ -20,4 +20,15 @@ internal class ModuleBuilder(Module module, Scope location)
 		configure.Invoke(new ClassBuilder(type, scope));
 		return this;
 	}
+
+	public ModuleBuilder DeclareTemplate(string name, string[] generics, Action<ClassBuilder, Class[]> configure)
+	{
+		Template template = new(name, generics, (type, args) =>
+		{
+			configure(new ClassBuilder(type, type.Location), args);
+		}, location);
+
+		location.Register(name, template, ~Position.Zero);
+		return this;
+	}
 }

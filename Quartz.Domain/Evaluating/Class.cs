@@ -6,6 +6,8 @@ namespace Quartz.Domain.Evaluating;
 
 public class Class(string name, Scope location, Class? @base) : Symbol(name)
 {
+	public Scope Location => location;
+
 	public Class(string name, Scope location) : this(name, location, null)
 	{
 	}

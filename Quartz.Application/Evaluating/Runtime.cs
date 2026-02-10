@@ -49,8 +49,16 @@ public class Runtime
 					return new Instance<string>("String", "null");
 				});
 			});
-			module.DeclareClass("Nullable", "Any", static (type) =>
+			module.DeclareTemplate("Nullable", ["Content"], static (type, args) =>
 			{
+				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
+				{
+					return @this.RunOperation("to_string", [], scope, range);
+				});
+				type.DeclareOperation("get_value", [], args[0].Name, static (@this, arguments, scope, range) =>
+				{
+					return TypeHelper.Unwrap(@this);
+				});
 			});
 			module.DeclareClass("Number", "Any", static (type) =>
 			{

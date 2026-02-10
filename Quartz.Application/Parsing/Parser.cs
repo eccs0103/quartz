@@ -3,6 +3,7 @@ using System.Text.Json;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
+using Quartz.Shared.Helpers;
 using static Quartz.Domain.Lexing.Token;
 
 namespace Quartz.Application.Parsing;
@@ -176,12 +177,32 @@ public class Parser
 		if (walker.Peek(out Token? open) && open.Represents(Types.Bracket, "<"))
 		{
 			walker.Index++;
-			IdentifierNode inner = TypeParse(walker);
-			if (!walker.Peek(out Token? close) || !close.Represents(Types.Bracket, ">")) throw new ExpectedIssue(">", ~inner.RangePosition.End);
-			walker.Index++;
+			List<string> arguments = [];
+			Range<Position> range;
 
-			string newName = $"{type.Name}<{inner.Name}>";
-			type = new IdentifierNode(newName, type.RangePosition >> close.RangePosition);
+			while (true)
+			{
+				IdentifierNode inner = TypeParse(walker);
+				arguments.Add(inner.Name);
+
+				if (walker.Peek(out Token? separator) && separator.Represents(Types.Separator, ","))
+				{
+					walker.Index++;
+					continue;
+				}
+
+				if (walker.Peek(out Token? close) && close.Represents(Types.Bracket, ">"))
+				{
+					range = close.RangePosition;
+					walker.Index++;
+					break;
+				}
+
+				throw new ExpectedIssue(">", ~inner.RangePosition.End);
+			}
+
+			string newName = $"{type.Name}<{string.Join(", ", arguments)}>";
+			type = new IdentifierNode(newName, type.RangePosition >> range);
 		}
 
 		if (walker.Peek(out Token? optional) && optional.Represents(Types.Operator, "?"))
