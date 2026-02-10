@@ -14,41 +14,41 @@ internal class Evaluator : IAstVisitor<Instance>
 
 	public Instance Visit(Scope location, IdentifierNode node)
 	{
-		Symbol symbol = Resolve(location, node);
+		Symbol symbol = location.Read(node.Name, node.RangePosition);
 		if (symbol is Datum datum) return datum.Value;
 		if (symbol is Class type) return new Instance<Class>("Type", type);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 	}
 
-	private static Symbol Resolve(Scope location, IdentifierNode node)
+	public Instance Visit(Scope location, GenericNode node)
 	{
-		if (node is GenericNode generic)
+		Symbol symbol = location.Read(node.Target.Name, node.Target.RangePosition);
+		if (symbol is not Generic generic) throw new TypeMismatchIssue("Generic", symbol.Name, node.Target.RangePosition);
+
+		List<Class> arguments = [];
+		foreach (IdentifierNode nodeArgument in node.Generics)
 		{
-			Symbol symbol = location.Read(generic.Target.Name, generic.Target.RangePosition);
-			if (symbol is not Generic genericType) throw new TypeMismatchIssue("Generic", symbol.Name, generic.Target.RangePosition);
-
-			List<Class> arguments = [];
-			foreach (IdentifierNode argumentNode in generic.Generics)
-			{
-				Symbol argumentSymbol = Resolve(location, argumentNode);
-				if (argumentSymbol is not Class argumentClass) throw new TypeMismatchIssue("Class", argumentSymbol.Name, argumentNode.RangePosition);
-				arguments.Add(argumentClass);
-			}
-
-			string name = generic.ToString();
-			if (location.TryRead(name, out Symbol? existing)) return existing;
-
-			Symbol instance = genericType.Instantiate(name, arguments);
-			location.Register(name, instance, generic.RangePosition);
-			return instance;
+			Instance argumentInstance = nodeArgument.Accept(this, location);
+			if (argumentInstance.Tag != "Type" || argumentInstance.Value is not Class argumentClass) throw new TypeMismatchIssue("Class", argumentInstance.Tag, nodeArgument.RangePosition);
+			arguments.Add(argumentClass);
 		}
 
-		return location.Read(node.Name, node.RangePosition);
+		string name = node.ToString();
+		if (location.TryRead(name, out Symbol? existing))
+		{
+			if (existing is Class existingClass) return new Instance<Class>("Type", existingClass);
+			throw new UnexpectedIssue($"Identifier '{name}' is not a Class", node.RangePosition);
+		}
+
+		Class instance = generic.Instantiate(name, arguments);
+		location.Register(name, instance, node.RangePosition);
+		return new Instance<Class>("Type", instance);
 	}
 
 	public Instance Visit(Scope location, DeclarationNode node)
 	{
 		IdentifierNode nodeType = node.Type;
+		nodeType.Accept(this, location);
 		IdentifierNode nodeIdentifier = node.Identifier;
 
 		if (node.Value == null && !TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);

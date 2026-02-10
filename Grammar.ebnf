@@ -37,7 +37,10 @@ declaration
 	= identifier, type, [ invocation ];
 
 type
-	= identifier, [ "<", type, { ",", type }, ">" ], [ "?" ];
+	= identifier, [ "<", generics, ">" ], [ "?" ];
+
+generics
+	= type, { ",", type };
 
 assignment
 	= identifier, ":", expression;

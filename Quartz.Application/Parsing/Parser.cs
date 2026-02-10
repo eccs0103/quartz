@@ -167,45 +167,6 @@ public class Parser
 		return new BlockNode(statements, token1.RangePosition >> token2.RangePosition);
 	}
 
-	private IdentifierNode TypeParse(Walker walker)
-	{
-		if (!walker.Peek(out Token? token1)) throw new ExpectedIssue("type identifier", walker.RangePosition);
-		if (!token1.Represents(Types.Identifier)) throw new ExpectedIssue("type identifier", walker.RangePosition);
-		
-		IdentifierNode type = new(token1.Value, token1.RangePosition);
-		walker.Index++;
-
-		if (walker.Peek(out Token? token2) && token2.Represents(Types.Bracket, "<"))
-		{
-			string open = token2.Value;
-			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
-			Walker subwalker = walker.GetSubwalker(open, close);
-			IEnumerable<IdentifierNode> generics = [.. GenericArgumentsParse(subwalker)];
-			if (!walker.Peek(out Token? token3)) throw new ExpectedIssue(close, ~type.RangePosition.End);
-			walker.Index++;
-			type = new GenericNode(type, generics, type.RangePosition >> token3.RangePosition);
-		}
-
-		if (walker.Peek(out Token? token4) && token4.Represents(Types.Operator, "?"))
-		{
-			type = new GenericNode(new IdentifierNode("Nullable", type.RangePosition), [type], type.RangePosition >> token4.RangePosition);
-			walker.Index++;
-		}
-
-		return type;
-	}
-
-	private IEnumerable<IdentifierNode> GenericArgumentsParse(Walker walker)
-	{
-		if (!walker.InRange) yield break;
-		while (true)
-		{
-			yield return TypeParse(walker);
-			if (!walker.Peek(out Token? token) || !token.Represents(Types.Separator, ",")) break;
-			walker.Index++;
-		}
-	}
-
 	private DeclarationNode DeclarationParse(Walker walker)
 	{
 		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Identifier)) throw new ExpectedIssue("identifier for variable name", ~walker.RangePosition.Begin);
@@ -225,6 +186,45 @@ public class Parser
 		if (!walker.Peek(out Token? token4)) throw new ExpectedIssue(close, ~type.RangePosition.End);
 		walker.Index++;
 		return new DeclarationNode(type, identifier, value, identifier.RangePosition >> token4.RangePosition);
+	}
+
+	private IdentifierNode TypeParse(Walker walker)
+	{
+		if (!walker.Peek(out Token? token1)) throw new ExpectedIssue("type identifier", walker.RangePosition);
+		if (!token1.Represents(Types.Identifier)) throw new ExpectedIssue("type identifier", walker.RangePosition);
+
+		IdentifierNode type = new(token1.Value, token1.RangePosition);
+		walker.Index++;
+
+		if (walker.Peek(out Token? token2) && token2.Represents(Types.Bracket, "<"))
+		{
+			string open = token2.Value;
+			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
+			Walker subwalker = walker.GetSubwalker(open, close);
+			IEnumerable<IdentifierNode> generics = [.. GenericsParse(subwalker)];
+			if (!walker.Peek(out Token? token3)) throw new ExpectedIssue(close, ~type.RangePosition.End);
+			walker.Index++;
+			type = new GenericNode(type, generics, type.RangePosition >> token3.RangePosition);
+		}
+
+		if (walker.Peek(out Token? token4) && token4.Represents(Types.Operator, "?"))
+		{
+			type = new GenericNode(new IdentifierNode("Nullable", type.RangePosition), [type], type.RangePosition >> token4.RangePosition);
+			walker.Index++;
+		}
+
+		return type;
+	}
+
+	private IEnumerable<IdentifierNode> GenericsParse(Walker walker)
+	{
+		if (!walker.InRange) yield break;
+		while (true)
+		{
+			yield return TypeParse(walker);
+			if (!walker.Peek(out Token? token) || !token.Represents(Types.Separator, ",")) break;
+			walker.Index++;
+		}
 	}
 
 	private AssignmentNode AssignmentParse(Walker walker)

@@ -6,6 +6,7 @@ public interface IAstVisitor<out TReturn>
 {
 	public TReturn Visit(Scope location, ValueNode node);
 	public TReturn Visit(Scope location, IdentifierNode node);
+	public TReturn Visit(Scope location, GenericNode node);
 	public TReturn Visit(Scope location, DeclarationNode node);
 	public TReturn Visit(Scope location, AssignmentNode nod);
 	public TReturn Visit(Scope location, InvokationNode node);

@@ -1,3 +1,4 @@
+using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
@@ -26,6 +27,6 @@ public class Generic(string name, IEnumerable<string> generics, Action<Class, IE
 
 	public override void Assign(Instance value, Range<Position> range)
 	{
-		throw new NotImplementedException();
+		throw new NotMutableIssue($"Generic '{Name}'", range);
 	}
 }
