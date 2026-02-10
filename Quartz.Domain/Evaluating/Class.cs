@@ -10,11 +10,6 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 	{
 	}
 
-	public void Define(string name, Symbol symbol)
-	{
-		location.Register(name, symbol, ~Position.Zero);
-	}
-
 	public override void Assign(Instance value, Range<Position> range)
 	{
 		throw new NotMutableIssue($"Class '{Name}'", range);

@@ -12,11 +12,11 @@ internal class ModuleBuilder(Module module, Scope location)
 
 		if (generics.Any())
 		{
-			Template template = new(name, generics, (type, args, scope) =>
+			Generic generic = new(name, generics, (type, args, scope) =>
 			{
 				configure(new ClassBuilder(type, scope), args);
 			}, location);
-			location.Register(name, template, ~Position.Zero);
+			location.Register(name, generic, ~Position.Zero);
 			return this;
 		}
 

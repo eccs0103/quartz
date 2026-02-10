@@ -25,7 +25,7 @@ internal class Evaluator : IAstVisitor<Instance>
 		if (node is GenericNode generic)
 		{
 			Symbol symbol = location.Read(generic.Target.Name, generic.Target.RangePosition);
-			if (symbol is not Template template) throw new TypeMismatchIssue("Template", symbol.Name, generic.Target.RangePosition);
+			if (symbol is not Generic genericType) throw new TypeMismatchIssue("Generic", symbol.Name, generic.Target.RangePosition);
 
 			List<Class> arguments = [];
 			foreach (IdentifierNode argumentNode in generic.Generics)
@@ -38,7 +38,7 @@ internal class Evaluator : IAstVisitor<Instance>
 			string name = generic.ToString();
 			if (location.TryRead(name, out Symbol? existing)) return existing;
 
-			Symbol instance = template.Instantiate(name, arguments);
+			Symbol instance = genericType.Instantiate(name, arguments);
 			location.Register(name, instance, generic.RangePosition);
 			return instance;
 		}
