@@ -14,10 +14,36 @@ internal class Evaluator : IAstVisitor<Instance>
 
 	public Instance Visit(Scope location, IdentifierNode node)
 	{
-		Symbol symbol = location.Read(node.Name, node.RangePosition);
+		Symbol symbol = Resolve(location, node);
 		if (symbol is Datum datum) return datum.Value;
 		if (symbol is Class type) return new Instance<Class>("Type", type);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
+	}
+
+	private static Symbol Resolve(Scope location, IdentifierNode node)
+	{
+		if (node is GenericNode generic)
+		{
+			Symbol symbol = location.Read(generic.Target.Name, generic.Target.RangePosition);
+			if (symbol is not Template template) throw new TypeMismatchIssue("Template", symbol.Name, generic.Target.RangePosition);
+
+			List<Class> arguments = [];
+			foreach (IdentifierNode argumentNode in generic.Generics)
+			{
+				Symbol argumentSymbol = Resolve(location, argumentNode);
+				if (argumentSymbol is not Class argumentClass) throw new TypeMismatchIssue("Class", argumentSymbol.Name, argumentNode.RangePosition);
+				arguments.Add(argumentClass);
+			}
+
+			string name = generic.ToString();
+			if (location.TryRead(name, out Symbol? existing)) return existing;
+
+			Symbol instance = template.Instantiate(name, arguments);
+			location.Register(name, instance, generic.RangePosition);
+			return instance;
+		}
+
+		return location.Read(node.Name, node.RangePosition);
 	}
 
 	public Instance Visit(Scope location, DeclarationNode node)
@@ -25,12 +51,11 @@ internal class Evaluator : IAstVisitor<Instance>
 		IdentifierNode nodeType = node.Type;
 		IdentifierNode nodeIdentifier = node.Identifier;
 
-		if (node.Value is null && !TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
+		if (node.Value == null && !TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
 
 		Instance instance = node.Value?.Accept(this, location) ?? Instance.Null;
 
-		if (node.Value is not null && !TypeHelper.IsCompatible(nodeType.Name, instance.Tag))
-			throw new TypeMismatchIssue(nodeType.Name, instance.Tag, node.Value.RangePosition);
+		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, instance.Tag)) throw new TypeMismatchIssue(nodeType.Name, instance.Tag, node.Value.RangePosition);
 
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, instance, true);
 		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);

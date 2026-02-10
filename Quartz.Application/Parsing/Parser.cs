@@ -3,7 +3,6 @@ using System.Text.Json;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
-using Quartz.Shared.Helpers;
 using static Quartz.Domain.Lexing.Token;
 
 namespace Quartz.Application.Parsing;
@@ -170,38 +169,41 @@ public class Parser
 
 	private IdentifierNode TypeParse(Walker walker)
 	{
-		if (!walker.Peek(out Token? token) || !token.Represents(Types.Identifier)) throw new ExpectedIssue("type identifier", walker.RangePosition);
-		IdentifierNode type = new(token.Value, token.RangePosition);
+		if (!walker.Peek(out Token? token1)) throw new ExpectedIssue("type identifier", walker.RangePosition);
+		if (!token1.Represents(Types.Identifier)) throw new ExpectedIssue("type identifier", walker.RangePosition);
+		
+		IdentifierNode type = new(token1.Value, token1.RangePosition);
 		walker.Index++;
 
-		if (walker.Peek(out Token? open) && open.Represents(Types.Bracket, "<"))
+		if (walker.Peek(out Token? token2) && token2.Represents(Types.Bracket, "<"))
 		{
+			string open = token2.Value;
+			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
+			Walker subwalker = walker.GetSubwalker(open, close);
+			IEnumerable<IdentifierNode> generics = [.. GenericArgumentsParse(subwalker)];
+			if (!walker.Peek(out Token? token3)) throw new ExpectedIssue(close, ~type.RangePosition.End);
 			walker.Index++;
-			List<string> arguments = [];
-			
-			while (true)
-			{
-				IdentifierNode inner = TypeParse(walker);
-				arguments.Add(inner.Name);
-
-				if (!walker.Peek(out Token? separator) || !separator.Represents(Types.Separator, ",")) break;
-				walker.Index++;
-			}
-
-			if (!walker.Peek(out Token? close) || !close.Represents(Types.Bracket, ">")) throw new ExpectedIssue(">", ~walker.RangePosition.End);
-			string newName = $"{type.Name}<{string.Join(", ", arguments)}>";
-			type = new IdentifierNode(newName, type.RangePosition >> close.RangePosition);
-			walker.Index++;
+			type = new GenericNode(type, generics, type.RangePosition >> token3.RangePosition);
 		}
 
-		if (walker.Peek(out Token? optional) && optional.Represents(Types.Operator, "?"))
+		if (walker.Peek(out Token? token4) && token4.Represents(Types.Operator, "?"))
 		{
-			string newName = $"Nullable<{type.Name}>";
-			type = new IdentifierNode(newName, type.RangePosition >> optional.RangePosition);
+			type = new GenericNode(new IdentifierNode("Nullable", type.RangePosition), [type], type.RangePosition >> token4.RangePosition);
 			walker.Index++;
 		}
 
 		return type;
+	}
+
+	private IEnumerable<IdentifierNode> GenericArgumentsParse(Walker walker)
+	{
+		if (!walker.InRange) yield break;
+		while (true)
+		{
+			yield return TypeParse(walker);
+			if (!walker.Peek(out Token? token) || !token.Represents(Types.Separator, ",")) break;
+			walker.Index++;
+		}
 	}
 
 	private DeclarationNode DeclarationParse(Walker walker)

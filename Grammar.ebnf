@@ -37,7 +37,7 @@ declaration
 	= identifier, type, [ invocation ];
 
 type
-	= identifier, [ "<", type, ">" ], [ "?" ];
+	= identifier, [ "<", type, { ",", type }, ">" ], [ "?" ];
 
 assignment
 	= identifier, ":", expression;

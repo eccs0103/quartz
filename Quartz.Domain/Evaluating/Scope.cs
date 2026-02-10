@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
+using Quartz.Domain.Parsing;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
@@ -51,69 +52,8 @@ public class Scope
 			current = current.Parent;
 		}
 
-		if (ParseGeneric(name, out string? templateName, out IEnumerable<string>? arguments))
-		{
-			if (TryRead(templateName, out Symbol? templateSymbol) && templateSymbol is Template template)
-			{
-				List<Class> classes = [];
-				foreach (string argument in arguments)
-				{
-					if (!TryRead(argument, out Symbol? argSymbol) || argSymbol is not Class argClass)
-					{
-						symbol = null;
-						return false;
-					}
-					classes.Add(argClass);
-				}
-
-				symbol = template.Instantiate(name, classes);
-				Register(name, symbol, ~Position.Zero);
-				return true;
-			}
-		}
-
 		symbol = null;
 		return false;
-	}
-
-	private static bool ParseGeneric(string input, [NotNullWhen(true)] out string? name, [NotNullWhen(true)] out IEnumerable<string>? arguments)
-	{
-		int bracketStart = input.IndexOf('<');
-		int bracketEnd = input.LastIndexOf('>');
-
-		if (bracketStart == -1 || bracketEnd == -1 || bracketEnd != input.Length - 1)
-		{
-			name = null;
-			arguments = null;
-			return false;
-		}
-
-		name = input[..bracketStart];
-		string content = input.Substring(bracketStart + 1, bracketEnd - bracketStart - 1);
-		
-		List<string> args = [];
-		int balance = 0;
-		int last = 0;
-		for (int i = 0; i < content.Length; i++)
-		{
-			if (content[i] == '<')
-			{
-				balance++;
-			}
-			else if (content[i] == '>')
-			{
-				balance--;
-			}
-			else if (content[i] == ',' && balance == 0)
-			{
-				args.Add(content[last..i].Trim());
-				last = i + 1;
-			}
-		}
-		args.Add(content[last..].Trim());
-
-		arguments = args;
-		return true;
 	}
 
 	public Symbol Read(string name, Range<Position> range)

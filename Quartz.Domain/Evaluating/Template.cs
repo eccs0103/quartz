@@ -20,7 +20,7 @@ public class Template(string name, IEnumerable<string> generics, Action<Class, I
 
 		if (enumeratorArguments.MoveNext()) throw new Exception("Invalid generic arguments count");
 
-		builder(type, arguments, scope);
+		builder.Invoke(type, arguments, scope);
 		return type;
 	}
 
