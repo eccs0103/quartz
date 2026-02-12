@@ -13,6 +13,7 @@ internal class Walker(Token[] tokens, Range<uint> range)
 	private Token[] Tokens { get; } = tokens;
 	public Range<uint> RangeIndex { get; } = range;
 	private Wrapper<uint> IndexWrapper = new(0);
+	private Stack<uint> Marks = [];
 
 	public uint Index
 	{
@@ -57,6 +58,21 @@ internal class Walker(Token[] tokens, Range<uint> range)
 		return result;
 	}
 
+	public void SaveIndex()
+	{
+		Marks.Push(Index);
+	}
+
+	public void DropIndex()
+	{
+		Marks.Pop();
+	}
+
+	public void RestoreIndex()
+	{
+		Index = Marks.Pop();
+	}
+
 	public Walker GetSubwalker(in uint begin, in uint end)
 	{
 		return new Walker(Tokens, new(begin, end))
@@ -67,15 +83,8 @@ internal class Walker(Token[] tokens, Range<uint> range)
 
 	public Walker GetSubwalker(string bracket, string pair)
 	{
-		if (TryGetSubwalker(bracket, pair, out Walker? walker)) return walker;
-		throw new ExpectedIssue(pair, ~RangePosition.End);
-	}
-
-	public bool TryGetSubwalker(string bracket, string pair, [NotNullWhen(true)] out Walker? subwalker)
-	{
-		uint original = Index;
 		uint counter = 1;
-		uint begin = Index + 1;
+		SaveIndex();
 		for (Index++; Index < RangeIndex.End; Index++)
 		{
 			if (!Peek(out Token? token)) continue;
@@ -83,12 +92,10 @@ internal class Walker(Token[] tokens, Range<uint> range)
 			else if (token.Represents(Types.Bracket, pair)) counter--;
 			if (counter != 0) continue;
 			uint end = Index;
-			Index = begin;
-			subwalker = GetSubwalker(begin, end);
-			return true;
+			RestoreIndex();
+			return GetSubwalker(++Index, end);
 		}
-		Index = original;
-		subwalker = null;
-		return false;
+		DropIndex();
+		throw new ExpectedIssue(pair, ~RangePosition.End);
 	}
 }

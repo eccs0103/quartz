@@ -1,101 +1,108 @@
-program
-	= { statement };
+Program
+	= { Statement };
 
-statement
-	= ( [ simple_statement ], ";" )
-	| block
-	| if_statement
-	| while_statement 
-	(* | for_statement *);
+Statement
+	= ( [ SimpleStatement ], ";" )
+	| Block
+	| IfStatement
+	| WhileStatement
+	(* | ForStatement *);
 
-simple_statement
-	= declaration
-	| assignment
-	| expression
-	| break_statement
-	| continue_statement;
+SimpleStatement
+	= Declaration
+	| Assignment
+	| Expression
+	| BreakStatement
+	| ContinueStatement;
 
-while_statement
-	= "while", "(", expression, ")", statement;
+WhileStatement
+	= "while", "(", Expression, ")", Statement;
 
-(* for_statement
-	= "for", "(", identifier, identifier, "in", expression, ")", statement; *)
+(* ForStatement
+	= "for", "(", Identifier, Identifier, "in", Expression, ")", Statement; *)
 
-break_statement
+BreakStatement
 	= "break";
 
-continue_statement
+ContinueStatement
 	= "continue";
 
-if_statement
-	= "if", "(", expression, ")", statement, [ "else", statement ];
+IfStatement
+	= "if", "(", Expression, ")", Statement, [ "else", Statement ];
 
-block
-	= "{", { statement }, "}";
+Block
+	= "{", { Statement }, "}";
 
-declaration
-	= identifier, type, [ invocation ];
+Declaration
+	= Identifier, Type, [ Invocation ];
 
-type
-	= identifier, [ "<", generics, ">" ], [ "?" ];
+Type
+	= Identifier, [ GenericArguments ], [ "?" ];
 
-generics
-	= type, { ",", type };
+GenericArguments
+	= "<", Generics, ">";
 
-assignment
-	= identifier, ":", expression;
+Generics
+	= Type, { ",", Type };
 
-expression
-	= logical_or;
+Assignment
+	= Identifier, ":", Expression;
 
-logical_or
-	= logical_and, { "|", logical_and };
+Expression
+	= LogicalOr;
 
-logical_and
-	= comparison, { "&", comparison };
+LogicalOr
+	= LogicalAnd, { "|", LogicalAnd };
 
-comparison
-	= additive, { ( "<"
+LogicalAnd
+	= Comparison, { "&", Comparison };
+
+Comparison
+	= Additive, { ( "<"
 	| ">"
 	| "<="
 	| ">="
 	| "!="
-	| "=" ), additive };
+	| "=" ), Additive };
 
-additive
-	= multiplicative, { ( "+"
-	| "-" ), multiplicative };
+Additive
+	= Multiplicative, { ( "+"
+	| "-" ), Multiplicative };
 
-multiplicative
-	= unary, { ( "*"
-	| "/" ), unary };
+Multiplicative
+	= Unary, { ( "*"
+	| "/" ), Unary };
 
-unary
+Unary
 	= [ ( "+"
 	| "-"
-	| "!" ) ], primary;
+	| "!" ) ], Primary;
 
-primary
-	= number
-	| boolean
-	| string
-	| identifier, [ "<", generics, ">" ], [ invocation ]
-	| "(", expression, ")";
+Primary
+	= "null"
+	| Number
+	| Boolean
+	| String
+	| IdentifierExpression
+	| "(", Expression, ")";
 
-invocation
-	= "(", [ arguments ], ")";
+IdentifierExpression
+	= Identifier, [ GenericArguments | Invocation ];
 
-arguments
-	= expression, { ",", expression };
+Invocation
+	= "(", [ Arguments ], ")";
 
-identifier
-	= letter, { letter
-	| digit };
+Arguments
+	= Expression, { ",", Expression };
 
-string
-	= '"', { character - '"' }, '"';
+Identifier
+	= Letter, { Letter
+	| Digit };
 
-letter
+String
+	= '"', { Character - '"' }, '"';
+
+Letter
 	= "a"
 	| "b"
 	| "c"
@@ -150,17 +157,17 @@ letter
 	| "Z"
 	| "_";
 
-boolean
+Boolean
 	= "true"
 	| "false";
 
-number
-	= integer, [ ".", integer ];
+Number
+	= Integer, [ ".", Integer ];
 
-integer
-	= digit, { digit };
+Integer
+	= Digit, { Digit };
 
-digit
+Digit
 	= "0"
 	| "1"
 	| "2"
@@ -172,5 +179,5 @@ digit
 	| "8"
 	| "9";
 
-character
+Character
 	= ? any valid source character ?;

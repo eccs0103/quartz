@@ -162,12 +162,10 @@ while (iteration_index < fibonacci_limit) {
 	iteration_index : iteration_index + 1;
 }
 
-write("\n[SECTION 10] Templates (Generic types)");
+write("\n[SECTION 10] Templates & Ambiguity");
 
-write("10.1: Generic type without parameters");
 write("Nullable (bare type): "); write(Nullable);
 
-write("\n10.2: Generic type with single parameter - Number");
 write("Nullable<Number> (type): "); write(Nullable<Number>);
 explicit_nullable Nullable<Number>(42);
 write("Nullable<Number>(42): "); write(explicit_nullable);
@@ -178,24 +176,24 @@ write("Assigned null: "); write(explicit_nullable);
 explicit_nullable : 7;
 write("Re-assigned 7: "); write(explicit_nullable);
 
-write("\n10.3: Generic type with single parameter - Boolean");
 write("Nullable<Boolean> (type): "); write(Nullable<Boolean>);
 generic_bool Nullable<Boolean>(true);
 write("Nullable<Boolean>(true): "); write(generic_bool);
 
-write("\n10.4: Generic type with single parameter - String");
 write("Nullable<String> (type): "); write(Nullable<String>);
 generic_string Nullable<String>("Templates work!");
 write("Nullable<String>: "); write(generic_string);
 
-write("\n10.5: Optional syntax (syntactic sugar for Nullable)");
 optional_with_sugar Number?;
 write("Number? (uninitialized): "); write(optional_with_sugar);
 optional_with_sugar : 99;
 write("Number? (assigned 99): "); write(optional_with_sugar);
 
-write("\n10.6: Generic type validation");
-write("NOTE: Wrong parameter count would fail validation");
+write("Ambiguity check (Identifier < Identifier):");
+ambiguity_a Number(10);
+ambiguity_b Number(20);
+ambiguity_left_result Boolean(ambiguity_a < ambiguity_b);
+write("10 < 20: "); write(ambiguity_left_result);
 
 write("\n[SECTION 11] Complex Expression Casting");
 write("Complex Calc: "); write((10 + 2) * 5 - 20 / 4);
