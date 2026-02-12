@@ -67,6 +67,13 @@ internal class Walker(Token[] tokens, Range<uint> range)
 
 	public Walker GetSubwalker(string bracket, string pair)
 	{
+		if (TryGetSubwalker(bracket, pair, out Walker? walker)) return walker;
+		throw new ExpectedIssue(pair, ~RangePosition.End);
+	}
+
+	public bool TryGetSubwalker(string bracket, string pair, [NotNullWhen(true)] out Walker? subwalker)
+	{
+		uint original = Index;
 		uint counter = 1;
 		uint begin = Index + 1;
 		for (Index++; Index < RangeIndex.End; Index++)
@@ -77,8 +84,11 @@ internal class Walker(Token[] tokens, Range<uint> range)
 			if (counter != 0) continue;
 			uint end = Index;
 			Index = begin;
-			return GetSubwalker(begin, end);
+			subwalker = GetSubwalker(begin, end);
+			return true;
 		}
-		throw new ExpectedIssue(pair, ~RangePosition.End);
+		Index = original;
+		subwalker = null;
+		return false;
 	}
 }
