@@ -191,12 +191,12 @@ public class Parser
 		IdentifierNode type = new(token1.Value, token1.RangePosition);
 		walker.Index++;
 
-		if (walker.Peek(out Token? token2) && token2.Represents(Types.Bracket, "<"))
+		if (walker.Peek(out Token? token2) && token2.Represents(Types.Operator, "<"))
 		{
 			string open = token2.Value;
 			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
-			Walker subwalker = walker.GetSubwalker(open, close);
-			IEnumerable<IdentifierNode> generics = [.. GenericsParse(subwalker)];
+			walker.Index++;
+			IEnumerable<IdentifierNode> generics = [.. GenericsParse(walker)];
 			if (!walker.Peek(out Token? token3)) throw new ExpectedIssue(close, ~type.RangePosition.End);
 			walker.Index++;
 			type = new GenericNode(type, generics, type.RangePosition >> token3.RangePosition);
@@ -215,11 +215,11 @@ public class Parser
 	{
 		try
 		{
-			if (!walker.Peek(out Token? token) || !token.Represents(Types.Bracket, "<")) return null;
+			if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, "<")) return null;
 			walker.SaveIndex();
 			walker.Index++;
 			IEnumerable<IdentifierNode> generics = [.. GenericsParse(walker)];
-			if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, ">")) throw new ExpectedIssue(">", ~walker.RangePosition.End);
+			if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Operator, ">")) throw new ExpectedIssue(">", ~walker.RangePosition.End);
 			walker.Index++;
 			walker.DropIndex();
 			return new GenericNode(identifier, generics, identifier.RangePosition >> token2.RangePosition);
@@ -289,7 +289,7 @@ public class Parser
 	private Node ComparisonParse(Walker walker)
 	{
 		Node left = AdditiveParse(walker);
-		while (walker.Peek(out Token? token) && (token.Represents(Types.Operator, "!=", "=", "<=", ">=") || token.Represents(Types.Bracket, "<", ">")))
+		while (walker.Peek(out Token? token) && (token.Represents(Types.Operator, "!=", "=", "<=", ">=", "<", ">")))
 		{
 			IdentifierNode @operator = new(token.Value, token.RangePosition);
 			walker.Index++;
