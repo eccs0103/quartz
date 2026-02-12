@@ -5,6 +5,11 @@ namespace Quartz.Domain.Evaluating;
 
 public class Generic(string name, IEnumerable<string> generics, Action<Class, IEnumerable<Class>, Scope> builder, Scope location) : Symbol(name)
 {
+	public override void Assign(Instance value, Range<Position> range)
+	{
+		throw new NotMutableIssue($"Generic '{Name}'", range);
+	}
+
 	public Class Instantiate(string name, IEnumerable<Class> arguments, Range<Position> range)
 	{
 		Scope scope = location.GetSubscope(name);
@@ -23,10 +28,5 @@ public class Generic(string name, IEnumerable<string> generics, Action<Class, IE
 		Class type = new(name, scope);
 		builder.Invoke(type, arguments, scope);
 		return type;
-	}
-
-	public override void Assign(Instance value, Range<Position> range)
-	{
-		throw new NotMutableIssue($"Generic '{Name}'", range);
 	}
 }

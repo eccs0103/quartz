@@ -55,7 +55,7 @@ public class Runtime
 				{
 					return @this.RunOperation("to_string", [], scope, range);
 				});
-				type.DeclareOperation("get_value", [], args.First().Name, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("get_value", [], args[0].Name, static (@this, arguments, scope, range) =>
 				{
 					return TypeHelper.Unwrap(@this);
 				});

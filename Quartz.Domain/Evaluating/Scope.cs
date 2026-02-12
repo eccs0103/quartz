@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
-using Quartz.Domain.Parsing;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
@@ -64,6 +63,6 @@ public class Scope
 
 	public T? Find<T>(Predicate<T> predicate) where T : Symbol
 	{
-		return Symbols.Values.OfType<T>().FirstOrDefault(symbol => predicate(symbol));
+		return Symbols.Values.OfType<T>().FirstOrDefault(predicate.Invoke);
 	}
 }
