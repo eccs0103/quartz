@@ -3,6 +3,7 @@ using System.Text.Json;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
+using Quartz.Shared.Helpers;
 using static Quartz.Domain.Lexing.Token;
 
 namespace Quartz.Application.Parsing;
@@ -342,6 +343,49 @@ public class Parser
 		{
 			IdentifierNode identifier = new(token.Value, token.RangePosition);
 			walker.Index++;
+			
+			// Check for generic parameters <Type1, Type2, ...>
+			if (walker.Peek(out Token? tokenGenericOpen) && tokenGenericOpen.Represents(Types.Bracket, "<"))
+			{
+				// Parse generic type parameters
+				List<IdentifierNode> generics = [];
+				Range<Position> genericOpenRange = tokenGenericOpen.RangePosition;
+				walker.Index++; // consume '<'
+				
+				while (true)
+				{
+					if (!walker.Peek(out Token? tokenGeneric) || !tokenGeneric.Represents(Types.Identifier))
+						throw new ExpectedIssue("type name", walker.Peek(out Token? t) ? t.RangePosition : ~walker.RangePosition.End);
+					
+					IdentifierNode genericIdentifier = new(tokenGeneric.Value, tokenGeneric.RangePosition);
+					walker.Index++;
+					
+					// Check for nested generics (e.g., Nullable<List<Number>>)
+					if (walker.Peek(out Token? tokenNestedGeneric) && tokenNestedGeneric.Represents(Types.Bracket, "<"))
+					{
+						walker.Index--; // step back to re-parse with generics
+						genericIdentifier = (IdentifierNode)PrimaryParse(walker);
+					}
+					
+					generics.Add(genericIdentifier);
+					
+					if (!walker.Peek(out Token? tokenNext)) throw new ExpectedIssue(">", ~walker.RangePosition.End);
+					
+					if (tokenNext.Represents(Types.Bracket, ">"))
+					{
+						Range<Position> genericCloseRange = tokenNext.RangePosition;
+						walker.Index++; // consume '>'
+						identifier = new GenericNode(identifier, generics, identifier.RangePosition >> genericCloseRange);
+						break;
+					}
+					
+					if (!tokenNext.Represents(Types.Separator, ","))
+						throw new ExpectedIssue(", or >", tokenNext.RangePosition);
+					
+					walker.Index++; // consume ','
+				}
+			}
+			
 			const string open = "(";
 			if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, open)) return identifier;
 			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
