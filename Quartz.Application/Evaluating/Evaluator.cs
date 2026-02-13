@@ -16,17 +16,17 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, IdentifierNode node)
 	{
-		Symbol symbol = location.Read(node.Name, node.RangePosition);
+		if (!location.TryRead(node.Name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 		if (symbol is Datum datum) return datum.Value;
 		if (symbol is Class type) return new Value<Class>("Type", type);
 		if (symbol is Template template) return new Value<Template>("Template", template);
-		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
+		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition); // TODO: Change to invalid type
 	}
 
 	public Value Evaluate(Scope location, GenericNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
+		if (!location.TryRead(nodeTarget.Name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		if (symbol is not Template template) throw new TypeMismatchIssue("Template", symbol.Name, nodeTarget.RangePosition);
 		List<Class> types = [];
 		foreach (IdentifierNode nodeGeneric in node.Generics)
@@ -39,7 +39,7 @@ internal class Evaluator : IEvaluator<Value>
 		if (location.TryRead(node.Name, out Symbol? existing))
 		{
 			if (existing is Class type) return new Value<Class>("Type", type);
-			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition);
+			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition); // TODO: change like others
 		}
 
 		Class type2 = template.Construct(node.Name, types, node.RangePosition);
@@ -69,7 +69,7 @@ internal class Evaluator : IEvaluator<Value>
 	{
 		IdentifierNode nodeIdentifier = node.Identifier;
 		Value value = node.Value.Accept(this, location);
-		Symbol symbol = location.Read(nodeIdentifier.Name, nodeIdentifier.RangePosition);
+		if (!location.TryRead(nodeIdentifier.Name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
 		symbol.Assign(value, nodeIdentifier.RangePosition);
 		return Value.Null;
 	}
@@ -78,7 +78,7 @@ internal class Evaluator : IEvaluator<Value>
 	{
 		IdentifierNode nodeTarget = node.Target;
 		IEnumerable<Value> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
-		Symbol symbol = location.Read(nodeTarget.Name, nodeTarget.RangePosition);
+		if (!location.TryRead(nodeTarget.Name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		if (symbol is not Operator @operator) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		Operation operation = @operator.TryReadOperation(arguments.Select(result => result.Tag)) ?? throw new NotExistIssue($"Operation '{nodeTarget.Name}'", nodeTarget.RangePosition);
 		Scope scope = location.GetSubscope("Call");
@@ -87,10 +87,11 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, UnaryOperatorNode node)
 	{
+		Node nodeTarget = node.Target;
 		IdentifierNode nodeOperator = node.Operator;
-		Value target = TypeHelper.Unwrap(node.Target.Accept(this, location));
-		Symbol symbol = location.Read(target.Tag, node.Target.RangePosition);
-		if (symbol is not Class type) throw new NotExistIssue($"Type '{target.Tag}' in {location}", node.Target.RangePosition);
+		Value target = TypeHelper.Unwrap(nodeTarget.Accept(this, location));
+		if (!location.TryRead(target.Tag, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{target.Tag}' in {location}", nodeTarget.RangePosition);
+		if (symbol is not Class type) throw new NotExistIssue($"Type '{target.Tag}' in {location}", nodeTarget.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [target.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([target], scope, node.RangePosition);
@@ -101,7 +102,7 @@ internal class Evaluator : IEvaluator<Value>
 		IdentifierNode nodeOperator = node.Operator;
 		Value left = TypeHelper.Unwrap(node.Left.Accept(this, location));
 		Value right = TypeHelper.Unwrap(node.Right.Accept(this, location));
-		Symbol symbol = location.Read(left.Tag, node.Left.RangePosition);
+		if (!location.TryRead(left.Tag, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{left.Tag}' in {location}", node.Left.RangePosition);
 		if (symbol is not Class type) throw new NotExistIssue($"Type '{left.Tag}' in {location}", node.Left.RangePosition);
 		Operation operation = type.ReadOperation(nodeOperator.Name, [left.Tag, right.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");

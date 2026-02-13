@@ -51,14 +51,22 @@ public class Scope
 		return false;
 	}
 
-	public Symbol Read(string name, Range<Position> range)
+	public bool TryRead<T>(string name, [NotNullWhen(true)] out T? symbol)
+		where T : Symbol
 	{
-		if (!TryRead(name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{name}' in {this}", range);
-		return symbol;
+		if (Symbols.TryGetValue(name, out Symbol? value) && value is T result)
+		{
+			symbol = result;
+			return true;
+		}
+		if (Parent != null) return Parent.TryRead<T>(name, out symbol);
+		symbol = default;
+		return false;
 	}
 
-	// TODO: Fix deepness
-	public T? Find<T>(Predicate<T> predicate) where T : Symbol
+	// TODO: Get rid of this
+	public T? Find<T>(Predicate<T> predicate)
+		where T : Symbol
 	{
 		return Symbols.Values.OfType<T>().FirstOrDefault(predicate.Invoke);
 	}
