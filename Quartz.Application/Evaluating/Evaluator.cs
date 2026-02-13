@@ -18,8 +18,8 @@ internal class Evaluator : IEvaluator<Value>
 	{
 		if (!location.TryRead(node.Name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition);
 		if (symbol is Datum datum) return datum.Value;
-		if (symbol is Class type) return new Value<Class>("Type", type);
-		if (symbol is Template template) return new Value<Template>("Template", template);
+		if (symbol is Class type) return new Value<Class>(TypeConstants.Type, type);
+		if (symbol is Template template) return new Value<Template>(TypeConstants.Template, template);
 		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition); // TODO: Change to invalid type
 	}
 
@@ -31,19 +31,19 @@ internal class Evaluator : IEvaluator<Value>
 		foreach (IdentifierNode nodeGeneric in node.Generics)
 		{
 			Value value = nodeGeneric.Accept(this, location);
-			if (value.Tag != "Type" || value.Content is not Class type) throw new TypeMismatchIssue("Class", value.Tag, nodeGeneric.RangePosition);
+			if (value.Tag != TypeConstants.Type || value.Content is not Class type) throw new TypeMismatchIssue(TypeConstants.Type, value.Tag, nodeGeneric.RangePosition);
 			types.Add(type);
 		}
 
 		if (location.TryRead(node.Name, out Symbol? existing)) // TODO: change like others
 		{
-			if (existing is Class type) return new Value<Class>("Type", type);
+			if (existing is Class type) return new Value<Class>(TypeConstants.Type, type);
 			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition);
 		}
 
 		Class type2 = template.Construct(node.Name, types, node.RangePosition);
 		if (!location.TryRegister(node.Name, type2)) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
-		return new Value<Class>("Type", type2);
+		return new Value<Class>(TypeConstants.Type, type2);
 	}
 
 	public Value Evaluate(Scope location, DeclarationNode node)
@@ -115,7 +115,7 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, IfStatementNode node)
 	{
 		Value condition = node.Condition.Accept(this, location);
-		if (condition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", condition.Tag, node.Condition.RangePosition);
+		if (condition.Tag != TypeConstants.Boolean) throw new TypeMismatchIssue(TypeConstants.Boolean, condition.Tag, node.Condition.RangePosition);
 		Node? nodeBranch = condition.As<bool>().Content ? node.Then : node.Else;
 		nodeBranch?.Accept(this, location);
 		return Value.Null;
@@ -126,7 +126,7 @@ internal class Evaluator : IEvaluator<Value>
 		while (true)
 		{
 			Value condition = node.Condition.Accept(this, location);
-			if (condition.Tag != "Boolean") throw new TypeMismatchIssue("Boolean", condition.Tag, node.Condition.RangePosition);
+			if (condition.Tag != TypeConstants.Boolean) throw new TypeMismatchIssue(TypeConstants.Boolean, condition.Tag, node.Condition.RangePosition);
 			if (!condition.As<bool>().Content) break;
 			try { node.Body.Accept(this, location); }
 			catch (ContinueSignal) { continue; }

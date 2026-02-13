@@ -4,15 +4,10 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
 
-public class GenericNode(IdentifierNode target, IEnumerable<IdentifierNode> generics, Range<Position> range) : IdentifierNode(Mangle(target, generics), range)
+public class GenericNode(IdentifierNode target, IEnumerable<IdentifierNode> generics, Range<Position> range) : IdentifierNode(Mangler.Generics(target.Name, generics.Select(generic => generic.Name)), range)
 {
 	public IdentifierNode Target { get; } = target;
 	public IEnumerable<IdentifierNode> Generics { get; } = generics;
-
-	public static string Mangle(IdentifierNode target, IEnumerable<IdentifierNode> generics)
-	{
-		return $"{target.Name}<{generics.Select(generic => generic.Name).Mangle()}>";
-	}
 
 	public override string ToString()
 	{

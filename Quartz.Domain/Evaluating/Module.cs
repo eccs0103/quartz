@@ -15,4 +15,9 @@ public class Module(string name, Scope location) : Symbol(name)
 	{
 		return location.TryRead(name, out type);
 	}
+
+	public bool TryReadTemplate(string name, [NotNullWhen(true)] out Template? template)
+	{
+		return location.TryRead(name, out template);
+	}
 }

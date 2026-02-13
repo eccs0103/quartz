@@ -11,7 +11,7 @@ public class InvokationNode(IdentifierNode target, IEnumerable<Node> arguments, 
 
 	public override string ToString()
 	{
-		return $"{Target}({Arguments.Mangle()})";
+		return $"{Target}({Mangler.List(Arguments)})";
 	}
 
 	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)

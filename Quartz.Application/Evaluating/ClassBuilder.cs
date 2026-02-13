@@ -5,7 +5,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Application.Evaluating;
 
-internal delegate Value OperationContent(Value @this, Value[] arguments, Scope scope, Range<Position> range);
+internal delegate Value ClassOperationContent(Value @this, Value[] arguments, Scope scope, Range<Position> range);
 
 internal class ClassBuilder(Class type, Scope location)
 {
@@ -32,7 +32,7 @@ internal class ClassBuilder(Class type, Scope location)
 		return @operator;
 	}
 
-	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, OperationContent content)
+	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, ClassOperationContent content)
 	{
 		Scope scope = location.GetSubscope(name);
 		Operator @operator = GetOperator(name, ~Position.Zero);
@@ -44,7 +44,7 @@ internal class ClassBuilder(Class type, Scope location)
 				Value workspace = new Value<object>(RuntimeBuilder.NameWorkspace, Value.Empty);
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}
-			Operation operation = new(Operator.Mangle(parameters), parameters, result, Wrapper, scope);
+			Operation operation = new(name, Mangler.Parameters(parameters), parameters, result, Wrapper, scope);
 			@operator.RegisterOperation(operation, ~Position.Zero);
 			return;
 		}
@@ -54,7 +54,7 @@ internal class ClassBuilder(Class type, Scope location)
 		{
 			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
-		Operation operationWithSelf = new(Operator.Mangle(parameters), parameters, result, WrapperWithSelf, scope);
+		Operation operationWithSelf = new(name, Mangler.Parameters(parameters), parameters, result, WrapperWithSelf, scope);
 		@operator.RegisterOperation(operationWithSelf, ~Position.Zero);
 	}
 }

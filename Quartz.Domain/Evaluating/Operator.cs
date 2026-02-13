@@ -24,7 +24,7 @@ public class Operator(string name, Scope location) : Symbol(name)
 
 	public bool TryReadOperation(IEnumerable<string> parameters, [NotNullWhen(true)] out Operation? operation)
 	{
-		if (location.TryRead($"({parameters.Mangle()})", out operation)) return true;
+		if (location.TryRead(Mangler.Parameters(parameters), out operation)) return true;
 		foreach (Operation overload in location.Scan<Operation>())
 		{
 			bool isMatch = true;
@@ -46,12 +46,7 @@ public class Operator(string name, Scope location) : Symbol(name)
 
 	public Operation ReadOperation(IEnumerable<string> parameters, Range<Position> range)
 	{
-		if (!TryReadOperation(parameters, out Operation? operation)) throw new NotExistIssue($"Operation '{Name}({parameters.Mangle()})' in {location}", range);
+		if (!TryReadOperation(parameters, out Operation? operation)) throw new NotExistIssue($"Operation '{Name}{Mangler.Parameters(parameters)}' in {location}", range);
 		return operation;
-	}
-
-	public static string Mangle(IEnumerable<string> tags)
-	{
-		return $"({string.Join(", ", tags)})";
 	}
 }
