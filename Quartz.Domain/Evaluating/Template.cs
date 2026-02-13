@@ -29,7 +29,7 @@ public class Template(string name, IEnumerable<string> generics, Action<Class, I
 		while (enumeratorGenerics.MoveNext())
 		{
 			enumeratorArguments.MoveNext();
-			scope.Register(enumeratorGenerics.Current, enumeratorArguments.Current, ~Position.Zero);
+			if (!scope.TryRegister(enumeratorGenerics.Current, enumeratorArguments.Current)) throw new AlreadyExistsIssue($"Generic '{enumeratorGenerics.Current}' in {scope}", ~Position.Zero);
 		}
 
 		Class type = new(name, scope, null); // TODO: Add 'Any' base

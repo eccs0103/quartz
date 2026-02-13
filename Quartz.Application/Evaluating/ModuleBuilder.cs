@@ -1,4 +1,5 @@
 using Quartz.Domain.Evaluating;
+using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Application.Evaluating;
@@ -13,7 +14,7 @@ internal class ModuleBuilder(Module module, Scope location)
 			{
 				configure.Invoke(new ClassBuilder(type, scope), [.. args]);
 			}, location);
-			location.Register(name, template, ~Position.Zero);
+			if (!location.TryRegister(name, template)) throw new AlreadyExistsIssue($"Template '{name}' in {location}", ~Position.Zero);
 			return;
 		}
 
@@ -23,7 +24,7 @@ internal class ModuleBuilder(Module module, Scope location)
 		Class? typeBase = null;
 		if (@base != null) module.TryReadClass(@base, out typeBase);
 		Class type = new(name, scope, typeBase);
-		location.Register(name, type, ~Position.Zero);
+		if (!location.TryRegister(name, type)) throw new AlreadyExistsIssue($"Class '{name}' in {location}", ~Position.Zero);
 		configure.Invoke(new ClassBuilder(type, scope), []);
 	}
 }

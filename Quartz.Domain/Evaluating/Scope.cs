@@ -17,9 +17,11 @@ public class Scope
 		Parent = parent;
 		Path = DeterminePath(parent, name);
 	}
+
 	public Scope(string name) : this(name, null)
 	{
 	}
+
 	public Scope GetSubscope(string name)
 	{
 		return new Scope(name, this);
@@ -36,22 +38,16 @@ public class Scope
 		return $"<{Path}>";
 	}
 
-	public Symbol Register(string name, Symbol symbol, Range<Position> range)
+	public bool TryRegister(string name, Symbol symbol)
 	{
-		if (!Symbols.TryAdd(name, symbol)) throw new AlreadyExistsIssue($"Identifier '{name}' in {this}", range);
-		return symbol;
+		return Symbols.TryAdd(name, symbol);
 	}
 
 	public bool TryRead(string name, [NotNullWhen(true)] out Symbol? symbol)
 	{
-		Scope? current = this;
-		while (current != null)
-		{
-			if (current.Symbols.TryGetValue(name, out symbol)) return true;
-			current = current.Parent;
-		}
-
-		symbol = null;
+		if (Symbols.TryGetValue(name, out symbol)) return true;
+		if (Parent != null) return Parent.TryRead(name, out symbol);
+		symbol = default;
 		return false;
 	}
 

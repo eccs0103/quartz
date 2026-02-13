@@ -1,24 +1,25 @@
 using Quartz.Domain.Evaluating;
+using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Application.Evaluating;
 
+internal delegate Value OperationContent(Value @this, Value[] arguments, Scope scope, Range<Position> range);
+
 internal class ClassBuilder(Class type, Scope location)
 {
-	public ClassBuilder DeclareVariable(string name, string tag, object value)
+	public void DeclareVariable(string name, string tag, object value)
 	{
 		Value value2 = new Value<object>(tag, value);
 		Datum variable = new(name, tag, value2, true);
-		location.Register(name, variable, ~Position.Zero);
-		return this;
+		if (!location.TryRegister(name, variable)) throw new AlreadyExistsIssue($"Datum '{name}' in {location}", ~Position.Zero);
 	}
 
-	public ClassBuilder DeclareConstant(string name, string tag, object value)
+	public void DeclareConstant(string name, string tag, object value)
 	{
 		Value value2 = new Value<object>(tag, value);
 		Datum constant = new(name, tag, value2, false);
-		location.Register(name, constant, ~Position.Zero);
-		return this;
+		if (!location.TryRegister(name, constant)) throw new AlreadyExistsIssue($"Datum '{name}' in {location}", ~Position.Zero);
 	}
 
 	// TODO: Excess metod
@@ -26,11 +27,11 @@ internal class ClassBuilder(Class type, Scope location)
 	{
 		if (type.TryReadOperator(name, out Operator? @operator)) return @operator;
 		@operator = new Operator(name, location.GetSubscope(name));
-		location.Register(name, @operator, range);
+		if (!location.TryRegister(name, @operator)) throw new AlreadyExistsIssue($"Operator'{name}' in {location}", ~Position.Zero);
 		return @operator;
 	}
 
-	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, Func<Value, Value[], Scope, Range<Position>, Value> content)
+	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, OperationContent content)
 	{
 		Scope scope = location.GetSubscope(name);
 		Operator @operator = GetOperator(name, ~Position.Zero);

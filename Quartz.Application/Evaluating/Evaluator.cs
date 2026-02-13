@@ -43,7 +43,7 @@ internal class Evaluator : IEvaluator<Value>
 		}
 
 		Class type2 = template.Construct(node.Name, types, node.RangePosition);
-		location.Register(node.Name, type2, node.RangePosition);
+		if (!location.TryRegister(node.Name, type2)) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
 		return new Value<Class>("Type", type2);
 	}
 
@@ -60,7 +60,7 @@ internal class Evaluator : IEvaluator<Value>
 		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, value.Tag)) throw new TypeMismatchIssue(nodeType.Name, value.Tag, node.Value.RangePosition);
 
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, value, true);
-		location.Register(nodeIdentifier.Name, variable, nodeIdentifier.RangePosition);
+		if (!location.TryRegister(nodeIdentifier.Name, variable)) throw new AlreadyExistsIssue($"Datum'{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
 
 		return Value.Null;
 	}

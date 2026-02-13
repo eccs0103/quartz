@@ -12,7 +12,7 @@ public class Operator(string name, Scope location) : Symbol(name)
 
 	public void RegisterOperation(Operation operation, Range<Position> range)
 	{
-		location.Register(operation.Name, operation, range);
+		if (!location.TryRegister(operation.Name, operation)) throw new AlreadyExistsIssue($"Operation '{operation.Name}' in {location}", range);
 	}
 
 	public Operation? TryReadOperation(IEnumerable<string> parameters)
