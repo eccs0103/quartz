@@ -10,8 +10,8 @@ public class ContinueStatementNode(Range<Position> range) : Node(range)
 		return "continue";
 	}
 
-	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
+	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)
 	{
-		return visitor.Visit(location, this);
+		return evaluator.Evaluate(location, this);
 	}
 }

@@ -20,12 +20,12 @@ public static class TypeHelper
 		return false;
 	}
 
-	public static Instance Unwrap(Instance instance)
+	public static Value Unwrap(Value value)
 	{
-		if (instance.Value == Instance.Empty) return Instance.Null;
-		string tag = UnwrapTag(instance.Tag);
-		if (tag == instance.Tag) return instance;
-		return new Instance<object>(tag, instance.Value);
+		if (value.Content == Value.Empty) return Value.Null;
+		string tag = UnwrapTag(value.Tag);
+		if (tag == value.Tag) return value;
+		return new Value<object>(tag, value.Content);
 	}
 
 	private static string UnwrapTag(string tag)

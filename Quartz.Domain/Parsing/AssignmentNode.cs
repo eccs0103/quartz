@@ -13,8 +13,8 @@ public class AssignmentNode(IdentifierNode identifier, Node value, Range<Positio
 		return $"{Identifier}: {Value}";
 	}
 
-	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
+	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)
 	{
-		return visitor.Visit(location, this);
+		return evaluator.Evaluate(location, this);
 	}
 }

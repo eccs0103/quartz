@@ -17,8 +17,8 @@ public class ValueNode(string tag, object? value, Range<Position> range) : Node(
 		return Value?.ToString() ?? "null";
 	}
 
-	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
+	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)
 	{
-		return visitor.Visit(location, this);
+		return evaluator.Evaluate(location, this);
 	}
 }

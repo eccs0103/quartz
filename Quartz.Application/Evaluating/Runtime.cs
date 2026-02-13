@@ -18,35 +18,35 @@ public class Runtime
 			{
 				type.DeclareOperation("=", ["Any"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance other = arguments[0];
-					Instance isEqual = @this.RunOperation("is_equal", [other], scope, range);
+					Value other = arguments[0];
+					Value isEqual = @this.RunOperation("is_equal", [other], scope, range);
 					return isEqual;
 				});
 				type.DeclareOperation("!=", ["Any"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance other = arguments[0];
-					Instance isEqual = @this.RunOperation("=", [other], scope, range);
-					Instance isNotEqual = isEqual.RunOperation("!", [], scope, range);
+					Value other = arguments[0];
+					Value isEqual = @this.RunOperation("=", [other], scope, range);
+					Value isNotEqual = isEqual.RunOperation("!", [], scope, range);
 					return isNotEqual;
 				});
 				type.DeclareOperation("is_equal", ["Any"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance other = arguments[0];
-					object left = @this.Value;
-					object right = other.Value;
+					Value other = arguments[0];
+					object left = @this.Content;
+					object right = other.Content;
 					bool result = left.Equals(right);
-					return new Instance<bool>("Boolean", result);
+					return new Value<bool>("Boolean", result);
 				});
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
-					return new Instance<string>("String", $"[{@this.Tag}]");
+					return new Value<string>("String", $"[{@this.Tag}]");
 				});
 			});
 			module.DeclareClass("Null", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
-					return new Instance<string>("String", "null");
+					return new Value<string>("String", "null");
 				});
 			});
 			module.DeclareClass("Nullable", "Any", ["Content"], static (type, generics) =>
@@ -64,104 +64,104 @@ public class Runtime
 			{
 				type.DeclareOperation("+", [], "Number", static (@this, arguments, scope, range) =>
 				{
-					double result = +@this.As<double>().Value;
-					return new Instance<double>("Number", result);
+					double result = +@this.As<double>().Content;
+					return new Value<double>("Number", result);
 				});
 				type.DeclareOperation("+", ["Number"], "Number", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					double result = @this.As<double>().Value + other.Value;
-					return new Instance<double>("Number", result);
+					Value<double> other = arguments[0].As<double>();
+					double result = @this.As<double>().Content + other.Content;
+					return new Value<double>("Number", result);
 				});
 				type.DeclareOperation("-", [], "Number", static (@this, arguments, scope, range) =>
 				{
-					double result = -@this.As<double>().Value;
-					return new Instance<double>("Number", result);
+					double result = -@this.As<double>().Content;
+					return new Value<double>("Number", result);
 				});
 				type.DeclareOperation("-", ["Number"], "Number", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					double result = @this.As<double>().Value - other.Value;
-					return new Instance<double>("Number", result);
+					Value<double> other = arguments[0].As<double>();
+					double result = @this.As<double>().Content - other.Content;
+					return new Value<double>("Number", result);
 				});
 				type.DeclareOperation("*", ["Number"], "Number", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					double result = @this.As<double>().Value * other.Value;
-					return new Instance<double>("Number", result);
+					Value<double> other = arguments[0].As<double>();
+					double result = @this.As<double>().Content * other.Content;
+					return new Value<double>("Number", result);
 				});
 				type.DeclareOperation("/", ["Number"], "Number", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					double result = @this.As<double>().Value / other.Value;
-					return new Instance<double>("Number", result);
+					Value<double> other = arguments[0].As<double>();
+					double result = @this.As<double>().Content / other.Content;
+					return new Value<double>("Number", result);
 				});
 				type.DeclareOperation("<", ["Number"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					bool result = @this.As<double>().Value < other.Value;
-					return new Instance<bool>("Boolean", result);
+					Value<double> other = arguments[0].As<double>();
+					bool result = @this.As<double>().Content < other.Content;
+					return new Value<bool>("Boolean", result);
 				});
 				type.DeclareOperation("<=", ["Number"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					Instance<bool> isLess = @this.RunOperation("<", [other], scope, range).As<bool>();
-					if (isLess.Value) return new Instance<bool>("Boolean", true);
-					Instance<bool> isEqual = @this.RunOperation("=", [other], scope, range).As<bool>();
-					return new Instance<bool>("Boolean", isEqual.Value);
+					Value<double> other = arguments[0].As<double>();
+					Value<bool> isLess = @this.RunOperation("<", [other], scope, range).As<bool>();
+					if (isLess.Content) return new Value<bool>("Boolean", true);
+					Value<bool> isEqual = @this.RunOperation("=", [other], scope, range).As<bool>();
+					return new Value<bool>("Boolean", isEqual.Content);
 				});
 				type.DeclareOperation(">", ["Number"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					bool result = @this.As<double>().Value > other.Value;
-					return new Instance<bool>("Boolean", result);
+					Value<double> other = arguments[0].As<double>();
+					bool result = @this.As<double>().Content > other.Content;
+					return new Value<bool>("Boolean", result);
 				});
 				type.DeclareOperation(">=", ["Number"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance<double> other = arguments[0].As<double>();
-					Instance<bool> isGreater = @this.RunOperation(">", [other], scope, range).As<bool>();
-					if (isGreater.Value) return new Instance<bool>("Boolean", true);
-					Instance<bool> isEqual = @this.RunOperation("=", [other], scope, range).As<bool>();
-					return new Instance<bool>("Boolean", isEqual.Value);
+					Value<double> other = arguments[0].As<double>();
+					Value<bool> isGreater = @this.RunOperation(">", [other], scope, range).As<bool>();
+					if (isGreater.Content) return new Value<bool>("Boolean", true);
+					Value<bool> isEqual = @this.RunOperation("=", [other], scope, range).As<bool>();
+					return new Value<bool>("Boolean", isEqual.Content);
 				});
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
-					string result = @this.As<double>().Value.ToString(CultureInfo.InvariantCulture);
-					return new Instance<string>("String", result);
+					string result = @this.As<double>().Content.ToString(CultureInfo.InvariantCulture);
+					return new Value<string>("String", result);
 				});
 			});
 			module.DeclareClass("Boolean", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("!", [], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					bool result = !@this.As<bool>().Value;
-					return new Instance<bool>("Boolean", result);
+					bool result = !@this.As<bool>().Content;
+					return new Value<bool>("Boolean", result);
 				});
 				type.DeclareOperation("&", ["Boolean"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance<bool> other = arguments[0].As<bool>();
-					bool result = @this.As<bool>().Value && other.Value;
-					return new Instance<bool>("Boolean", result);
+					Value<bool> other = arguments[0].As<bool>();
+					bool result = @this.As<bool>().Content && other.Content;
+					return new Value<bool>("Boolean", result);
 				});
 				type.DeclareOperation("|", ["Boolean"], "Boolean", static (@this, arguments, scope, range) =>
 				{
-					Instance<bool> other = arguments[0].As<bool>();
-					bool result = @this.As<bool>().Value || other.Value;
-					return new Instance<bool>("Boolean", result);
+					Value<bool> other = arguments[0].As<bool>();
+					bool result = @this.As<bool>().Content || other.Content;
+					return new Value<bool>("Boolean", result);
 				});
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
-					bool result = @this.As<bool>().Value;
-					return new Instance<string>("String", result ? "true" : "false");
+					bool result = @this.As<bool>().Content;
+					return new Value<string>("String", result ? "true" : "false");
 				});
 			});
 			module.DeclareClass("String", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("+", ["String"], "String", static (@this, arguments, scope, range) =>
 				{
-					Instance<string> other = arguments[0].As<string>();
-					string result = @this.As<string>().Value + other.Value;
-					return new Instance<string>("String", result);
+					Value<string> other = arguments[0].As<string>();
+					string result = @this.As<string>().Content + other.Content;
+					return new Value<string>("String", result);
 				});
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
@@ -175,16 +175,16 @@ public class Runtime
 			{
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
-					Class value = @this.As<Class>().Value;
-					return new Instance<string>("String", value.Name);
+					Class value = @this.As<Class>().Content;
+					return new Value<string>("String", value.Name);
 				});
 			});
-			module.DeclareClass("Generic", "Any", [], static (type, _) =>
+			module.DeclareClass("Template", "Any", [], static (type, _) =>
 			{
 				type.DeclareOperation("to_string", [], "String", static (@this, arguments, scope, range) =>
 				{
-					Generic value = @this.As<Generic>().Value;
-					return new Instance<string>("String", value.Name);
+					Template value = @this.As<Template>().Content;
+					return new Value<string>("String", value.Name);
 				});
 			});
 			module.DeclareClass(RuntimeBuilder.NameWorkspace, "Any", [], static (type, _) =>
@@ -193,18 +193,18 @@ public class Runtime
 				type.DeclareConstant("e", "Number", E);
 				type.DeclareOperation("read", ["String"], "String", static (@this, arguments, scope, range) =>
 				{
-					Instance<string> message = arguments[0].As<string>();
-					Console.Write(message.Value);
+					Value<string> message = arguments[0].As<string>();
+					Console.Write(message.Content);
 					string? input = Console.ReadLine();
 					ArgumentNullException.ThrowIfNull(input);
-					return new Instance<string>("String", input);
+					return new Value<string>("String", input);
 				});
 				type.DeclareOperation("write", ["Any"], "Null", static (@this, arguments, scope, range) =>
 				{
-					Instance value = arguments[0];
-					Instance text = value.RunOperation("to_string", [], scope, range).As<string>();
-					Console.WriteLine(text.Value);
-					return Instance.Null;
+					Value value = arguments[0];
+					Value text = value.RunOperation("to_string", [], scope, range).As<string>();
+					Console.WriteLine(text.Content);
+					return Value.Null;
 				});
 			});
 		});

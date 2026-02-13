@@ -18,8 +18,8 @@ public class GenericNode(IdentifierNode target, IEnumerable<IdentifierNode> gene
 		return Name;
 	}
 
-	public override T Accept<T>(IAstVisitor<T> visitor, Scope location)
+	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)
 	{
-		return visitor.Visit(location, this);
+		return evaluator.Evaluate(location, this);
 	}
 }

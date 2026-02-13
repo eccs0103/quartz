@@ -9,11 +9,11 @@ internal class ModuleBuilder(Module module, Scope location)
 	{
 		if (generics.Any())
 		{
-			Generic generic = new(name, generics, (type, args, scope) =>
+			Template template = new(name, generics, (type, args, scope) =>
 			{
 				configure.Invoke(new ClassBuilder(type, scope), [.. args]);
 			}, location);
-			location.Register(name, generic, ~Position.Zero);
+			location.Register(name, template, ~Position.Zero);
 			return this;
 		}
 

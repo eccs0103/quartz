@@ -7,16 +7,16 @@ internal class ClassBuilder(Class type, Scope location)
 {
 	public ClassBuilder DeclareVariable(string name, string tag, object value)
 	{
-		Instance instance = new Instance<object>(tag, value);
-		Datum variable = new(name, tag, instance, true);
+		Value value2 = new Value<object>(tag, value);
+		Datum variable = new(name, tag, value2, true);
 		location.Register(name, variable, ~Position.Zero);
 		return this;
 	}
 
 	public ClassBuilder DeclareConstant(string name, string tag, object value)
 	{
-		Instance instance = new Instance<object>(tag, value);
-		Datum constant = new(name, tag, instance, false);
+		Value value2 = new Value<object>(tag, value);
+		Datum constant = new(name, tag, value2, false);
 		location.Register(name, constant, ~Position.Zero);
 		return this;
 	}
@@ -29,16 +29,16 @@ internal class ClassBuilder(Class type, Scope location)
 		return @operator;
 	}
 
-	public ClassBuilder DeclareOperation(string name, IEnumerable<string> parameters, string result, Func<Instance, Instance[], Scope, Range<Position>, Instance> content)
+	public ClassBuilder DeclareOperation(string name, IEnumerable<string> parameters, string result, Func<Value, Value[], Scope, Range<Position>, Value> content)
 	{
 		Scope scope = location.GetSubscope(name);
 		Operator @operator = GetOperator(name, ~Position.Zero);
 
 		if (type.Name == RuntimeBuilder.NameWorkspace)
 		{
-			Instance Wrapper(Instance[] arguments, Scope scopeCall, Range<Position> range)
+			Value Wrapper(Value[] arguments, Scope scopeCall, Range<Position> range)
 			{
-				Instance workspace = new(RuntimeBuilder.NameWorkspace, Instance.Empty);
+				Value workspace = new(RuntimeBuilder.NameWorkspace, Value.Empty);
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(Operator.Mangle(parameters), parameters, result, Wrapper, scope);
@@ -47,7 +47,7 @@ internal class ClassBuilder(Class type, Scope location)
 		}
 
 		parameters = parameters.Prepend(type.Name);
-		Instance WrapperWithSelf(Instance[] arguments, Scope scopeCall, Range<Position> range)
+		Value WrapperWithSelf(Value[] arguments, Scope scopeCall, Range<Position> range)
 		{
 			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
