@@ -6,9 +6,8 @@
 		<File Path="CHANGELOG.md" />
 		<File Path="Code.qrz" />
 		<File Path="Grammar.ebnf" />
-		<File Path="LICENSE.txt" />
+		<File Path="LICENSE" />
 		<File Path="README.md" />
-		<File Path="SystemHeader.qrz" />
 	</Folder>
 	<Project Path="Quartz.Application/Quartz.Application.csproj" />
 	<Project Path="Quartz.Domain/Quartz.Domain.csproj" />
