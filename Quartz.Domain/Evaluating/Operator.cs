@@ -1,4 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
+using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
@@ -10,29 +12,43 @@ public class Operator(string name, Scope location) : Symbol(name)
 		throw new NotMutableIssue($"Operator '{Name}'", range);
 	}
 
-	public void RegisterOperation(Operation operation, Range<Position> range)
+	public bool TryRegisterOperation(Operation operation)
 	{
-		if (!location.TryRegister(operation.Name, operation)) throw new AlreadyExistsIssue($"Operation '{operation.Name}' in {location}", range);
+		return location.TryRegister(operation.Name, operation);
 	}
 
-	public Operation? TryReadOperation(IEnumerable<string> parameters)
+	public void RegisterOperation(Operation operation, Range<Position> range)
 	{
-		string name = Mangle(parameters);
-		if (location.TryRead(name, out Operation? operation)) return operation;
-		return location.Find<Operation>((overload) => // TODO: Fix this
+		if (!TryRegisterOperation(operation)) throw new AlreadyExistsIssue($"Operation '{operation.Name}' in {location}", range);
+	}
+
+	public bool TryReadOperation(IEnumerable<string> parameters, [NotNullWhen(true)] out Operation? operation)
+	{
+		if (location.TryRead($"({parameters.Mangle()})", out operation)) return true;
+		foreach (Operation overload in location.Scan<Operation>())
 		{
+			bool isMatch = true;
 			using IEnumerator<string> expected = overload.Parameters.GetEnumerator();
 			using IEnumerator<string> provided = parameters.GetEnumerator();
 			while (expected.MoveNext())
-			{ 
-				if (!provided.MoveNext()) return false;
-				if (!TypeHelper.IsCompatible(expected.Current, provided.Current)) return false;
+			{
+				if (provided.MoveNext() && TypeHelper.IsCompatible(expected.Current, provided.Current)) continue;
+				isMatch = false;
+				break;
 			}
-			return !provided.MoveNext();
-		});
+			if (!isMatch) continue;
+			operation = overload;
+			return true;
+		}
+		operation = null;
+		return false;
 	}
 
-	// TODO ReadOperation
+	public Operation ReadOperation(IEnumerable<string> parameters, Range<Position> range)
+	{
+		if (!TryReadOperation(parameters, out Operation? operation)) throw new NotExistIssue($"Operation '{Name}({parameters.Mangle()})' in {location}", range);
+		return operation;
+	}
 
 	public static string Mangle(IEnumerable<string> tags)
 	{

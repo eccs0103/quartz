@@ -36,8 +36,7 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 	{
 		if (TryReadOperator(name, out Operator? @operator))
 		{
-			Operation? operation = @operator.TryReadOperation(parameters);
-			if (operation != null) return operation;
+			if (@operator.TryReadOperation(parameters, out Operation? operation)) return operation;
 		}
 		if (@base != null) return @base.ReadOperation(name, parameters, range);
 		throw new NoOverloadIssue(name, 0, range);

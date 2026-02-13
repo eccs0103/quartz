@@ -1,4 +1,5 @@
 using Quartz.Domain.Evaluating;
+using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
@@ -10,7 +11,7 @@ public class InvokationNode(IdentifierNode target, IEnumerable<Node> arguments, 
 
 	public override string ToString()
 	{
-		return $"{Target}({string.Join(", ", Arguments)})";
+		return $"{Target}({Arguments.Mangle()})";
 	}
 
 	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)

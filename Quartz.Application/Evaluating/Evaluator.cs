@@ -78,7 +78,7 @@ internal class Evaluator : IEvaluator<Value>
 		IdentifierNode nodeTarget = node.Target;
 		IEnumerable<Value> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
 		if (!location.TryRead(nodeTarget.Name, out Operator? @operator)) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
-		Operation operation = @operator.TryReadOperation(arguments.Select(result => result.Tag)) ?? throw new NotExistIssue($"Operation '{nodeTarget.Name}'", nodeTarget.RangePosition);
+		Operation operation = @operator.ReadOperation(arguments.Select(result => result.Tag), nodeTarget.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke(arguments, scope, node.RangePosition);
 	}

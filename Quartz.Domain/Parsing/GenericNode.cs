@@ -1,4 +1,5 @@
 using Quartz.Domain.Evaluating;
+using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
@@ -10,7 +11,7 @@ public class GenericNode(IdentifierNode target, IEnumerable<IdentifierNode> gene
 
 	public static string Mangle(IdentifierNode target, IEnumerable<IdentifierNode> generics)
 	{
-		return $"{target.Name}<{string.Join(", ", generics.Select(generic => generic.Name))}>";
+		return $"{target.Name}<{generics.Select(generic => generic.Name).Mangle()}>";
 	}
 
 	public override string ToString()

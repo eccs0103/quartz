@@ -56,10 +56,16 @@ public class Scope
 		return false;
 	}
 
-	// TODO: Get rid of this
-	public T? Find<T>(Predicate<T> predicate)
+	public IEnumerable<T> Scan<T>()
 		where T : Symbol
 	{
-		return Symbols.Values.OfType<T>().FirstOrDefault(predicate.Invoke);
+		foreach (Symbol symbol in Symbols.Values)
+		{
+			if (symbol is T typed) yield return typed;
+		}
+		if (Parent != null)
+		{
+			foreach (T symbol in Parent.Scan<T>()) yield return symbol;
+		}
 	}
 }

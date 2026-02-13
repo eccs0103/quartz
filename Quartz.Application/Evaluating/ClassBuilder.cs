@@ -1,5 +1,6 @@
 using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions;
+using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Application.Evaluating;
