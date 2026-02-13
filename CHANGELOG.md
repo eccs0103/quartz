@@ -1,3 +1,16 @@
+## 0.5.0 (13.02.2026)
+- Added `while` loops with support for `break` and `continue` statements.
+- Introduced generic types system with `Template` support (e.g., `Nullable<Number>`, `Nullable<String>`).
+- Added syntactic sugar for optional types: `Type?` is equivalent to `Nullable<Type>`.
+- Implemented polymorphic `Any` type that can hold values of any type.
+- Added logical operators: `&` (AND), `|` (OR), `!` (NOT).
+- Added comparison operators: `!=` (not equal), `=` (equal), `<`, `>`, `<=`, `>=`.
+- Introduced `String` type with concatenation support via `+` operator.
+- Implemented `read(message)` function for user input.
+- Established type hierarchy with `Any` as the base type for all other types.
+- Improved error messages with better context and range information.
+- Added `to_string` operation for all types for string conversion.
+
 ## 0.4.3 (17.11.2025)
 - Semicolons (`;`) at the end of blocks are now optional.
 - Allowed the use of extra (superfluous) semicolons.

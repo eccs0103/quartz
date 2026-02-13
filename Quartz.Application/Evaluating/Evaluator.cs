@@ -26,7 +26,7 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, GenericNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new NotExistIssue($"Template'{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
+		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new NotExistIssue($"Template '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		List<Class> types = [];
 		foreach (IdentifierNode nodeGeneric in node.Generics)
 		{
@@ -59,7 +59,7 @@ internal class Evaluator : IEvaluator<Value>
 		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, value.Tag, location)) throw new TypeMismatchIssue(nodeType.Name, value.Tag, node.Value.RangePosition);
 
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, value, true);
-		if (!location.TryRegister(nodeIdentifier.Name, variable)) throw new AlreadyExistsIssue($"Datum'{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
+		if (!location.TryRegister(nodeIdentifier.Name, variable)) throw new AlreadyExistsIssue($"Datum '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
 
 		return Value.Null;
 	}
