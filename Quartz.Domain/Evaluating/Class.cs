@@ -13,18 +13,14 @@ public class Class(string name, Scope location, Class? @base) : Symbol(name)
 
 	public Datum ReadProperty(string name, Range<Position> range)
 	{
-		if (location.TryRead(name, out Symbol? symbol) && symbol is Datum datum) return datum;
+		if (location.TryRead(name, out Datum? datum)) return datum;
 		if (@base != null) return @base.ReadProperty(name, range);
 		throw new NotExistIssue($"Datum '{name}' in {location}", range);
 	}
 
 	public bool TryReadOperator(string name, [NotNullWhen(true)] out Operator? @operator)
 	{
-		if (location.TryRead(name, out Symbol? symbol) && symbol is Operator operator2)
-		{
-			@operator = operator2;
-			return true;
-		}
+		if (location.TryRead(name, out @operator)) return true;
 		if (@base != null) return @base.TryReadOperator(name, out @operator);
 		@operator = null;
 		return false;

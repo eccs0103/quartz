@@ -21,8 +21,7 @@ public abstract class Value(string tag, object content)
 	public Value RunOperation(string name, IEnumerable<Value> arguments, Scope location, Range<Position> range)
 	{
 		IEnumerable<string> types = arguments.Select(arg => arg.Tag).Prepend(Tag);
-		if (!location.TryRead(Tag, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{Tag}' in {location}", range);
-		if (symbol is not Class type) throw new NotExistIssue($"Type '{Tag}' in {location}", range);
+		if (!location.TryRead(Tag, out Class? type)) throw new NotExistIssue($"Type '{Tag}' in {location}", range);
 		Operation operation = type.ReadOperation(name, types, range);
 		arguments = arguments.Prepend(this);
 		Value result = operation.Invoke(arguments, location, range);

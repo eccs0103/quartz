@@ -18,8 +18,8 @@ public class Operator(string name, Scope location) : Symbol(name)
 	public Operation? TryReadOperation(IEnumerable<string> parameters)
 	{
 		string name = Mangle(parameters);
-		if (location.TryRead(name, out Symbol? symbol) && symbol is Operation operation) return operation;
-		return location.Find<Operation>((overload) =>
+		if (location.TryRead(name, out Operation? operation)) return operation;
+		return location.Find<Operation>((overload) => // TODO: Fix this
 		{
 			using IEnumerator<string> expected = overload.Parameters.GetEnumerator();
 			using IEnumerator<string> provided = parameters.GetEnumerator();

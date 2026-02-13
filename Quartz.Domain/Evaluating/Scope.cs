@@ -43,14 +43,6 @@ public class Scope
 		return Symbols.TryAdd(name, symbol);
 	}
 
-	public bool TryRead(string name, [NotNullWhen(true)] out Symbol? symbol)
-	{
-		if (Symbols.TryGetValue(name, out symbol)) return true;
-		if (Parent != null) return Parent.TryRead(name, out symbol);
-		symbol = default;
-		return false;
-	}
-
 	public bool TryRead<T>(string name, [NotNullWhen(true)] out T? symbol)
 		where T : Symbol
 	{
@@ -59,8 +51,8 @@ public class Scope
 			symbol = result;
 			return true;
 		}
-		if (Parent != null) return Parent.TryRead<T>(name, out symbol);
-		symbol = default;
+		if (Parent != null) return Parent.TryRead(name, out symbol);
+		symbol = null;
 		return false;
 	}
 

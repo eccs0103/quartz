@@ -13,12 +13,6 @@ public class Module(string name, Scope location) : Symbol(name)
 
 	public bool TryReadClass(string name, [NotNullWhen(true)] out Class? type)
 	{
-		if (location.TryRead(name, out Symbol? symbol) && symbol is Class class2)
-		{
-			type = class2;
-			return true;
-		}
-		type = null;
-		return false;
+		return location.TryRead(name, out type);
 	}
 }

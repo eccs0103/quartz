@@ -14,8 +14,8 @@ public class Template(string name, IEnumerable<string> generics, Action<Class, I
 	{
 		Scope scope = location.GetSubscope(name);
 
-		using IEnumerator<string> enumeratorGenerics = generics.GetEnumerator();
-		using IEnumerator<Class> enumeratorArguments = arguments.GetEnumerator();
+		using IEnumerator<string> expected = generics.GetEnumerator();
+		using IEnumerator<Class> provided = arguments.GetEnumerator();
 
 		// TODO: Check while run
 		int expectedCount = generics.Count();
@@ -26,10 +26,10 @@ public class Template(string name, IEnumerable<string> generics, Action<Class, I
 			throw new ExpectedIssue($"{expectedCount} type parameter{(expectedCount != 1 ? "s" : "")}, but got {actualCount}", range);
 		}
 
-		while (enumeratorGenerics.MoveNext())
+		while (expected.MoveNext())
 		{
-			enumeratorArguments.MoveNext();
-			if (!scope.TryRegister(enumeratorGenerics.Current, enumeratorArguments.Current)) throw new AlreadyExistsIssue($"Generic '{enumeratorGenerics.Current}' in {scope}", ~Position.Zero);
+			provided.MoveNext();
+			if (!scope.TryRegister(expected.Current, provided.Current)) throw new AlreadyExistsIssue($"Generic '{expected.Current}' in {scope}", ~Position.Zero);
 		}
 
 		Class type = new(name, scope, null); // TODO: Add 'Any' base
