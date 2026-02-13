@@ -17,6 +17,7 @@ public class Template(string name, IEnumerable<string> generics, Action<Class, I
 		using IEnumerator<string> enumeratorGenerics = generics.GetEnumerator();
 		using IEnumerator<Class> enumeratorArguments = arguments.GetEnumerator();
 
+		// TODO: Check while run
 		int expectedCount = generics.Count();
 		int actualCount = arguments.Count();
 
@@ -31,7 +32,7 @@ public class Template(string name, IEnumerable<string> generics, Action<Class, I
 			scope.Register(enumeratorGenerics.Current, enumeratorArguments.Current, ~Position.Zero);
 		}
 
-		Class type = new(name, scope);
+		Class type = new(name, scope, null); // TODO: Add 'Any' base
 		builder.Invoke(type, arguments, scope);
 		return type;
 	}

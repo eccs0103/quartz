@@ -21,6 +21,7 @@ internal class ClassBuilder(Class type, Scope location)
 		return this;
 	}
 
+	// TODO: Excess metod
 	private Operator GetOperator(string name, Range<Position> range)
 	{
 		if (type.TryReadOperator(name, out Operator? @operator)) return @operator;
@@ -29,7 +30,7 @@ internal class ClassBuilder(Class type, Scope location)
 		return @operator;
 	}
 
-	public ClassBuilder DeclareOperation(string name, IEnumerable<string> parameters, string result, Func<Value, Value[], Scope, Range<Position>, Value> content)
+	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, Func<Value, Value[], Scope, Range<Position>, Value> content)
 	{
 		Scope scope = location.GetSubscope(name);
 		Operator @operator = GetOperator(name, ~Position.Zero);
@@ -38,12 +39,12 @@ internal class ClassBuilder(Class type, Scope location)
 		{
 			Value Wrapper(Value[] arguments, Scope scopeCall, Range<Position> range)
 			{
-				Value workspace = new(RuntimeBuilder.NameWorkspace, Value.Empty);
+				Value workspace = new Value<object>(RuntimeBuilder.NameWorkspace, Value.Empty);
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(Operator.Mangle(parameters), parameters, result, Wrapper, scope);
-			@operator.Add(operation, ~Position.Zero);
-			return this;
+			@operator.RegisterOperation(operation, ~Position.Zero);
+			return;
 		}
 
 		parameters = parameters.Prepend(type.Name);
@@ -52,7 +53,6 @@ internal class ClassBuilder(Class type, Scope location)
 			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
 		Operation operationWithSelf = new(Operator.Mangle(parameters), parameters, result, WrapperWithSelf, scope);
-		@operator.Add(operationWithSelf, ~Position.Zero);
-		return this;
+		@operator.RegisterOperation(operationWithSelf, ~Position.Zero);
 	}
 }

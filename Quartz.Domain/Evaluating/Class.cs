@@ -6,10 +6,6 @@ namespace Quartz.Domain.Evaluating;
 
 public class Class(string name, Scope location, Class? @base) : Symbol(name)
 {
-	public Class(string name, Scope location) : this(name, location, null)
-	{
-	}
-
 	public override void Assign(Value value, Range<Position> range)
 	{
 		throw new NotMutableIssue($"Class '{Name}'", range);

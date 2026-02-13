@@ -5,7 +5,7 @@ namespace Quartz.Application.Evaluating;
 
 internal class ModuleBuilder(Module module, Scope location)
 {
-	public ModuleBuilder DeclareClass(string name, string? @base, IEnumerable<string> generics, Action<ClassBuilder, Class[]> configure)
+	public void DeclareClass(string name, string? @base, IEnumerable<string> generics, Action<ClassBuilder, Class[]> configure)
 	{
 		if (generics.Any())
 		{
@@ -14,7 +14,7 @@ internal class ModuleBuilder(Module module, Scope location)
 				configure.Invoke(new ClassBuilder(type, scope), [.. args]);
 			}, location);
 			location.Register(name, template, ~Position.Zero);
-			return this;
+			return;
 		}
 
 		Scope scope = name.Equals(RuntimeBuilder.NameWorkspace)
@@ -25,6 +25,5 @@ internal class ModuleBuilder(Module module, Scope location)
 		Class type = new(name, scope, typeBase);
 		location.Register(name, type, ~Position.Zero);
 		configure.Invoke(new ClassBuilder(type, scope), []);
-		return this;
 	}
 }

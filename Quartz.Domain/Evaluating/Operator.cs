@@ -10,7 +10,7 @@ public class Operator(string name, Scope location) : Symbol(name)
 		throw new NotMutableIssue($"Operator '{Name}'", range);
 	}
 
-	public void Add(Operation operation, Range<Position> range)
+	public void RegisterOperation(Operation operation, Range<Position> range)
 	{
 		location.Register(operation.Name, operation, range);
 	}
@@ -19,7 +19,7 @@ public class Operator(string name, Scope location) : Symbol(name)
 	{
 		string name = Mangle(parameters);
 		if (location.TryRead(name, out Symbol? symbol) && symbol is Operation operation) return operation;
-		return location.Find<Operation>(overload =>
+		return location.Find<Operation>((overload) =>
 		{
 			using IEnumerator<string> expected = overload.Parameters.GetEnumerator();
 			using IEnumerator<string> provided = parameters.GetEnumerator();
@@ -31,6 +31,8 @@ public class Operator(string name, Scope location) : Symbol(name)
 			return !provided.MoveNext();
 		});
 	}
+
+	// TODO ReadOperation
 
 	public static string Mangle(IEnumerable<string> tags)
 	{

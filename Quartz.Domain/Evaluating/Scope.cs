@@ -61,6 +61,7 @@ public class Scope
 		return symbol;
 	}
 
+	// TODO: Fix deepness
 	public T? Find<T>(Predicate<T> predicate) where T : Symbol
 	{
 		return Symbols.Values.OfType<T>().FirstOrDefault(predicate.Invoke);

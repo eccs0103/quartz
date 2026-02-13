@@ -1,5 +1,6 @@
 namespace Quartz.Domain.Evaluating;
 
+// TODO: Remove all string hacks - StartsWith, EndsWith...
 public static class TypeHelper
 {
 	public static bool IsCompatible(string target, string value)

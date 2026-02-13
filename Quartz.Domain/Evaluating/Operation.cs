@@ -3,7 +3,9 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Operation(string name, IEnumerable<string> parameters, string result, Func<Value[], Scope, Range<Position>, Value> content, Scope location) : Symbol(name)
+public delegate Value OperationContent(Value[] arguments, Scope scope, Range<Position> range);
+
+public class Operation(string name, IEnumerable<string> parameters, string result, OperationContent content, Scope location) : Symbol(name)
 {
 	public IEnumerable<string> Parameters { get; } = parameters;
 	public string Result { get; } = result;

@@ -4,6 +4,8 @@ using Quartz.Domain.Parsing;
 
 namespace Quartz.Application.Evaluating;
 
+// TODO: Full refactor
+
 internal class Evaluator : IEvaluator<Value>
 {
 	public Value Evaluate(Scope location, ValueNode node)
