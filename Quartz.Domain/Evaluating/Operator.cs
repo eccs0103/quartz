@@ -7,7 +7,7 @@ namespace Quartz.Domain.Evaluating;
 
 public class Operator(string name, Scope location) : Symbol(name)
 {
-	public override void Assign(Value value, Range<Position> range)
+	public override void Assign(Value value, Scope scope, Range<Position> range)
 	{
 		throw new NotMutableIssue($"Operator '{Name}'", range);
 	}
@@ -28,15 +28,15 @@ public class Operator(string name, Scope location) : Symbol(name)
 		foreach (Operation overload in location.Scan<Operation>())
 		{
 			bool isMatch = true;
-			using IEnumerator<string> expected = overload.Parameters.GetEnumerator();
-			using IEnumerator<string> provided = parameters.GetEnumerator();
-			while (expected.MoveNext())
+			using IEnumerator<string> iterator = parameters.GetEnumerator();
+			foreach (string expected in overload.Parameters)
 			{
-				if (provided.MoveNext() && TypeHelper.IsCompatible(expected.Current, provided.Current)) continue;
+				if (iterator.MoveNext() && TypeHelper.IsCompatible(expected, iterator.Current, location)) continue;
 				isMatch = false;
 				break;
 			}
 			if (!isMatch) continue;
+			if (iterator.MoveNext()) continue;
 			operation = overload;
 			return true;
 		}

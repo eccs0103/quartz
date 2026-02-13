@@ -1,24 +1,29 @@
+using Quartz.Domain.Exceptions;
+
 namespace Quartz.Domain.Evaluating;
 
-// TODO: Remove all string hacks - StartsWith, EndsWith...
 public static class TypeHelper
 {
-	public static bool IsCompatible(string target, string value)
+	public static bool IsCompatible(string target, string value, Scope scope)
 	{
-		if (target == "Any") return true;
+		if (target == TypeConstants.Any) return true;
 		if (target == value) return true;
-		bool isNullable = target.EndsWith('?') || (target.StartsWith("Nullable<") && target.EndsWith('>'));
-		if (!isNullable) return false;
-		if (value == "Null") return true;
-		return IsCompatible(UnwrapTag(target), value);
+		if (Mangler.IsNullable(target, out string? inner))
+		{
+			if (value == TypeConstants.Null) return true;
+			return IsCompatible(inner, value, scope);
+		}
+		if (scope.TryRead(target, out Class? typeTarget) && scope.TryRead(value, out Class? typeValue))
+		{
+			// TODO: Implement inheritance check here when available on Class
+			// For now, assume no inheritance beyond implicit checks above
+		}
+		return false;
 	}
 
 	public static bool IsOptional(string tag)
 	{
-		if (tag == "Null") return true;
-		if (tag.EndsWith('?')) return true;
-		if (tag.StartsWith("Nullable<") && tag.EndsWith('>')) return true;
-		return false;
+		return tag == TypeConstants.Null || Mangler.IsNullable(tag, out _);
 	}
 
 	public static Value Unwrap(Value value)
@@ -31,8 +36,7 @@ public static class TypeHelper
 
 	private static string UnwrapTag(string tag)
 	{
-		if (tag.EndsWith('?')) return tag[..^1];
-		if (tag.StartsWith("Nullable<") && tag.EndsWith('>')) return tag[9..^1];
+		if (Mangler.IsNullable(tag, out string? inner)) return inner;
 		return tag;
 	}
 }

@@ -9,10 +9,10 @@ public class Datum(string name, string tag, Value value, bool mutable) : Symbol(
 	public bool Mutable { get; } = mutable;
 	public Value Value { get; private set; } = value;
 
-	public override void Assign(Value value, Range<Position> range)
+	public override void Assign(Value value, Scope scope, Range<Position> range)
 	{
 		if (!Mutable) throw new NotMutableIssue($"Datum '{Name}'", range);
-		if (!TypeHelper.IsCompatible(Tag, value.Tag)) throw new TypeMismatchIssue(Tag, value.Tag, range);
+		if (!TypeHelper.IsCompatible(Tag, value.Tag, scope)) throw new TypeMismatchIssue(Tag, value.Tag, range);
 		Value = value;
 	}
 }

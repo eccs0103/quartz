@@ -6,5 +6,5 @@ public abstract class Symbol(string name)
 {
 	public string Name { get; } = name;
 	
-	public abstract void Assign(Value value, Range<Position> range);
+	public abstract void Assign(Value value, Scope scope, Range<Position> range);
 }

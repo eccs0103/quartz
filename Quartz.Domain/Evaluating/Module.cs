@@ -6,7 +6,7 @@ namespace Quartz.Domain.Evaluating;
 
 public class Module(string name, Scope location) : Symbol(name)
 {
-	public override void Assign(Value value, Range<Position> range)
+	public override void Assign(Value value, Scope scope, Range<Position> range)
 	{
 		throw new NotMutableIssue($"Module '{Name}'", range);
 	}

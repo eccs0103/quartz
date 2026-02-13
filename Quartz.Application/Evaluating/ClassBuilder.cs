@@ -23,19 +23,14 @@ internal class ClassBuilder(Class type, Scope location)
 		if (!location.TryRegister(name, constant)) throw new AlreadyExistsIssue($"Datum '{name}' in {location}", ~Position.Zero);
 	}
 
-	// TODO: Excess metod
-	private Operator GetOperator(string name, Range<Position> range)
-	{
-		if (type.TryReadOperator(name, out Operator? @operator)) return @operator;
-		@operator = new Operator(name, location.GetSubscope(name));
-		if (!location.TryRegister(name, @operator)) throw new AlreadyExistsIssue($"Operator'{name}' in {location}", ~Position.Zero);
-		return @operator;
-	}
-
 	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, ClassOperationContent content)
 	{
 		Scope scope = location.GetSubscope(name);
-		Operator @operator = GetOperator(name, ~Position.Zero);
+		if (!type.TryReadOperator(name, out Operator? @operator))
+		{
+			@operator = new Operator(name, location.GetSubscope(name));
+			if (!location.TryRegister(name, @operator)) throw new AlreadyExistsIssue($"Operator '{name}' in {location}", ~Position.Zero);
+		}
 
 		if (type.Name == RuntimeBuilder.NameWorkspace)
 		{

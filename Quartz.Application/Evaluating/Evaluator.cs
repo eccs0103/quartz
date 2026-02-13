@@ -41,7 +41,7 @@ internal class Evaluator : IEvaluator<Value>
 			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition);
 		}
 
-		Class type2 = template.Construct(node.Name, types, node.RangePosition);
+		Class type2 = template.Assemble(node.Name, types, node.RangePosition);
 		if (!location.TryRegister(node.Name, type2)) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
 		return new Value<Class>(TypeConstants.Type, type2);
 	}
@@ -56,7 +56,7 @@ internal class Evaluator : IEvaluator<Value>
 
 		Value value = node.Value?.Accept(this, location) ?? Value.Null;
 
-		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, value.Tag)) throw new TypeMismatchIssue(nodeType.Name, value.Tag, node.Value.RangePosition);
+		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, value.Tag, location)) throw new TypeMismatchIssue(nodeType.Name, value.Tag, node.Value.RangePosition);
 
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, value, true);
 		if (!location.TryRegister(nodeIdentifier.Name, variable)) throw new AlreadyExistsIssue($"Datum'{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
@@ -69,7 +69,7 @@ internal class Evaluator : IEvaluator<Value>
 		IdentifierNode nodeIdentifier = node.Identifier;
 		Value value = node.Value.Accept(this, location);
 		if (!location.TryRead(nodeIdentifier.Name, out Symbol? symbol)) throw new NotExistIssue($"Identifier '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
-		symbol.Assign(value, nodeIdentifier.RangePosition);
+		symbol.Assign(value, location, nodeIdentifier.RangePosition);
 		return Value.Null;
 	}
 

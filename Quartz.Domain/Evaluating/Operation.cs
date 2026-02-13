@@ -11,7 +11,7 @@ public class Operation(string @operator, string name, IEnumerable<string> parame
 	public IEnumerable<string> Parameters { get; } = parameters;
 	public string Result { get; } = result;
 
-	public override void Assign(Value value, Range<Position> range)
+	public override void Assign(Value value, Scope scope, Range<Position> range)
 	{
 		throw new NotMutableIssue($"Operation '{Name}'", range);
 	}
@@ -24,11 +24,11 @@ public class Operation(string @operator, string name, IEnumerable<string> parame
 		{
 			if (!iterator.MoveNext()) throw new NoOverloadIssue(Name, Convert.ToByte(results.Count), range);
 			Value provided = iterator.Current;
-			if (!TypeHelper.IsCompatible(expected, provided.Tag)) throw new TypeMismatchIssue(expected, provided.Tag, range);
+			if (!TypeHelper.IsCompatible(expected, provided.Tag, scope)) throw new TypeMismatchIssue(expected, provided.Tag, range);
 			results.Add(provided);
 		}
 		Value result = content.Invoke([.. results], scope, range);
-		if (!TypeHelper.IsCompatible(Result, result.Tag)) throw new TypeMismatchIssue(Result, result.Tag, range);
+		if (!TypeHelper.IsCompatible(Result, result.Tag, scope)) throw new TypeMismatchIssue(Result, result.Tag, range);
 		return result;
 	}
 }
