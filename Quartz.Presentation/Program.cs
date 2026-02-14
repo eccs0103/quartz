@@ -10,13 +10,13 @@ class Program
 		Console.ForegroundColor = ConsoleColor.White;
 		Options options = new() { LogLexing = false, LogParsing = false };
 		Interpreter interpreter = new(options);
-		if (paths.Length > 0)
+		if (paths.Length < 1)
 		{
-			RunScriptMode(interpreter, paths);
-			Console.ReadKey();
+			RunInteractiveMode(interpreter);
 			return;
 		}
-		RunInteractiveMode(interpreter);
+		RunScriptMode(interpreter, paths);
+		Console.ReadKey();
 	}
 
 	private static void RunScriptMode(Interpreter interpreter, string[] paths)
