@@ -10,7 +10,17 @@ class Program
 		Console.ForegroundColor = ConsoleColor.White;
 		Options options = new() { LogLexing = false, LogParsing = false };
 		Interpreter interpreter = new(options);
+		if (paths.Length > 0)
+		{
+			RunScriptMode(interpreter, paths);
+			Console.ReadKey();
+			return;
+		}
+		RunInteractiveMode(interpreter);
+	}
 
+	private static void RunScriptMode(Interpreter interpreter, string[] paths)
+	{
 		foreach (string path in paths)
 		{
 			string? code = Fetch(path);
@@ -21,6 +31,10 @@ class Program
 			}
 			interpreter.Run(code);
 		}
+	}
+
+	private static void RunInteractiveMode(Interpreter interpreter)
+	{
 		foreach (string instruction in ReadInstructions())
 		{
 			interpreter.Run(instruction);
