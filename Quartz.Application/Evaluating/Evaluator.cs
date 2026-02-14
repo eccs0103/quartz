@@ -75,12 +75,30 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, InvokationNode node)
 	{
-		IdentifierNode nodeTarget = node.Target;
 		IEnumerable<Value> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
-		if (!location.TryRead(nodeTarget.Name, out Operator? @operator)) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
-		Operation operation = @operator.ReadOperation(arguments.Select(result => result.Tag), nodeTarget.RangePosition);
-		Scope scope = location.GetSubscope("Call");
-		return operation.Invoke(arguments, scope, node.RangePosition);
+
+		if (node.Target is FieldNode memberAccess)
+		{
+			Value target = TypeHelper.Unwrap(memberAccess.Target.Accept(this, location));
+			return target.RunOperation(memberAccess.Member.Name, arguments, location, node.RangePosition);
+		}
+		
+		if (node.Target is IdentifierNode nodeTarget)
+		{
+			if (!location.TryRead(nodeTarget.Name, out Operator? @operator)) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
+			Operation operation = @operator.ReadOperation(arguments.Select(result => result.Tag), nodeTarget.RangePosition);
+			Scope scope = location.GetSubscope("Call");
+			return operation.Invoke(arguments, scope, node.RangePosition);
+		}
+
+		throw new UnexpectedIssue($"Call target '{node.Target}'", node.Target.RangePosition);
+	}
+
+	public Value Evaluate(Scope location, FieldNode node)
+	{
+		Value target = TypeHelper.Unwrap(node.Target.Accept(this, location));
+		if (!location.TryRead(target.Tag, out Class? type)) throw new NotExistIssue($"Type '{target.Tag}' in {location}", node.Target.RangePosition);
+		return type.ReadProperty(node.Member.Name, node.RangePosition).Value;
 	}
 
 	public Value Evaluate(Scope location, UnaryOperatorNode node)

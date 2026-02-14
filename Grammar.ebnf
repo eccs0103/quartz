@@ -79,6 +79,9 @@ Unary
 	| "!" ) ], Primary;
 
 Primary
+	= Atomic, { ".", Identifier | "(", [ Arguments ], ")" };
+
+Atomic
 	= "null"
 	| Number
 	| Boolean

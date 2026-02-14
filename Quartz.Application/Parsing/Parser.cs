@@ -334,7 +334,7 @@ public class Parser
 		return new UnaryOperatorNode(@operator, target, token.RangePosition >> target.RangePosition);
 	}
 
-	private Node PrimaryParse(Walker walker)
+	private Node AtomicParse(Walker walker)
 	{
 		if (!walker.Peek(out Token? token)) throw new ExpectedIssue("expression", ~walker.RangePosition.Begin);
 		switch (token.Type)
@@ -382,6 +382,32 @@ public class Parser
 		}
 		default: throw new UnexpectedIssue($"token '{token.Value}'", token.RangePosition);
 		}
+	}
+
+	private Node PrimaryParse(Walker walker)
+	{
+		Node node = AtomicParse(walker);
+		while (walker.Peek(out Token? token) && (token.Represents(Types.Operator, ".") || token.Represents(Types.Bracket, "(")))
+		{
+			if (token.Represents(Types.Operator, "."))
+			{
+				walker.Index++;
+				if (!walker.Peek(out Token? idToken) || !idToken.Represents(Types.Identifier)) throw new ExpectedIssue("identifier", ~token.RangePosition.End);
+				IdentifierNode member = new(idToken.Value, idToken.RangePosition);
+				walker.Index++;
+				node = new FieldNode(node, member, node.RangePosition >> member.RangePosition);
+			}
+			else if (token.Represents(Types.Bracket, "("))
+			{
+				const string open = "(";
+				if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token.RangePosition);
+				IEnumerable<Node> arguments = [.. ArgumentsParse(walker.GetSubwalker(open, close))];
+				if (!walker.Peek(out Token? closeToken)) throw new ExpectedIssue(close, ~node.RangePosition.End);
+				walker.Index++;
+				node = new InvokationNode(node, arguments, node.RangePosition >> closeToken.RangePosition);
+			}
+		}
+		return node;
 	}
 
 	private Node IdentifierExpressionParse(Walker walker)

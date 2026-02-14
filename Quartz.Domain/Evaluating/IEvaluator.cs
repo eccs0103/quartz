@@ -10,6 +10,7 @@ public interface IEvaluator<out TReturn>
 	public TReturn Evaluate(Scope location, DeclarationNode node);
 	public TReturn Evaluate(Scope location, AssignmentNode node);
 	public TReturn Evaluate(Scope location, InvokationNode node);
+	public TReturn Evaluate(Scope location, FieldNode node);
 	public TReturn Evaluate(Scope location, UnaryOperatorNode node);
 	public TReturn Evaluate(Scope location, BinaryOperatorNode node);
 	public TReturn Evaluate(Scope location, BlockNode node);

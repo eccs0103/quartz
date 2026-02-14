@@ -1,6 +1,11 @@
-write("--- QUARTZ LANGUAGE COMPREHENSIVE TEST SUITE ---");
+// ============================================================
+// QUARTZ LANGUAGE COMPREHENSIVE TEST SUITE
+// ============================================================
 
-write("\n[SECTION 1] Arithmetic & Precedence");
+// ------------------------------------------------------------
+// [SECTION 1] Arithmetic & Precedence
+// ------------------------------------------------------------
+
 first_number Number(10);
 second_number Number(3);
 sum_result Number(first_number + second_number);
@@ -8,75 +13,87 @@ difference_result Number(first_number - second_number);
 product_result Number(first_number * second_number);
 quotient_result Number(first_number / second_number);
 
-write("10 + 3 = "); write(sum_result);
-write("10 - 3 = "); write(difference_result);
-write("10 * 3 = "); write(product_result);
-write("10 / 3 = "); write(quotient_result);
+write("10 + 3 = " + sum_result.to_string());
+write("10 - 3 = " + difference_result.to_string());
+write("10 * 3 = " + product_result.to_string());
+write("10 / 3 = " + quotient_result.to_string());
 
 operator_precedence_one Number(2 + 3 * 4);
-write("2 + 3 * 4 (expect 14) = "); write(operator_precedence_one);
+write("2 + 3 * 4 (expect 14) = " + operator_precedence_one.to_string());
 
 operator_precedence_parentheses Number((2 + 3) * 4);
-write("(2 + 3) * 4 (expect 20) = "); write(operator_precedence_parentheses);
+write("(2 + 3) * 4 (expect 20) = " + operator_precedence_parentheses.to_string());
 
 operator_precedence_unary Number(-3 * 2);
-write("-3 * 2 (expect -6) = "); write(operator_precedence_unary);
-write("-(3 * 2) (expect -6) = "); write(-(3 * 2));
+write("-3 * 2 (expect -6) = " + operator_precedence_unary.to_string());
+write("-(3 * 2) (expect -6) = " + (-(3 * 2)).to_string());
 
-write("\n[SECTION 2] Boolean Logic & Comparisons");
+// ------------------------------------------------------------
+// [SECTION 2] Boolean Logic & Comparisons
+// ------------------------------------------------------------
+
 boolean_true Boolean(true);
 boolean_false Boolean(false);
 
-write("true & true = "); write(boolean_true & boolean_true);
-write("true & false = "); write(boolean_true & boolean_false);
-write("false & true = "); write(boolean_false & boolean_true);
-write("false & false = "); write(boolean_false & boolean_false);
+write("true & true = " + (boolean_true & boolean_true).to_string());
+write("true & false = " + (boolean_true & boolean_false).to_string());
+write("false & true = " + (boolean_false & boolean_true).to_string());
+write("false & false = " + (boolean_false & boolean_false).to_string());
 
-write("true | true = "); write(boolean_true | boolean_true);
-write("true | false = "); write(boolean_true | boolean_false);
-write("false | true = "); write(boolean_false | boolean_true);
-write("false | false = "); write(boolean_false | boolean_false);
+write("true | true = " + (boolean_true | boolean_true).to_string());
+write("true | false = " + (boolean_true | boolean_false).to_string());
+write("false | true = " + (boolean_false | boolean_true).to_string());
+write("false | false = " + (boolean_false | boolean_false).to_string());
 
-write("!true = "); write(!boolean_true);
-write("!false = "); write(!boolean_false);
+write("!true = " + (!boolean_true).to_string());
+write("!false = " + (!boolean_false).to_string());
 
 comparison_left Number(5);
 comparison_right Number(10);
-write("5 < 10 = "); write(comparison_left < comparison_right);
-write("5 > 10 = "); write(comparison_left > comparison_right);
-write("5 <= 5 = "); write(comparison_left <= 5);
-write("5 >= 5 = "); write(comparison_left >= 5);
-write("5 = 5 = "); write(comparison_left = 5);
-write("5 != 10 = "); write(comparison_left != comparison_right);
+write("5 < 10 = " + (comparison_left < comparison_right).to_string());
+write("5 > 10 = " + (comparison_left > comparison_right).to_string());
+write("5 <= 5 = " + (comparison_left <= 5).to_string());
+write("5 >= 5 = " + (comparison_left >= 5).to_string());
+write("5 = 5 = " + (comparison_left = 5).to_string());
+write("5 != 10 = " + (comparison_left != comparison_right).to_string());
 
 logic_combination_result Boolean((5 < 10) & (10 > 5));
-write("(5 < 10) & (10 > 5) = "); write(logic_combination_result);
+write("(5 < 10) & (10 > 5) = " + logic_combination_result.to_string());
 
-write("\n[SECTION 3] Types & Polymorphism");
+// ------------------------------------------------------------
+// [SECTION 3] Types & Polymorphism
+// ------------------------------------------------------------
+
 polymorphic_value Any(123);
-write("Any holds Number: "); write(polymorphic_value);
+write("Any holds Number: " + polymorphic_value.to_string());
 
 polymorphic_value : "String value";
-write("Any holds String: "); write(polymorphic_value);
+write("Any holds String: " + polymorphic_value.to_string());
 
 polymorphic_value : true;
-write("Any holds Boolean: "); write(polymorphic_value);
+write("Any holds Boolean: " + polymorphic_value.to_string());
 
 polymorphic_value : null;
-write("Any holds Null: "); write(polymorphic_value);
+write("Any holds Null: " + polymorphic_value.to_string());
 
 optional_number Number?;
-write("Uninitialized Number? is: "); write(optional_number);
+write("Uninitialized Number? is: " + optional_number.to_string());
 optional_number : 100;
-write("Initialized Number? is: "); write(optional_number);
+write("Initialized Number? is: " + optional_number.to_string());
 
-write("\n[SECTION 4] Strings");
+// ------------------------------------------------------------
+// [SECTION 4] Strings
+// ------------------------------------------------------------
+
 greeting_part String("Hello");
 subject_part String("World");
 full_sentence String(greeting_part + " " + subject_part + "!");
-write("Concatenation: "); write(full_sentence);
+write("Concatenation: " + full_sentence);
 
-write("\n[SECTION 5] Control Flow: Conditions");
+// ------------------------------------------------------------
+// [SECTION 5] Control Flow: Conditions
+// ------------------------------------------------------------
+
 condition_check_value Number(10);
 if (condition_check_value > 5) {
 	write("condition_check_value > 5 (Correct)");
@@ -90,12 +107,15 @@ if (condition_check_value < 5) {
 	write("condition_check_value >= 5 (Correct)");
 }
 
-write("\n[SECTION 6] Control Flow: Loops (While)");
+// ------------------------------------------------------------
+// [SECTION 6] Control Flow: Loops (While)
+// ------------------------------------------------------------
+
 loop_counter Number(0);
 write("Counting to 5:");
 while (loop_counter < 5) {
 	loop_counter : loop_counter + 1;
-	write("Count: "); write(loop_counter);
+	write("Count: " + loop_counter.to_string());
 }
 
 write("Loop with break (stop at 3):");
@@ -106,7 +126,7 @@ while (loop_counter < 10) {
 		write("Breaking at 3");
 		break;
 	}
-	write(loop_counter);
+	write(loop_counter.to_string());
 }
 
 write("Loop with continue (skip 2):");
@@ -117,26 +137,29 @@ while (loop_counter < 4) {
 		write("Skipping 2");
 		continue;
 	}
-	write("Value: "); write(loop_counter);
+	write("Value: " + loop_counter.to_string());
 }
 
-write("\n[SECTION 7] Scopes & Blocks");
+// ------------------------------------------------------------
+// [SECTION 7] Scopes & Blocks
+// ------------------------------------------------------------
+
 outer_scope_value Number(100);
 {
 	inner_scope_value Number(200);
-	write("Inside block: outer="); write(outer_scope_value); write(", inner="); write(inner_scope_value);
+	write("Inside block: outer=" + outer_scope_value.to_string() + ", inner=" + inner_scope_value.to_string());
 	outer_scope_value : 101;
-	
+
 	shadowed_variable Number(999);
-	write("Block shadow: "); write(shadowed_variable);
+	write("Block shadow: " + shadowed_variable.to_string());
 }
 shadowed_variable Number(1);
-write("Outside block: outer="); write(outer_scope_value); 
-write(" (modified), shadow="); write(shadowed_variable);
-write(" (new var)");
+write("Outside block: outer=" + outer_scope_value.to_string() + " (modified), shadow=" + shadowed_variable.to_string() + " (new var)");
 
+// ------------------------------------------------------------
+// [SECTION 8] Algorithms: Factorial
+// ------------------------------------------------------------
 
-write("\n[SECTION 8] Algorithms: Factorial");
 factorial_target Number(5);
 factorial_accumulator Number(1);
 iteration_index Number(1);
@@ -144,10 +167,12 @@ while (iteration_index <= factorial_target) {
 	factorial_accumulator : factorial_accumulator * iteration_index;
 	iteration_index : iteration_index + 1;
 }
-write("Factorial of 5 is: "); write(factorial_accumulator);
+write("Factorial of 5 is: " + factorial_accumulator.to_string());
 
+// ------------------------------------------------------------
+// [SECTION 9] Algorithms: Fibonacci
+// ------------------------------------------------------------
 
-write("\n[SECTION 9] Algorithms: Fibonacci");
 fibonacci_limit Number(10);
 fibonacci_previous Number(0);
 fibonacci_current Number(1);
@@ -155,47 +180,54 @@ fibonacci_swap_temp Number(0);
 iteration_index : 0;
 write("Fibonacci first 10:");
 while (iteration_index < fibonacci_limit) {
-	write(fibonacci_previous);
+	write(fibonacci_previous.to_string());
 	fibonacci_swap_temp : fibonacci_previous + fibonacci_current;
 	fibonacci_previous : fibonacci_current;
 	fibonacci_current : fibonacci_swap_temp;
 	iteration_index : iteration_index + 1;
 }
 
-write("\n[SECTION 10] Templates & Ambiguity");
+// ------------------------------------------------------------
+// [SECTION 10] Templates & Ambiguity
+// ------------------------------------------------------------
 
-write("Nullable (bare type): "); write(Nullable);
+write("Nullable (bare type): " + Nullable.to_string());
 
-write("Nullable<Number> (type): "); write(Nullable<Number>);
+write("Nullable<Number> (type): " + Nullable<Number>.to_string());
 explicit_nullable Nullable<Number>(42);
-write("Nullable<Number>(42): "); write(explicit_nullable);
+write("Nullable<Number>(42): " + explicit_nullable.to_string());
 
 explicit_nullable : null;
-write("Assigned null: "); write(explicit_nullable);
+write("Assigned null: " + explicit_nullable.to_string());
 
 explicit_nullable : 7;
-write("Re-assigned 7: "); write(explicit_nullable);
+write("Re-assigned 7: " + explicit_nullable.to_string());
 
-write("Nullable<Boolean> (type): "); write(Nullable<Boolean>);
+write("Nullable<Boolean> (type): " + Nullable<Boolean>.to_string());
 generic_bool Nullable<Boolean>(true);
-write("Nullable<Boolean>(true): "); write(generic_bool);
+write("Nullable<Boolean>(true): " + generic_bool.to_string());
 
-write("Nullable<String> (type): "); write(Nullable<String>);
+write("Nullable<String> (type): " + Nullable<String>.to_string());
 generic_string Nullable<String>("Templates work!");
-write("Nullable<String>: "); write(generic_string);
+write("Nullable<String>: " + generic_string.to_string());
 
 optional_with_sugar Number?;
-write("Number? (uninitialized): "); write(optional_with_sugar);
+write("Number? (uninitialized): " + optional_with_sugar.to_string());
 optional_with_sugar : 99;
-write("Number? (assigned 99): "); write(optional_with_sugar);
+write("Number? (assigned 99): " + optional_with_sugar.to_string());
 
 write("Ambiguity check (Identifier < Identifier):");
 ambiguity_a Number(10);
 ambiguity_b Number(20);
 ambiguity_left_result Boolean(ambiguity_a < ambiguity_b);
-write("10 < 20: "); write(ambiguity_left_result);
+write("10 < 20: " + ambiguity_left_result.to_string());
 
-write("\n[SECTION 11] Complex Expression Casting");
-write("Complex Calc: "); write((10 + 2) * 5 - 20 / 4);
+// ------------------------------------------------------------
+// [SECTION 11] Complex Expression Casting
+// ------------------------------------------------------------
 
-write("\n--- TEST COMPLETE ---");
+write("Complex Calc: " + ((10 + 2) * 5 - 20 / 4).to_string());
+
+// ============================================================
+// TEST COMPLETE
+// ============================================================

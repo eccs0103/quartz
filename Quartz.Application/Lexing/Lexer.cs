@@ -14,6 +14,7 @@ public partial class Lexer
 	{
 		{ StringPattern(), Types.String },
 		{ WhitespacePattern(), null },
+		{ CommentPattern(), null },
 		{ NumberPattern(), Types.Number },
 		{ OperatorPattern(), Types.Operator },
 		{ IdentifierPattern(), Types.Identifier },
@@ -43,13 +44,16 @@ public partial class Lexer
 	[GeneratedRegex(@"^\s+", RegexOptions.Compiled)]
 	private static partial Regex WhitespacePattern();
 
+	[GeneratedRegex(@"^//[^\r\n]*", RegexOptions.Compiled)]
+	private static partial Regex CommentPattern();
+
 	[GeneratedRegex(@"^\d+(\.\d+)?", RegexOptions.Compiled)]
 	private static partial Regex NumberPattern();
 
 	[GeneratedRegex(@"^""([^""\\]|\\.)*""", RegexOptions.Compiled)]
 	private static partial Regex StringPattern();
 
-	[GeneratedRegex(@"^(>=?|<=?|!=|=|\+|-|\*|/|:|\?|&|\||!)", RegexOptions.Compiled)]
+	[GeneratedRegex(@"^(>=?|<=?|!=|=|\+|-|\*|/|:|\?|&|\||!|\.)", RegexOptions.Compiled)]
 	private static partial Regex OperatorPattern();
 
 	[GeneratedRegex(@"^[A-z]\w*", RegexOptions.Compiled)]
