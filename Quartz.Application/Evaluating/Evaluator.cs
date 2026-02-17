@@ -4,8 +4,6 @@ using Quartz.Domain.Parsing;
 
 namespace Quartz.Application.Evaluating;
 
-// TODO: Full refactor
-
 internal class Evaluator : IEvaluator<Value>
 {
 	public Value Evaluate(Scope location, ValueNode node)
@@ -20,7 +18,7 @@ internal class Evaluator : IEvaluator<Value>
 		if (symbol is Datum datum) return datum.Value;
 		if (symbol is Class type) return new Value<Class>(TypeConstants.Type, type);
 		if (symbol is Template template) return new Value<Template>(TypeConstants.Template, template);
-		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition); // TODO: Change to unable to evaluate like error
+		throw new UnexpectedIssue($"Symbol '{node.Name}' is not a valid value", node.RangePosition);
 	}
 
 	public Value Evaluate(Scope location, GenericNode node)
@@ -35,8 +33,8 @@ internal class Evaluator : IEvaluator<Value>
 		});
 		if (location.TryRead(node.Name, out Symbol? existing))
 		{
-			if (existing is Class type) return new Value<Class>(TypeConstants.Type, type); // Why class not generic. I dont understand what is this part. Need a strong example
-			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition); // TODO: change error like others
+			if (existing is Class type) return new Value<Class>(TypeConstants.Type, type);
+			throw new UnexpectedIssue($"Identifier '{node.Name}' is taken by something that is not a Class", node.RangePosition);
 		}
 		Class type2 = template.Assemble(node.Name, generics, node.RangePosition);
 		if (!location.TryRegister(node.Name, type2)) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
@@ -46,15 +44,14 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, DeclarationNode node)
 	{
 		IdentifierNode nodeType = node.Type;
-		Value type = nodeType.Accept(this, location);
-		// check type is Class and use its name instead of nodeType.Name
+		Value typeValue = nodeType.Accept(this, location);
+		if (typeValue.Content is not Class typeClass) throw new TypeMismatchIssue(TypeConstants.Type, typeValue.Tag, nodeType.RangePosition);
+		string typeName = typeClass.Name;
 		IdentifierNode nodeIdentifier = node.Identifier;
-		if (node.Value == null && !TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
+		if (node.Value == null && !TypeHelper.IsOptional(typeName)) throw new InitializationRequiredIssue(nodeIdentifier.Name, typeName, nodeIdentifier.RangePosition);
 		Value value = node.Value?.Accept(this, location) ?? Value.Null;
-
-		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, value.Tag, location)) throw new TypeMismatchIssue(nodeType.Name, value.Tag, node.Value.RangePosition); // is it nessesary to check null again? Why we using nodeValue again instead of evaluated value?
-
-		Datum variable = new(nodeIdentifier.Name, nodeType.Name, value, true);
+		if (!TypeHelper.IsCompatible(typeName, value.Tag, location)) throw new TypeMismatchIssue(typeName, value.Tag, node.Value?.RangePosition ?? nodeIdentifier.RangePosition);
+		Datum variable = new(nodeIdentifier.Name, typeName, value, true);
 		if (!location.TryRegister(nodeIdentifier.Name, variable)) throw new AlreadyExistsIssue($"Datum '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
 		return Value.Null;
 	}
@@ -71,13 +68,11 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, InvokationNode node)
 	{
 		IEnumerable<Value> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
-
-		if (node.Target is FieldNode memberAccess) // is this the better way to do this, or we can do ite better?
+		if (node.Target is FieldNode memberAccess)
 		{
 			Value target = TypeHelper.Unwrap(memberAccess.Target.Accept(this, location));
 			return target.RunOperation(memberAccess.Member.Name, arguments, location, node.RangePosition);
 		}
-
 		if (node.Target is IdentifierNode nodeTarget)
 		{
 			if (!location.TryRead(nodeTarget.Name, out Operator? @operator)) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
@@ -85,8 +80,7 @@ internal class Evaluator : IEvaluator<Value>
 			Scope scope = location.GetSubscope("Call");
 			return operation.Invoke(arguments, scope, node.RangePosition);
 		}
-
-		throw new UnexpectedIssue($"Call target '{node.Target}'", node.Target.RangePosition);
+		throw new UnexpectedIssue($"Call target '{node.Target}' is not callable", node.Target.RangePosition);
 	}
 
 	public Value Evaluate(Scope location, FieldNode node)
