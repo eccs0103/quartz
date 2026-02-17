@@ -14,7 +14,7 @@ internal class ModuleBuilder(Module module, Scope location)
 			{
 				configure.Invoke(new ClassBuilder(type, scope), [.. args]);
 			}, location);
-			if (!location.TryRegister(name, template)) throw new AlreadyExistsIssue($"Template '{name}' in {location}", ~Position.Zero);
+			if (!location.TryRegister(name, new Value<Template>(TypeConstants.Template, template))) throw new AlreadyExistsIssue($"Template '{name}' in {location}", ~Position.Zero);
 			return;
 		}
 
@@ -24,7 +24,7 @@ internal class ModuleBuilder(Module module, Scope location)
 		Class? typeBase = null;
 		if (@base != null) module.TryReadClass(@base, out typeBase);
 		Class type = new(name, scope, typeBase);
-		if (!location.TryRegister(name, type)) throw new AlreadyExistsIssue($"Class '{name}' in {location}", ~Position.Zero);
+		if (!location.TryRegister(name, new Value<Class>(TypeConstants.Type, type))) throw new AlreadyExistsIssue($"Class '{name}' in {location}", ~Position.Zero);
 		configure.Invoke(new ClassBuilder(type, scope), []);
 	}
 }

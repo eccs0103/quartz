@@ -5,16 +5,12 @@ namespace Quartz.Domain.Evaluating;
 
 public delegate Value OperationContent(Value[] arguments, Scope scope, Range<Position> range);
 
-public class Operation(string @operator, string name, IEnumerable<string> parameters, string result, OperationContent content, Scope location) : Symbol(name)
+public class Operation(string @operator, string name, IEnumerable<string> parameters, string result, OperationContent content, Scope location)
 {
 	public string Operator { get; } = @operator;
+	public string Name { get; } = name;
 	public IEnumerable<string> Parameters { get; } = parameters;
 	public string Result { get; } = result;
-
-	public override void Assign(Value value, Scope scope, Range<Position> range)
-	{
-		throw new NotMutableIssue($"Operation '{Name}'", range);
-	}
 
 	public Value Invoke(IEnumerable<Value> arguments, Scope scope, Range<Position> range)
 	{

@@ -5,16 +5,13 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Operator(string name, Scope location) : Symbol(name)
+public class Operator(string name, Scope location)
 {
-	public override void Assign(Value value, Scope scope, Range<Position> range)
-	{
-		throw new NotMutableIssue($"Operator '{Name}'", range);
-	}
+	public string Name { get; } = name;
 
 	public bool TryRegisterOperation(Operation operation)
 	{
-		return location.TryRegister(operation.Name, operation);
+		return location.TryRegister(operation.Name, new Value<Operation>(TypeConstants.Function, operation));
 	}
 
 	public void RegisterOperation(Operation operation, Range<Position> range)

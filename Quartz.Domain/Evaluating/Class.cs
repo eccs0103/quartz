@@ -4,18 +4,15 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Class(string name, Scope location, Class? @base) : Symbol(name)
+public class Class(string name, Scope location, Class? @base)
 {
-	public override void Assign(Value value, Scope scope, Range<Position> range)
-	{
-		throw new NotMutableIssue($"Class '{Name}'", range);
-	}
+	public string Name { get; } = name;
 
-	public Datum ReadProperty(string name, Range<Position> range)
+	public Variable ReadProperty(string name, Range<Position> range)
 	{
-		if (location.TryRead(name, out Datum? datum)) return datum;
+		if (location.TryRead(name, out Variable? variable)) return variable;
 		if (@base != null) return @base.ReadProperty(name, range);
-		throw new NotExistIssue($"Datum '{name}' in {location}", range);
+		throw new NotExistIssue($"Variable '{name}' in {location}", range);
 	}
 
 	public bool TryReadOperator(string name, [NotNullWhen(true)] out Operator? @operator)

@@ -6,7 +6,7 @@ namespace Quartz.Domain.Evaluating;
 
 public class Scope
 {
-	private Dictionary<string, Symbol> Symbols { get; } = [];
+	private Dictionary<string, Variable> Variables { get; } = [];
 	public string Name { get; }
 	private Scope? Parent { get; }
 	private string Path { get; }
@@ -38,34 +38,50 @@ public class Scope
 		return $"<{Path}>";
 	}
 
-	public bool TryRegister(string name, Symbol symbol)
+	public bool TryRegister(string name, Value value, bool mutable = false)
 	{
-		return Symbols.TryAdd(name, symbol);
+		return TryRegister(name, value.Tag, value, mutable);
 	}
 
-	public bool TryRead<T>(string name, [NotNullWhen(true)] out T? symbol)
-		where T : Symbol
+	public bool TryRegister(string name, string typeTag, Value value, bool mutable = false)
 	{
-		if (Symbols.TryGetValue(name, out Symbol? value) && value is T result)
+		return Variables.TryAdd(name, new Variable(name, typeTag, value, mutable));
+	}
+
+	public bool TryRead(string name, [NotNullWhen(true)] out Variable? variable)
+	{
+		if (Variables.TryGetValue(name, out Variable? value))
 		{
-			symbol = result;
+			variable = value;
 			return true;
 		}
-		if (Parent != null) return Parent.TryRead(name, out symbol);
-		symbol = null;
+		if (Parent != null) return Parent.TryRead(name, out variable);
+		variable = null;
+		return false;
+	}
+
+	public bool TryRead<T>(string name, [NotNullWhen(true)] out T? content)
+		where T : notnull
+	{
+		if (TryRead(name, out Variable? variable) && variable.Value is Value<T> typed)
+		{
+			content = typed.Content;
+			return true;
+		}
+		content = default;
 		return false;
 	}
 
 	public IEnumerable<T> Scan<T>()
-		where T : Symbol
+		where T : notnull
 	{
-		foreach (Symbol symbol in Symbols.Values)
+		foreach (Variable variable in Variables.Values)
 		{
-			if (symbol is T typed) yield return typed;
+			if (variable.Value is Value<T> typed) yield return typed.Content;
 		}
 		if (Parent != null)
 		{
-			foreach (T symbol in Parent.Scan<T>()) yield return symbol;
+			foreach (T result in Parent.Scan<T>()) yield return result;
 		}
 	}
 }
