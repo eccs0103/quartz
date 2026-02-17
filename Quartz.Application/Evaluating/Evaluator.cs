@@ -20,28 +20,25 @@ internal class Evaluator : IEvaluator<Value>
 		if (symbol is Datum datum) return datum.Value;
 		if (symbol is Class type) return new Value<Class>(TypeConstants.Type, type);
 		if (symbol is Template template) return new Value<Template>(TypeConstants.Template, template);
-		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition); // TODO: Change to invalid type
+		throw new NotExistIssue($"Identifier '{node.Name}' in {location}", node.RangePosition); // TODO: Change to unable to evaluate like error
 	}
 
 	public Value Evaluate(Scope location, GenericNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
 		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new NotExistIssue($"Template '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
-		List<Class> types = [];
-		foreach (IdentifierNode nodeGeneric in node.Generics)
+		IEnumerable<Class> generics = node.Generics.Select((nodeGeneric) =>
 		{
 			Value value = nodeGeneric.Accept(this, location);
 			if (value.Tag != TypeConstants.Type || value.Content is not Class type) throw new TypeMismatchIssue(TypeConstants.Type, value.Tag, nodeGeneric.RangePosition);
-			types.Add(type);
-		}
-
-		if (location.TryRead(node.Name, out Symbol? existing)) // TODO: change like others
+			return type;
+		});
+		if (location.TryRead(node.Name, out Symbol? existing))
 		{
-			if (existing is Class type) return new Value<Class>(TypeConstants.Type, type);
-			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition);
+			if (existing is Class type) return new Value<Class>(TypeConstants.Type, type); // Why class not generic. I dont understand what is this part. Need a strong example
+			throw new UnexpectedIssue($"Identifier '{node.Name}' is not a Class", node.RangePosition); // TODO: change error like others
 		}
-
-		Class type2 = template.Assemble(node.Name, types, node.RangePosition);
+		Class type2 = template.Assemble(node.Name, generics, node.RangePosition);
 		if (!location.TryRegister(node.Name, type2)) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
 		return new Value<Class>(TypeConstants.Type, type2);
 	}
@@ -49,18 +46,16 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, DeclarationNode node)
 	{
 		IdentifierNode nodeType = node.Type;
-		nodeType.Accept(this, location);
+		Value type = nodeType.Accept(this, location);
+		// check type is Class and use its name instead of nodeType.Name
 		IdentifierNode nodeIdentifier = node.Identifier;
-
 		if (node.Value == null && !TypeHelper.IsOptional(nodeType.Name)) throw new InitializationRequiredIssue(nodeIdentifier.Name, nodeType.Name, nodeIdentifier.RangePosition);
-
 		Value value = node.Value?.Accept(this, location) ?? Value.Null;
 
-		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, value.Tag, location)) throw new TypeMismatchIssue(nodeType.Name, value.Tag, node.Value.RangePosition);
+		if (node.Value != null && !TypeHelper.IsCompatible(nodeType.Name, value.Tag, location)) throw new TypeMismatchIssue(nodeType.Name, value.Tag, node.Value.RangePosition); // is it nessesary to check null again? Why we using nodeValue again instead of evaluated value?
 
 		Datum variable = new(nodeIdentifier.Name, nodeType.Name, value, true);
 		if (!location.TryRegister(nodeIdentifier.Name, variable)) throw new AlreadyExistsIssue($"Datum '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
-
 		return Value.Null;
 	}
 
@@ -77,12 +72,12 @@ internal class Evaluator : IEvaluator<Value>
 	{
 		IEnumerable<Value> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
 
-		if (node.Target is FieldNode memberAccess)
+		if (node.Target is FieldNode memberAccess) // is this the better way to do this, or we can do ite better?
 		{
 			Value target = TypeHelper.Unwrap(memberAccess.Target.Accept(this, location));
 			return target.RunOperation(memberAccess.Member.Name, arguments, location, node.RangePosition);
 		}
-		
+
 		if (node.Target is IdentifierNode nodeTarget)
 		{
 			if (!location.TryRead(nodeTarget.Name, out Operator? @operator)) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
