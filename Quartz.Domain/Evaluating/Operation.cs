@@ -1,4 +1,4 @@
-using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
@@ -17,7 +17,7 @@ public class Operation(string name, IEnumerable<string> parameters, string resul
 		using IEnumerator<Value> iterator = arguments.GetEnumerator();
 		foreach (string expected in Parameters)
 		{
-			if (!iterator.MoveNext()) throw new NoOverloadIssue(Name, Convert.ToByte(results.Count), range);
+			if (!iterator.MoveNext()) throw new ArgumentCountMismatchIssue(Name, Parameters.Count(), results.Count, range);
 			Value provided = iterator.Current;
 			if (!TypeHelper.IsCompatible(expected, provided.Tag, scope)) throw new TypeMismatchIssue(expected, provided.Tag, range);
 			results.Add(provided);

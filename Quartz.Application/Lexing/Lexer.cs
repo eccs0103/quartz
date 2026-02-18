@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Lexing;
 using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
 using Quartz.Domain.Lexing;
@@ -91,7 +92,7 @@ public partial class Lexer
 				hasChanges = true;
 				break;
 			}
-			if (!hasChanges) throw new UnidentifiedIssue($"term '{text[0]}'", ~begin);
+			if (!hasChanges) throw new UnexpectedCharacterIssue(text[0], ~begin);
 		}
 		return [.. tokens];
 	}

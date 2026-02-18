@@ -1,4 +1,4 @@
-using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
@@ -21,8 +21,8 @@ public abstract class Value(string tag, object content)
 	public Value RunOperation(string name, IEnumerable<Value> arguments, Scope location, Range<Position> range)
 	{
 		IEnumerable<string> types = arguments.Select(arg => arg.Tag).Prepend(Tag);
-		if (!location.TryRead(Tag, out Class? type)) throw new NotExistIssue($"Type '{Tag}' in {location}", range);
-		if (!type.TryReadOperation(name, types, out Operation? operation)) throw new NoOverloadIssue(name, (byte)types.Count(), range);
+		if (!location.TryRead(Tag, out Class? type)) throw new SymbolNotFoundIssue(Tag, "Type class", range);
+		if (!type.TryReadOperation(name, types, out Operation? operation)) throw new NoMatchingOverloadIssue(name, types, range);
 		arguments = arguments.Prepend(this);
 		Value result = operation.Invoke(arguments, location, range);
 		return result;

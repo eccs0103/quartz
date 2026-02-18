@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Parsing;
 using Quartz.Domain.Lexing;
 using Quartz.Shared.Helpers;
 using static System.Math;

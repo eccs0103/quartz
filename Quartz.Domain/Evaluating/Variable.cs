@@ -1,4 +1,4 @@
-using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
@@ -12,7 +12,7 @@ public class Variable(string name, string tag, Value value, bool mutable)
 
 	public void Assign(Value newValue, Scope scope, Range<Position> range)
 	{
-		if (!Mutable) throw new NotMutableIssue($"Variable '{Name}'", range);
+		if (!Mutable) throw new ImmutableAssignmentIssue(Name, range);
 		if (!TypeHelper.IsCompatible(Tag, newValue.Tag, scope)) throw new TypeMismatchIssue(Tag, newValue.Tag, range);
 		Value = newValue;
 	}

@@ -1,0 +1,104 @@
+// ============================================================
+// QUARTZ LANGUAGE ERROR SUITE
+// ============================================================
+// Uncomment lines one by one to test exception handling.
+
+// ------------------------------------------------------------
+// [SECTION 1] Lexing Errors
+// ------------------------------------------------------------
+
+// Unexpected character
+// $invalid_char;
+
+// ------------------------------------------------------------
+// [SECTION 2] Parsing Errors
+// ------------------------------------------------------------
+
+// Expected statement (empty file is fine, but garbage is not)
+// ;
+
+// Expected ';'
+// missing_semicolon Number(10)
+
+// Expected identifier (for variable)
+// Number(10); 
+
+// Expected identifier (for type)
+// valid_name (10);
+
+// Expected '(' in if
+// if true { }
+
+// Expected ')'
+// if (true { }
+
+// Expected '{'
+// if (true) write("no block");
+
+// Unmatched bracket
+// (10 + 2;
+
+// Assignment target must be valid
+// 10 : 20;
+
+// Unexpected token
+// 10 + if;
+
+// ------------------------------------------------------------
+// [SECTION 3] Semantic Errors: Symbols & Scope
+// ------------------------------------------------------------
+
+// Symbol not found
+// write(undefined_variable);
+
+// Symbol already declared
+// duplicate_var Number(1);
+// duplicate_var Number(2);
+
+// Constant assignment (if constants exist in scope, e.g. true/false/null are keywords but maybe some system consts?)
+// No user-definable constants yet, but let's try assuming a hypothetical one if added later.
+
+// ------------------------------------------------------------
+// [SECTION 4] Semantic Errors: Types
+// ------------------------------------------------------------
+
+// Type mismatch (Declaration)
+// wrong_type Number("not a number");
+
+// Type mismatch (Assignment)
+// x Number(10);
+// x : "string";
+
+// Variable not initialized (non-optional)
+// uninit Number;
+
+// Invalid Generic Argument Count
+// wrong_generic Nullable<Number, String>;
+
+// Invalid Generic Argument Token (not a type)
+// wrong_generic_type Nullable<10>;
+
+// ------------------------------------------------------------
+// [SECTION 5] Semantic Errors: Functions & Operations
+// ------------------------------------------------------------
+
+// Not callable
+// not_func Number(10);
+// not_func(10);
+
+// No matching overload (wrong arg count)
+// write("a", "b"); 
+
+// No matching overload (wrong arg types)
+// 10 + "string";
+
+// Invalid operarand (Unary)
+// !10;
+
+// Invalid cast
+// invalid_cast Number(10);
+// invalid_cast.as<String>(); // Assuming .as exists or implicit cast fails
+
+// ============================================================
+// ERROR SUITE COMPLETE
+// ============================================================

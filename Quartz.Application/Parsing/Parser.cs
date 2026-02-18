@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Parsing;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
 using Quartz.Shared.Helpers;
@@ -187,7 +188,7 @@ public class Parser
 
 	private IdentifierNode TypeParse(Walker walker)
 	{
-		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Identifier)) throw new ExpectedIssue("type identifier", walker.RangePosition);
+		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Identifier)) throw new ExpectedIssue("identifier for type", walker.RangePosition);
 		IdentifierNode type = new(token1.Value, token1.RangePosition);
 		walker.Index++;
 
@@ -244,7 +245,7 @@ public class Parser
 
 	private AssignmentNode AssignmentParse(Walker walker)
 	{
-		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Identifier)) throw new ExpectedIssue("identifier", ~walker.RangePosition.Begin);
+		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Identifier)) throw new ExpectedIssue("identifier for assignment", ~walker.RangePosition.Begin);
 		IdentifierNode identifier = new(token1.Value, token1.RangePosition);
 		walker.Index++;
 
@@ -366,7 +367,7 @@ public class Parser
 				walker.Index++;
 				return new ValueNode("Null", null, token.RangePosition);
 			}
-			throw new UnexpectedIssue($"keyword '{token.Value}'", token.RangePosition);
+			throw new UnexpectedKeywordIssue(token.Value, token.RangePosition);
 		}
 		case Types.Bracket:
 		{
@@ -378,9 +379,9 @@ public class Parser
 				walker.Index++;
 				return expression;
 			}
-			throw new UnexpectedIssue($"bracket '{token.Value}'", token.RangePosition);
+			throw new UnexpectedTokenIssue(token.Value, token.RangePosition);
 		}
-		default: throw new UnexpectedIssue($"token '{token.Value}'", token.RangePosition);
+		default: throw new UnexpectedTokenIssue(token.Value, token.RangePosition);
 		}
 	}
 
@@ -392,7 +393,7 @@ public class Parser
 			if (token.Represents(Types.Operator, "."))
 			{
 				walker.Index++;
-				if (!walker.Peek(out Token? idToken) || !idToken.Represents(Types.Identifier)) throw new ExpectedIssue("identifier", ~token.RangePosition.End);
+				if (!walker.Peek(out Token? idToken) || !idToken.Represents(Types.Identifier)) throw new ExpectedIssue("member name", ~token.RangePosition.End);
 				IdentifierNode member = new(idToken.Value, idToken.RangePosition);
 				walker.Index++;
 				node = new FieldNode(node, member, node.RangePosition >> member.RangePosition);
@@ -412,7 +413,7 @@ public class Parser
 
 	private Node IdentifierExpressionParse(Walker walker)
 	{
-		if (!walker.Peek(out Token? token)) throw new ExpectedIssue("identifier", ~walker.RangePosition.Begin);
+		if (!walker.Peek(out Token? token)) throw new ExpectedIssue("function or variable", ~walker.RangePosition.Begin);
 		IdentifierNode identifier = new(token.Value, token.RangePosition);
 		walker.Index++;
 

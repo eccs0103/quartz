@@ -1,5 +1,6 @@
 using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Domain.Parsing;
 
 namespace Quartz.Application.Evaluating;
@@ -15,13 +16,13 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, IdentifierNode node)
 	{
 		if (location.TryRead(node.Name, out Variable? variable)) return variable.Value;
-		throw new NotExistIssue($"Variable '{node.Name}' in {location}", node.RangePosition);
+		throw new SymbolNotFoundIssue(node.Name, "Variable", node.RangePosition);
 	}
 
 	public Value Evaluate(Scope location, GenericNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new NotExistIssue($"Template '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
+		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new SymbolNotFoundIssue(nodeTarget.Name, "Template", nodeTarget.RangePosition);
 		IEnumerable<Class> generics = node.Generics.Select((nodeGeneric) =>
 		{
 			Value value = nodeGeneric.Accept(this, location);
@@ -31,10 +32,10 @@ internal class Evaluator : IEvaluator<Value>
 		if (location.TryRead(node.Name, out Variable? existing))
 		{
 			if (existing.Value is Value<Class> type) return type;
-			throw new UnexpectedIssue($"Identifier '{node.Name}' is taken by something that is not a Class", node.RangePosition);
+			throw new InvalidSymbolUsageIssue(node.Name, "Class", node.RangePosition);
 		}
 		Class type2 = template.Assemble(node.Name, generics, node.RangePosition);
-		if (!location.TryRegister(node.Name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type2))) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
+		if (!location.TryRegister(node.Name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type2))) throw new SymbolAlreadyDeclaredIssue(node.Name, node.RangePosition);
 		return new Value<Class>(TypeConstants.Type, type2);
 	}
 
@@ -45,10 +46,10 @@ internal class Evaluator : IEvaluator<Value>
 		if (typeValue.Content is not Class typeClass) throw new TypeMismatchIssue(TypeConstants.Type, typeValue.Tag, nodeType.RangePosition);
 		string typeName = typeClass.Name;
 		IdentifierNode nodeIdentifier = node.Identifier;
-		if (node.Value == null && !TypeHelper.IsOptional(typeName)) throw new InitializationRequiredIssue(nodeIdentifier.Name, typeName, nodeIdentifier.RangePosition);
+		if (node.Value == null && !TypeHelper.IsOptional(typeName)) throw new VariableNotInitializedIssue(nodeIdentifier.Name, nodeIdentifier.RangePosition);
 		Value value = node.Value?.Accept(this, location) ?? Value.Null;
 		if (!TypeHelper.IsCompatible(typeName, value.Tag, location)) throw new TypeMismatchIssue(typeName, value.Tag, node.Value?.RangePosition ?? nodeIdentifier.RangePosition);
-		if (!location.TryRegister(nodeIdentifier.Name, typeName, value, true)) throw new AlreadyExistsIssue($"Variable '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
+		if (!location.TryRegister(nodeIdentifier.Name, typeName, value, true)) throw new SymbolAlreadyDeclaredIssue(nodeIdentifier.Name, nodeIdentifier.RangePosition);
 		return Value.Null;
 	}
 
@@ -56,7 +57,7 @@ internal class Evaluator : IEvaluator<Value>
 	{
 		IdentifierNode nodeIdentifier = node.Identifier;
 		Value value = node.Value.Accept(this, location);
-		if (!location.TryRead(nodeIdentifier.Name, out Variable? variable)) throw new NotExistIssue($"Variable '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
+		if (!location.TryRead(nodeIdentifier.Name, out Variable? variable)) throw new SymbolNotFoundIssue(nodeIdentifier.Name, "Variable", nodeIdentifier.RangePosition);
 		variable.Assign(value, location, nodeIdentifier.RangePosition);
 		return Value.Null;
 	}
@@ -64,26 +65,26 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, InvokationNode node)
 	{
 		IEnumerable<Value> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
-		if (node.Target is FieldNode memberAccess)
+		if (node.Target is FieldNode nodeField)
 		{
-			Value target = TypeHelper.Unwrap(memberAccess.Target.Accept(this, location));
-			return target.RunOperation(memberAccess.Member.Name, arguments, location, node.RangePosition);
+			Value target = TypeHelper.Unwrap(nodeField.Target.Accept(this, location));
+			return target.RunOperation(nodeField.Member.Name, arguments, location, node.RangePosition);
 		}
-		if (node.Target is IdentifierNode nodeTarget)
+		if (node.Target is IdentifierNode nodeIdentifier)
 		{
-			if (!location.TryRead(nodeTarget.Name, out Operator? @operator)) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
-			if (!@operator.TryReadOperation(arguments.Select(result => result.Tag), out Operation? operation)) throw new NoOverloadIssue(nodeTarget.Name, Convert.ToByte(arguments.Count()), nodeTarget.RangePosition);
+			if (!location.TryRead(nodeIdentifier.Name, out Operator? @operator)) throw new SymbolNotFoundIssue(nodeIdentifier.Name, "Operator", nodeIdentifier.RangePosition);
+			if (!@operator.TryReadOperation(arguments.Select(result => result.Tag), out Operation? operation)) throw new NoMatchingOverloadIssue(nodeIdentifier.Name, arguments.Select(a => a.Tag), nodeIdentifier.RangePosition);
 			Scope scope = location.GetSubscope("Call");
 			return operation.Invoke(arguments, scope, node.RangePosition);
 		}
-		throw new UnexpectedIssue($"Call target '{node.Target}' is not callable", node.Target.RangePosition);
+		throw new NotCallableIssue(node.Target.ToString()!, node.Target.RangePosition);
 	}
 
 	public Value Evaluate(Scope location, FieldNode node)
 	{
 		Value target = TypeHelper.Unwrap(node.Target.Accept(this, location));
-		if (!location.TryRead(target.Tag, out Class? type)) throw new NotExistIssue($"Type '{target.Tag}' in {location}", node.Target.RangePosition);
-		if (!type.TryReadProperty(node.Member.Name, out Variable? variable)) throw new NotExistIssue($"Variable '{node.Member.Name}' in {location}", node.Member.RangePosition);
+		if (!location.TryRead(target.Tag, out Class? type)) throw new SymbolNotFoundIssue(target.Tag, "Type class", node.Target.RangePosition);
+		if (!type.TryReadProperty(node.Member.Name, out Variable? variable)) throw new SymbolNotFoundIssue(node.Member.Name, "Member variable", node.Member.RangePosition);
 		return variable.Value;
 	}
 
@@ -92,8 +93,8 @@ internal class Evaluator : IEvaluator<Value>
 		Node nodeTarget = node.Target;
 		IdentifierNode nodeOperator = node.Operator;
 		Value target = TypeHelper.Unwrap(nodeTarget.Accept(this, location));
-		if (!location.TryRead(target.Tag, out Class? type)) throw new NotExistIssue($"Type '{target.Tag}' in {location}", nodeTarget.RangePosition);
-		if (!type.TryReadOperation(nodeOperator.Name, [target.Tag], out Operation? operation)) throw new NoOverloadIssue(nodeOperator.Name, 1, nodeOperator.RangePosition);
+		if (!location.TryRead(target.Tag, out Class? type)) throw new SymbolNotFoundIssue(target.Tag, "Type class", nodeTarget.RangePosition);
+		if (!type.TryReadOperation(nodeOperator.Name, [target.Tag], out Operation? operation)) throw new NoMatchingOverloadIssue(nodeOperator.Name, [target.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([target], scope, node.RangePosition);
 	}
@@ -103,8 +104,8 @@ internal class Evaluator : IEvaluator<Value>
 		IdentifierNode nodeOperator = node.Operator;
 		Value left = TypeHelper.Unwrap(node.Left.Accept(this, location));
 		Value right = TypeHelper.Unwrap(node.Right.Accept(this, location));
-		if (!location.TryRead(left.Tag, out Class? type)) throw new NotExistIssue($"Type '{left.Tag}' in {location}", node.Left.RangePosition);
-		if (!type.TryReadOperation(nodeOperator.Name, [left.Tag, right.Tag], out Operation? operation)) throw new NoOverloadIssue(nodeOperator.Name, 2, nodeOperator.RangePosition);
+		if (!location.TryRead(left.Tag, out Class? type)) throw new SymbolNotFoundIssue(left.Tag, "Type class", node.Left.RangePosition);
+		if (!type.TryReadOperation(nodeOperator.Name, [left.Tag, right.Tag], out Operation? operation)) throw new NoMatchingOverloadIssue(nodeOperator.Name, [left.Tag, right.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([left, right], scope, node.RangePosition);
 	}
