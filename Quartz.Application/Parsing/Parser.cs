@@ -1,5 +1,5 @@
 using System.Globalization;
-using System.Text.Json;
+using System.Text.RegularExpressions;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Exceptions.Parsing;
 using Quartz.Domain.Lexing;
@@ -342,14 +342,14 @@ public class Parser
 		{
 		case Types.Number:
 		{
-			double value = Convert.ToDouble(token.Value, CultureInfo.GetCultureInfo("en-US"));
+			double value = double.Parse(token.Value, CultureInfo.InvariantCulture);
 			ValueNode number = new("Number", value, token.RangePosition);
 			walker.Index++;
 			return number;
 		}
 		case Types.String:
 		{
-			string value = JsonSerializer.Deserialize<string>(token.Value)!;
+			string value = Regex.Unescape(token.Value[1..^1]);
 			ValueNode @string = new("String", value, token.RangePosition);
 			walker.Index++;
 			return @string;
