@@ -46,7 +46,7 @@ public class Parser
 		if (token1.Represents(Types.Keyword, "if")) return IfStatementParse(walker);
 
 		if (token1.Represents(Types.Keyword, "while")) return WhileStatementParse(walker);
-		// if (token1.Represents(Types.Keyword, "for")) return ForStatementParse(walker);
+		if (token1.Represents(Types.Keyword, "for")) return ForStatementParse(walker);
 
 		if (token1.Represents(Types.Bracket, "{")) return BlockParse(walker);
 
@@ -88,43 +88,30 @@ public class Parser
 		return new WhileStatementNode(condition, body, token1.RangePosition >> body.RangePosition);
 	}
 
-	/* private Node ForStatementParse(Walker walker)
+	private ForStatementNode ForStatementParse(Walker walker)
 	{
 		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Keyword, "for")) throw new ExpectedIssue("for", walker.RangePosition);
 		walker.Index++;
 
 		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, "(")) throw new ExpectedIssue("(", ~token1.RangePosition.End);
-
-		// Парсим сложную "шапку" цикла
-		Walker subwalker = walker.GetSubwalker("(", ")");
-
-		// 1. item (identifier)
-		if (!subwalker.Peek(out Token? tokenItem) || !tokenItem.Represents(Types.Identifier)) throw new ExpectedIssue("variable identifier for for-loop", ~subwalker.RangePosition.Begin);
-		IdentifierNode item = new(tokenItem.Value, tokenItem.RangePosition);
+		string open = token2.Value;
+		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
+		Walker subwalker = walker.GetSubwalker(open, close);
+		if (!subwalker.Peek(out Token? token3) || !token3.Represents(Types.Identifier)) throw new ExpectedIssue("variable for for-loop", ~subwalker.RangePosition.Begin);
+		IdentifierNode item = new(token3.Value, token3.RangePosition);
 		subwalker.Index++;
 
-		// 2. Type (identifier)
-		if (!subwalker.Peek(out Token? tokenType) || !tokenType.Represents(Types.Identifier)) throw new ExpectedIssue("type identifier for for-loop", ~item.RangePosition.End);
-		IdentifierNode type = new(tokenType.Value, tokenType.RangePosition);
+		IdentifierNode type = TypeParse(subwalker);
+		if (!subwalker.Peek(out Token? token4) || !token4.Represents(Types.Keyword, "in")) throw new ExpectedIssue("in", ~type.RangePosition.End);
 		subwalker.Index++;
 
-		// 3. in (keyword)
-		if (!subwalker.Peek(out Token? tokenIn) || !tokenIn.Represents(Types.Keyword, "in")) throw new ExpectedIssue("in", ~type.RangePosition.End);
-		subwalker.Index++;
-
-		// 4. iterator (expression)
 		Node iterator = ExpressionParse(subwalker);
-
-		// Проверяем, что в скобках больше ничего нет
-		if (subwalker.InRange) throw new UnexpectedIssue("extra tokens in for-loop header", subwalker.RangePosition);
-
-		// Продвигаем главный walker
+		// if (subwalker.InRange) throw new UnexpectedIssue("extra tokens in for-loop header", subwalker.RangePosition);
 		walker.Index++;
 
-		// 5. body (statement)
 		Node body = StatementParse(walker);
 		return new ForStatementNode(item, type, iterator, body, token1.RangePosition >> body.RangePosition);
-	} */
+	}
 
 	private BreakStatementNode BreakStatementParse(Walker walker)
 	{

@@ -16,6 +16,7 @@ public interface IEvaluator<out TReturn>
 	public TReturn Evaluate(Scope location, BlockNode node);
 	public TReturn Evaluate(Scope location, IfStatementNode node);
 	public TReturn Evaluate(Scope location, WhileStatementNode node);
+	public TReturn Evaluate(Scope location, ForStatementNode node);
 	public TReturn Evaluate(Scope location, BreakStatementNode node);
 	public TReturn Evaluate(Scope location, ContinueStatementNode node);
 }

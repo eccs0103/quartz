@@ -6,7 +6,7 @@ Statement
 	| Block
 	| IfStatement
 	| WhileStatement
-	(* | ForStatement *);
+	| ForStatement;
 
 SimpleStatement
 	= Declaration
@@ -18,8 +18,8 @@ SimpleStatement
 WhileStatement
 	= "while", "(", Expression, ")", Statement;
 
-(* ForStatement
-	= "for", "(", Identifier, Identifier, "in", Expression, ")", Statement; *)
+ForStatement
+	= "for", "(", Identifier, Type, "in", Expression, ")", Statement;
 
 BreakStatement
 	= "break";

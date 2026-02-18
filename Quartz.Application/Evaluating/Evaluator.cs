@@ -133,7 +133,26 @@ internal class Evaluator : IEvaluator<Value>
 			Value condition = node.Condition.Accept(this, location);
 			if (condition.Tag != TypeConstants.Boolean) throw new TypeMismatchIssue(TypeConstants.Boolean, condition.Tag, node.Condition.RangePosition);
 			if (!condition.As<bool>().Content) break;
-			try { node.Body.Accept(this, location); }
+			Scope scope = location.GetSubscope("While");
+			try { node.Body.Accept(this, scope); }
+			catch (ContinueSignal) { continue; }
+			catch (BreakSignal) { break; }
+		}
+		return Value.Null;
+	}
+
+	public Value Evaluate(Scope location, ForStatementNode node)
+	{
+		Value generator = node.Collection.Accept(this, location);
+		while (true)
+		{
+			Value hasNext = generator.RunOperation("next", [], location, node.RangePosition);
+			if (hasNext.Tag != TypeConstants.Boolean) throw new TypeMismatchIssue(TypeConstants.Boolean, hasNext.Tag, node.RangePosition);
+			if (!hasNext.As<bool>().Content) break;
+			Value current = generator.RunOperation("current", [], location, node.RangePosition);
+			Scope scope = location.GetSubscope("ForIn");
+			scope.TryRegister(node.Identifier.Name, node.Type.Name, current, false);
+			try { node.Body.Accept(this, scope); }
 			catch (ContinueSignal) { continue; }
 			catch (BreakSignal) { break; }
 		}

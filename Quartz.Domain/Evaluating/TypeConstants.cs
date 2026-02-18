@@ -11,5 +11,6 @@ public static class TypeConstants
 	public const string String = "String";
 	public const string Type = "Type";
 	public const string Template = "Template";
+	public const string Sequence = "Sequence";
 	public const string Function = "Function";
 }

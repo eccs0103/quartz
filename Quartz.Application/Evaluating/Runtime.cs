@@ -230,8 +230,42 @@ public class Runtime
 					return new Value<string>(TypeConstants.String, value.Name);
 				});
 			});
+			module.DeclareClass(TypeConstants.Sequence, TypeConstants.Any, ["Content"], static (type, generics) =>
+			{
+				type.DeclareOperation("next", [], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				{
+					IEnumerator<Value> enumerator = @this.As<IEnumerator<Value>>().Content;
+					return new Value<bool>(TypeConstants.Boolean, enumerator.MoveNext());
+				});
+				type.DeclareOperation("current", [], generics[0].Name, static (@this, arguments, scope, range) =>
+				{
+					IEnumerator<Value> enumerator = @this.As<IEnumerator<Value>>().Content;
+					return enumerator.Current;
+				});
+			});
 			module.DeclareClass(RuntimeBuilder.NameWorkspace, TypeConstants.Any, [], static (type, _) =>
 			{
+				type.DeclareOperation("range", [TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
+				{
+					double max = arguments[0].As<double>().Content;
+					static IEnumerator<Value> Generate(double count)
+					{
+						for (double index = 0; index < count; index++) yield return new Value<double>(TypeConstants.Number, index);
+					}
+					IEnumerator<Value> enumerator = Generate(max);
+					return new Value<IEnumerator<Value>>($"{TypeConstants.Sequence}<{TypeConstants.Number}>", enumerator);
+				});
+				type.DeclareOperation("range", [TypeConstants.Number, TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
+				{
+					double min = arguments[0].As<double>().Content;
+					double max = arguments[1].As<double>().Content;
+					static IEnumerator<Value> Generate(double start, double end)
+					{
+						for (double index = start; index < end; index++) yield return new Value<double>(TypeConstants.Number, index);
+					}
+					IEnumerator<Value> enumerator = Generate(min, max);
+					return new Value<IEnumerator<Value>>($"{TypeConstants.Sequence}<{TypeConstants.Number}>", enumerator);
+				});
 				type.DeclareConstant("pi", TypeConstants.Number, PI);
 				type.DeclareConstant("e", TypeConstants.Number, E);
 				type.DeclareOperation("read", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>

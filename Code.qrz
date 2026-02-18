@@ -254,6 +254,28 @@ write("String + Char: " + concatenation_string_char);
 concatenation_char_string String(character_second + " End");
 write("Char + String: " + concatenation_char_string);
 
+// ------------------------------------------------------------
+// [SECTION 13] Sequences & For Loop
+// ------------------------------------------------------------
+
+sequence_range Sequence<Number>(range(5));
+write("Sequence Range 0-5:");
+for (item Number in sequence_range) {
+	write(item.to_string());
+}
+
+write("Sequence Range 3-7:");
+for (i Number in range(3, 7)) {
+	write(i.to_string());
+}
+
+write("Manual sequence iteration:");
+manual_seq Sequence<Number>(range(1, 4));
+while (manual_seq.next()) {
+	val Number(manual_seq.current());
+	write("Manual: " + val.to_string());
+}
+
 // ============================================================
 // TEST COMPLETE
 // ============================================================
