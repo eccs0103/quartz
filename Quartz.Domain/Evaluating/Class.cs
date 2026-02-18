@@ -4,18 +4,16 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Class(string name, Scope location, Class? @base)
+public class Class(string name, Scope location, Class? @base) : Container(name, location)
 {
-	public string Name { get; } = name;
-
 	public bool TryRegisterOperator(Operator @operator)
 	{
-		return location.TryRegister(@operator.Name, new Value<Operator>(TypeConstants.Function, @operator));
+		return Location.TryRegister(@operator.Name, new Value<Operator>(TypeConstants.Function, @operator));
 	}
 
 	public bool TryReadOperator(string name, [NotNullWhen(true)] out Operator? @operator)
 	{
-		if (location.TryRead(name, out @operator)) return true;
+		if (Location.TryRead(name, out @operator, deep: false)) return true;
 		if (@base != null) return @base.TryReadOperator(name, out @operator);
 		@operator = null;
 		return false;
@@ -31,17 +29,17 @@ public class Class(string name, Scope location, Class? @base)
 
 	public bool TryRegisterVariable(string name, Value value)
 	{
-		return location.TryRegister(name, value, true);
+		return Location.TryRegister(name, value, true);
 	}
 
 	public bool TryRegisterConstant(string name, Value value)
 	{
-		return location.TryRegister(name, value, false);
+		return Location.TryRegister(name, value, false);
 	}
 
 	public bool TryReadProperty(string name, [NotNullWhen(true)] out Variable? variable)
 	{
-		if (location.TryRead(name, out variable)) return true;
+		if (Location.TryRead(name, out variable, deep: false)) return true;
 		if (@base != null) return @base.TryReadProperty(name, out variable);
 		variable = null;
 		return false;

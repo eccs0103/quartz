@@ -40,7 +40,8 @@ public class Scope
 
 	public bool TryRegister(string name, Value value, bool mutable = false)
 	{
-		return TryRegister(name, value.Tag, value, mutable);
+		string tag = value.Tag;
+		return Variables.TryAdd(name, new Variable(name, tag, value, mutable));
 	}
 
 	public bool TryRegister(string name, string tag, Value value, bool mutable = false)
@@ -48,22 +49,22 @@ public class Scope
 		return Variables.TryAdd(name, new Variable(name, tag, value, mutable));
 	}
 
-	public bool TryRead(string name, [NotNullWhen(true)] out Variable? variable)
+	public bool TryRead(string name, [NotNullWhen(true)] out Variable? variable, bool deep = true)
 	{
 		if (Variables.TryGetValue(name, out Variable? value))
 		{
 			variable = value;
 			return true;
 		}
-		if (Parent != null) return Parent.TryRead(name, out variable);
+		if (deep && Parent != null) return Parent.TryRead(name, out variable);
 		variable = null;
 		return false;
 	}
 
-	public bool TryRead<T>(string name, [NotNullWhen(true)] out T? content)
+	public bool TryRead<T>(string name, [NotNullWhen(true)] out T? content, bool deep = true)
 		where T : notnull
 	{
-		if (TryRead(name, out Variable? variable) && variable.Value is Value<T> typed)
+		if (TryRead(name, out Variable? variable, deep) && variable.Value is Value<T> typed)
 		{
 			content = typed.Content;
 			return true;
