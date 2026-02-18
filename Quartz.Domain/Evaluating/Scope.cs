@@ -38,12 +38,6 @@ public class Scope
 		return $"<{Path}>";
 	}
 
-	public bool TryRegister(string name, Value value, bool mutable = false)
-	{
-		string tag = value.Tag;
-		return Variables.TryAdd(name, new Variable(name, tag, value, mutable));
-	}
-
 	public bool TryRegister(string name, string tag, Value value, bool mutable = false)
 	{
 		return Variables.TryAdd(name, new Variable(name, tag, value, mutable));
@@ -51,11 +45,7 @@ public class Scope
 
 	public bool TryRead(string name, [NotNullWhen(true)] out Variable? variable, bool deep = true)
 	{
-		if (Variables.TryGetValue(name, out Variable? value))
-		{
-			variable = value;
-			return true;
-		}
+		if (Variables.TryGetValue(name, out variable)) return true;
 		if (deep && Parent != null) return Parent.TryRead(name, out variable);
 		variable = null;
 		return false;

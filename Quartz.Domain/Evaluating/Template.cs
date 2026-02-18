@@ -14,7 +14,7 @@ public class Template(string name, IEnumerable<string> generics, TemplateBuilder
 		foreach (string generic in generics)
 		{
 			if (!iterator.MoveNext()) throw new ExpectedIssue($"{generics.Count()} type parameter{(generics.Count() != 1 ? "s" : "")}, but got {arguments.Count()}", range);
-			if (!scope.TryRegister(generic, new Value<Class>(TypeConstants.Type, iterator.Current))) throw new AlreadyExistsIssue($"Generic '{generic}' in {scope}", ~Position.Zero);
+			if (!scope.TryRegister(generic, TypeConstants.Type, new Value<Class>(TypeConstants.Type, iterator.Current))) throw new AlreadyExistsIssue($"Generic '{generic}' in {scope}", ~Position.Zero);
 		}
 		if (!Location.TryRead(TypeConstants.Any, out Class? typeBase)) throw new NotExistIssue($"Class '{TypeConstants.Any}' in {Location}", range);
 		Class type = new(name, scope, typeBase);

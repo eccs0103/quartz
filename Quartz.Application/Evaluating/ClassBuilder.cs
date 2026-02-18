@@ -12,20 +12,19 @@ internal class ClassBuilder(Class type, Scope location)
 	public void DeclareVariable(string name, string tag, object value)
 	{
 		Value variable = new Value<object>(tag, value);
-		if (!type.TryRegisterVariable(name, variable)) throw new AlreadyExistsIssue($"Variable '{name}' in {location}", ~Position.Zero);
+		if (!type.TryRegisterVariable(name, tag, variable)) throw new AlreadyExistsIssue($"Variable '{name}' in {location}", ~Position.Zero);
 	}
 
 	public void DeclareConstant(string name, string tag, object value)
 	{
 		Value constant = new Value<object>(tag, value);
-		if (!type.TryRegisterConstant(name, constant)) throw new AlreadyExistsIssue($"Constant '{name}' in {location}", ~Position.Zero);
+		if (!type.TryRegisterConstant(name, tag, constant)) throw new AlreadyExistsIssue($"Constant '{name}' in {location}", ~Position.Zero);
 	}
 
 	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, ClassOperationContent content)
 	{
 		Scope scope = location.GetSubscope(name);
-		// We explicitly check only the current class scope to avoid modifying base classes
-		if (!location.TryRead(name, out Operator? @operator))
+		if (!type.TryReadOperator(name, out Operator? @operator))
 		{
 			@operator = new Operator(name, location.GetSubscope(name));
 			if (!type.TryRegisterOperator(@operator)) throw new AlreadyExistsIssue($"Operator '{name}' in {location}", ~Position.Zero);
@@ -39,7 +38,7 @@ internal class ClassBuilder(Class type, Scope location)
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(Mangler.Parameters(parameters), parameters, result, Wrapper, scope);
-			if (!@operator.TryRegisterOperation(operation)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
+			if (!type.TryRegisterOperation(name, operation)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 			return;
 		}
 
@@ -49,6 +48,6 @@ internal class ClassBuilder(Class type, Scope location)
 			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
 		Operation operationWithSelf = new(Mangler.Parameters(parameters), parameters, result, WrapperWithSelf, scope);
-		if (!@operator.TryRegisterOperation(operationWithSelf)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
+		if (!type.TryRegisterOperation(name, operationWithSelf)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 	}
 }

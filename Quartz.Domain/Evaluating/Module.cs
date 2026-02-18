@@ -8,7 +8,7 @@ public class Module(string name, Scope location) : Container(name, location)
 {
 	public bool TryRegisterTemplate(Template template)
 	{
-		return Location.TryRegister(template.Name, new Value<Template>(TypeConstants.Template, template));
+		return Location.TryRegister(template.Name, TypeConstants.Template, new Value<Template>(TypeConstants.Template, template));
 	}
 
 	public bool TryReadTemplate(string name, [NotNullWhen(true)] out Template? template)
@@ -18,7 +18,7 @@ public class Module(string name, Scope location) : Container(name, location)
 
 	public bool TryRegisterClass(Class type)
 	{
-		return Location.TryRegister(type.Name, new Value<Class>(TypeConstants.Type, type));
+		return Location.TryRegister(type.Name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type));
 	}
 
 	public bool TryReadClass(string name, [NotNullWhen(true)] out Class? type)

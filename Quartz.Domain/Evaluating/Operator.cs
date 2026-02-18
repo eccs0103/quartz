@@ -9,7 +9,7 @@ public class Operator(string name, Scope location) : Container(name, location)
 {
 	public bool TryRegisterOperation(Operation operation)
 	{
-		return Location.TryRegister(operation.Name, new Value<Operation>(TypeConstants.Function, operation));
+		return Location.TryRegister(operation.Name, TypeConstants.Function, new Value<Operation>(TypeConstants.Function, operation));
 	}
 
 	public bool TryReadOperation(IEnumerable<string> parameters, [NotNullWhen(true)] out Operation? operation)

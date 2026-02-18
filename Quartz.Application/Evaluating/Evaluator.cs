@@ -34,7 +34,7 @@ internal class Evaluator : IEvaluator<Value>
 			throw new UnexpectedIssue($"Identifier '{node.Name}' is taken by something that is not a Class", node.RangePosition);
 		}
 		Class type2 = template.Assemble(node.Name, generics, node.RangePosition);
-		if (!location.TryRegister(node.Name, new Value<Class>(TypeConstants.Type, type2))) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
+		if (!location.TryRegister(node.Name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type2))) throw new AlreadyExistsIssue($"Class '{node.Name}' in {location}", node.RangePosition);
 		return new Value<Class>(TypeConstants.Type, type2);
 	}
 
