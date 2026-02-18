@@ -13,4 +13,5 @@ public static class TypeConstants
 	public const string Template = "Template";
 	public const string Sequence = "Sequence";
 	public const string Function = "Function";
+	public const string Workspace = "@Workspace";
 }

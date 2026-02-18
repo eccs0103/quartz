@@ -30,11 +30,11 @@ internal class ClassBuilder(Class type, Scope location)
 			if (!type.TryRegisterOperator(@operator)) throw new SymbolAlreadyDeclaredIssue(name, ~Position.Zero);
 		}
 
-		if (type.Name == RuntimeBuilder.NameWorkspace)
+		if (type.Name == TypeConstants.Workspace)
 		{
 			Value OperationWrapper(Value[] arguments, Scope scopeCall, Range<Position> range)
 			{
-				Value workspace = new Value<object>(RuntimeBuilder.NameWorkspace, Value.Empty);
+				Value workspace = new Value<object>(TypeConstants.Workspace, Value.Empty);
 				return configurator.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(Mangler.Parameters(parameters), parameters, result, OperationWrapper, scope);

@@ -10,8 +10,7 @@ internal class RuntimeBuilder
 	private static Scope Location { get; } = new(NameGlobal);
 	private Module Global { get; } = new(NameGlobal, Location);
 
-	public const string NameWorkspace = "@Workspace";
-	public static Scope Workspace { get; } = Location.GetSubscope(NameWorkspace);
+	public static Scope Workspace { get; } = Location.GetSubscope(TypeConstants.Workspace);
 
 	public void DeclareModule(ModuleConfigurator configurator)
 	{

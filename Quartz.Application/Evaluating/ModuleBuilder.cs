@@ -22,7 +22,7 @@ internal class ModuleBuilder(Module module, Scope location)
 			return;
 		}
 
-		Scope scope = name.Equals(RuntimeBuilder.NameWorkspace)
+		Scope scope = name.Equals(TypeConstants.Workspace)
 			? RuntimeBuilder.Workspace
 			: location.GetSubscope(name);
 		Class? typeBase = null;

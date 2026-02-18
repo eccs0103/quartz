@@ -265,15 +265,15 @@ for (item Number in sequence_range) {
 }
 
 write("Sequence Range 3-7:");
-for (i Number in range(3, 7)) {
-	write(i.to_string());
+for (number Number in range(3, 7)) {
+	write(number.to_string());
 }
 
 write("Manual sequence iteration:");
-manual_seq Sequence<Number>(range(1, 4));
-while (manual_seq.next()) {
-	val Number(manual_seq.current());
-	write("Manual: " + val.to_string());
+manual_sequence Sequence<Number>(range(1, 4));
+while (manual_sequence.next()) {
+	manual_value Number(manual_sequence.current());
+	write("Manual: " + manual_value.to_string());
 }
 
 // ============================================================

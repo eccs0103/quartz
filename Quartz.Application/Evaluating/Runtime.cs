@@ -243,17 +243,13 @@ public class Runtime
 					return enumerator.Current;
 				});
 			});
-			module.DeclareClass(RuntimeBuilder.NameWorkspace, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(TypeConstants.Workspace, TypeConstants.Any, [], static (type, _) =>
 			{
 				type.DeclareOperation("range", [TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
 				{
-					double max = arguments[0].As<double>().Content;
-					static IEnumerator<Value> Generate(double count)
-					{
-						for (double index = 0; index < count; index++) yield return new Value<double>(TypeConstants.Number, index);
-					}
-					IEnumerator<Value> enumerator = Generate(max);
-					return new Value<IEnumerator<Value>>($"{TypeConstants.Sequence}<{TypeConstants.Number}>", enumerator);
+					Value<double> start = new(TypeConstants.Number, 0);
+					Value end = arguments[0];
+					return @this.RunOperation("range", [start, end], scope, range);
 				});
 				type.DeclareOperation("range", [TypeConstants.Number, TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
 				{
