@@ -3,7 +3,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Evaluating;
 
-public delegate void TemplateBuilder(Class type, IEnumerable<Class> arguments, Scope scope);
+public delegate void TemplateBuilder(Class type, IEnumerable<Class> parameters, Scope scope);
 
 public class Template(string name, IEnumerable<string> generics, TemplateBuilder builder, Scope location) : Container(name, location)
 {

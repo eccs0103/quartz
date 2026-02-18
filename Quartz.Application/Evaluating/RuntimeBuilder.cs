@@ -2,6 +2,8 @@ using Quartz.Domain.Evaluating;
 
 namespace Quartz.Application.Evaluating;
 
+internal delegate void ModuleConfigurator(ModuleBuilder module);
+
 internal class RuntimeBuilder
 {
 	private const string NameGlobal = "@";
@@ -11,8 +13,8 @@ internal class RuntimeBuilder
 	public const string NameWorkspace = "@Workspace";
 	public static Scope Workspace { get; } = Location.GetSubscope(NameWorkspace);
 
-	public void DeclareModule(Action<ModuleBuilder> configure)
+	public void DeclareModule(ModuleConfigurator configurator)
 	{
-		configure.Invoke(new ModuleBuilder(Global, Location));
+		configurator.Invoke(new ModuleBuilder(Global, Location));
 	}
 }

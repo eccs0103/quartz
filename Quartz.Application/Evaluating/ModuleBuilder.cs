@@ -4,16 +4,19 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Application.Evaluating;
 
+internal delegate void ClassConfigurator(ClassBuilder type, Class[] generics);
+
 internal class ModuleBuilder(Module module, Scope location)
 {
-	public void DeclareClass(string name, string? @base, IEnumerable<string> generics, Action<ClassBuilder, Class[]> configure)
+	public void DeclareClass(string name, string? @base, IEnumerable<string> generics, ClassConfigurator configurator)
 	{
 		if (generics.Any())
 		{
-			Template template = new(name, generics, (type, args, scope) =>
+			void TemplateConstructor(Class type, IEnumerable<Class> parameters, Scope scope)
 			{
-				configure.Invoke(new ClassBuilder(type, scope), [.. args]);
-			}, location);
+				configurator.Invoke(new ClassBuilder(type, scope), [.. parameters]);
+			}
+			Template template = new(name, generics, TemplateConstructor, location);
 			if (!module.TryRegisterTemplate(template)) throw new AlreadyExistsIssue($"Template '{name}' in {location}", ~Position.Zero);
 			return;
 		}
@@ -25,6 +28,6 @@ internal class ModuleBuilder(Module module, Scope location)
 		if (@base != null) module.TryReadClass(@base, out typeBase);
 		Class type = new(name, scope, typeBase);
 		if (!module.TryRegisterClass(type)) throw new AlreadyExistsIssue($"Class '{name}' in {location}", ~Position.Zero);
-		configure.Invoke(new ClassBuilder(type, scope), []);
+		configurator.Invoke(new ClassBuilder(type, scope), []);
 	}
 }

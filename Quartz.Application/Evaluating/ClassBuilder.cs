@@ -5,7 +5,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Application.Evaluating;
 
-internal delegate Value ClassOperationContent(Value @this, Value[] arguments, Scope scope, Range<Position> range);
+internal delegate Value OperationConfigurator(Value @this, Value[] arguments, Scope scope, Range<Position> range);
 
 internal class ClassBuilder(Class type, Scope location)
 {
@@ -21,7 +21,7 @@ internal class ClassBuilder(Class type, Scope location)
 		if (!type.TryRegisterConstant(name, tag, constant)) throw new AlreadyExistsIssue($"Constant '{name}' in {location}", ~Position.Zero);
 	}
 
-	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, ClassOperationContent content)
+	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, OperationConfigurator configurator)
 	{
 		Scope scope = location.GetSubscope(name);
 		if (!type.TryReadOperator(name, out Operator? @operator))
@@ -32,22 +32,22 @@ internal class ClassBuilder(Class type, Scope location)
 
 		if (type.Name == RuntimeBuilder.NameWorkspace)
 		{
-			Value Wrapper(Value[] arguments, Scope scopeCall, Range<Position> range)
+			Value OperationWrapper(Value[] arguments, Scope scopeCall, Range<Position> range)
 			{
 				Value workspace = new Value<object>(RuntimeBuilder.NameWorkspace, Value.Empty);
-				return content.Invoke(workspace, arguments, scopeCall, range);
+				return configurator.Invoke(workspace, arguments, scopeCall, range);
 			}
-			Operation operation = new(Mangler.Parameters(parameters), parameters, result, Wrapper, scope);
+			Operation operation = new(Mangler.Parameters(parameters), parameters, result, OperationWrapper, scope);
 			if (!type.TryRegisterOperation(name, operation)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 			return;
 		}
 
 		parameters = parameters.Prepend(type.Name);
-		Value WrapperWithSelf(Value[] arguments, Scope scopeCall, Range<Position> range)
+		Value SelfOperationWrapper(Value[] arguments, Scope scopeCall, Range<Position> range)
 		{
-			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
+			return configurator.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
-		Operation operationWithSelf = new(Mangler.Parameters(parameters), parameters, result, WrapperWithSelf, scope);
-		if (!type.TryRegisterOperation(name, operationWithSelf)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
+		Operation selfOperation = new(Mangler.Parameters(parameters), parameters, result, SelfOperationWrapper, scope);
+		if (!type.TryRegisterOperation(name, selfOperation)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 	}
 }
