@@ -12,22 +12,23 @@ internal class ClassBuilder(Class type, Scope location)
 	public void DeclareVariable(string name, string tag, object value)
 	{
 		Value variable = new Value<object>(tag, value);
-		if (!location.TryRegister(name, variable, true)) throw new AlreadyExistsIssue($"Variable '{name}' in {location}", ~Position.Zero);
+		if (!type.TryRegisterVariable(name, variable)) throw new AlreadyExistsIssue($"Variable '{name}' in {location}", ~Position.Zero);
 	}
 
 	public void DeclareConstant(string name, string tag, object value)
 	{
 		Value constant = new Value<object>(tag, value);
-		if (!location.TryRegister(name, constant, false)) throw new AlreadyExistsIssue($"Constant '{name}' in {location}", ~Position.Zero);
+		if (!type.TryRegisterConstant(name, constant)) throw new AlreadyExistsIssue($"Constant '{name}' in {location}", ~Position.Zero);
 	}
 
 	public void DeclareOperation(string name, IEnumerable<string> parameters, string result, ClassOperationContent content)
 	{
 		Scope scope = location.GetSubscope(name);
+		// We explicitly check only the current class scope to avoid modifying base classes
 		if (!location.TryRead(name, out Operator? @operator))
 		{
 			@operator = new Operator(name, location.GetSubscope(name));
-			if (!location.TryRegister(name, new Value<Operator>(TypeConstants.Function, @operator))) throw new AlreadyExistsIssue($"Operator '{name}' in {location}", ~Position.Zero);
+			if (!type.TryRegisterOperator(@operator)) throw new AlreadyExistsIssue($"Operator '{name}' in {location}", ~Position.Zero);
 		}
 
 		if (type.Name == RuntimeBuilder.NameWorkspace)
