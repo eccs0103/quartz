@@ -228,6 +228,32 @@ write("10 < 20: " + ambiguity_left_result.to_string());
 
 write("Complex Calc: " + ((10 + 2) * 5 - 20 / 4).to_string());
 
+// ------------------------------------------------------------
+// [SECTION 12] Characters
+// ------------------------------------------------------------
+
+character_first Character('a');
+character_second Character('b');
+character_symbol Character('!');
+
+write("Char 'a': " + character_first.to_string());
+write("Char 'b': " + character_second.to_string());
+write("Char '!': " + character_symbol.to_string());
+
+write("Char 'a' to number: " + character_first.to_number().to_string());
+write("Char 'b' to number: " + character_second.to_number().to_string());
+
+write("'a' < 'b': " + (character_first < character_second).to_string());
+write("'a' <= 'b': " + (character_first <= character_second).to_string());
+write("'a' > 'b': " + (character_first > character_second).to_string());
+write("'a' >= 'b': " + (character_first >= character_second).to_string());
+
+concatenation_string_char String("Start " + character_first);
+write("String + Char: " + concatenation_string_char);
+
+concatenation_char_string String(character_second + " End");
+write("Char + String: " + concatenation_char_string);
+
 // ============================================================
 // TEST COMPLETE
 // ============================================================

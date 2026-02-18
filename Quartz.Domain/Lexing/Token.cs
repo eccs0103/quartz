@@ -7,6 +7,7 @@ public class Token(Token.Types type, string value, Range<Position> range)
 	public enum Types
 	{
 		Number,
+		Character,
 		String,
 		Identifier,
 		Keyword,

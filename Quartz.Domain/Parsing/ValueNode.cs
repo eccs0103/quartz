@@ -12,6 +12,7 @@ public class ValueNode(string tag, object? value, Range<Position> range) : Node(
 	public override string ToString()
 	{
 		if (Tag == "String") return $"\"{Value}\"";
+		if (Tag == "Character") return $"'{Value}'";
 		if (Tag == "Boolean" && Value is bool boolean) return boolean ? "true" : "false";
 		if (Value is double number) return number.ToString(CultureInfo.InvariantCulture);
 		return Value?.ToString() ?? "null";

@@ -354,6 +354,13 @@ public class Parser
 			walker.Index++;
 			return @string;
 		}
+		case Types.Character:
+		{
+			char value = Regex.Unescape(token.Value[1..^1]).Single();
+			ValueNode character = new("Character", value, token.RangePosition);
+			walker.Index++;
+			return character;
+		}
 		case Types.Identifier: return IdentifierExpressionParse(walker);
 		case Types.Keyword:
 		{

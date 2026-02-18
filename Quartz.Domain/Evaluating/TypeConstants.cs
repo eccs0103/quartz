@@ -6,6 +6,7 @@ public static class TypeConstants
 	public const string Null = "Null";
 	public const string Nullable = "Nullable";
 	public const string Boolean = "Boolean";
+	public const string Character = "Character";
 	public const string Number = "Number";
 	public const string String = "String";
 	public const string Type = "Type";

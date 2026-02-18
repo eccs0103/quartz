@@ -155,11 +155,54 @@ public class Runtime
 					return new Value<string>(TypeConstants.String, result ? "true" : "false");
 				});
 			});
+			module.DeclareClass(TypeConstants.Character, TypeConstants.Any, [], static (type, _) =>
+			{
+				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				{
+					return new Value<string>(TypeConstants.String, @this.As<char>().Content.ToString());
+				});
+				type.DeclareOperation("to_number", [], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				{
+					return new Value<double>(TypeConstants.Number, (double) @this.As<char>().Content);
+				});
+				type.DeclareOperation("<", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				{
+					char other = arguments[0].As<char>().Content;
+					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content < other);
+				});
+				type.DeclareOperation("<=", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				{
+					char other = arguments[0].As<char>().Content;
+					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content <= other);
+				});
+				type.DeclareOperation(">", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				{
+					char other = arguments[0].As<char>().Content;
+					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content > other);
+				});
+				type.DeclareOperation(">=", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				{
+					char other = arguments[0].As<char>().Content;
+					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content >= other);
+				});
+				type.DeclareOperation("+", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
+				{
+					Value<string> other = arguments[0].As<string>();
+					string result = @this.As<char>().Content.ToString() + other.Content;
+					return new Value<string>(TypeConstants.String, result);
+				});
+			});
 			module.DeclareClass(TypeConstants.String, TypeConstants.Any, [], static (type, _) =>
 			{
 				type.DeclareOperation("+", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
 				{
 					Value<string> other = arguments[0].As<string>();
+					string result = @this.As<string>().Content + other.Content;
+					return new Value<string>(TypeConstants.String, result);
+				});
+				type.DeclareOperation("+", [TypeConstants.Character], TypeConstants.String, static (@this, arguments, scope, range) =>
+				{
+					Value<char> other = arguments[0].As<char>();
 					string result = @this.As<string>().Content + other.Content;
 					return new Value<string>(TypeConstants.String, result);
 				});

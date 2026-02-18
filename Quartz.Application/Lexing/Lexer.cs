@@ -14,6 +14,7 @@ public partial class Lexer
 	private static Dictionary<Regex, Types?> Patterns { get; } = new()
 	{
 		{ StringPattern(), Types.String },
+		{ CharacterPattern(), Types.Character },
 		{ WhitespacePattern(), null },
 		{ CommentPattern(), null },
 		{ NumberPattern(), Types.Number },
@@ -53,6 +54,9 @@ public partial class Lexer
 
 	[GeneratedRegex(@"\G""([^""\\]|\\.)*""", RegexOptions.Compiled)]
 	private static partial Regex StringPattern();
+
+	[GeneratedRegex(@"\G'([^'\\]|\\.)'", RegexOptions.Compiled)]
+	private static partial Regex CharacterPattern();
 
 	[GeneratedRegex(@"\G(>=?|<=?|!=|=|\+|-|\*|/|:|\?|&|\||!|\.)", RegexOptions.Compiled)]
 	private static partial Regex OperatorPattern();
