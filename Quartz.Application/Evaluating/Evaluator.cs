@@ -14,13 +14,14 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, IdentifierNode node)
 	{
-		return location.Read(node.Name, node.RangePosition).Value;
+		if (location.TryRead(node.Name, out Variable? variable)) return variable.Value;
+		throw new NotExistIssue($"Variable '{node.Name}' in {location}", node.RangePosition);
 	}
 
 	public Value Evaluate(Scope location, GenericNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		Template template = location.Read<Template>(nodeTarget.Name, nodeTarget.RangePosition);
+		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new NotExistIssue($"Template '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
 		IEnumerable<Class> generics = node.Generics.Select((nodeGeneric) =>
 		{
 			Value value = nodeGeneric.Accept(this, location);
@@ -55,7 +56,8 @@ internal class Evaluator : IEvaluator<Value>
 	{
 		IdentifierNode nodeIdentifier = node.Identifier;
 		Value value = node.Value.Accept(this, location);
-		location.Read(nodeIdentifier.Name, nodeIdentifier.RangePosition).Assign(value, location, nodeIdentifier.RangePosition);
+		if (!location.TryRead(nodeIdentifier.Name, out Variable? variable)) throw new NotExistIssue($"Variable '{nodeIdentifier.Name}' in {location}", nodeIdentifier.RangePosition);
+		variable.Assign(value, location, nodeIdentifier.RangePosition);
 		return Value.Null;
 	}
 
@@ -69,8 +71,8 @@ internal class Evaluator : IEvaluator<Value>
 		}
 		if (node.Target is IdentifierNode nodeTarget)
 		{
-			Operator @operator = location.Read<Operator>(nodeTarget.Name, nodeTarget.RangePosition);
-			Operation operation = @operator.ReadOperation(arguments.Select(result => result.Tag), nodeTarget.RangePosition);
+			if (!location.TryRead(nodeTarget.Name, out Operator? @operator)) throw new NotExistIssue($"Operator '{nodeTarget.Name}' in {location}", nodeTarget.RangePosition);
+			if (!@operator.TryReadOperation(arguments.Select(result => result.Tag), out Operation? operation)) throw new NoOverloadIssue(nodeTarget.Name, Convert.ToByte(arguments.Count()), nodeTarget.RangePosition);
 			Scope scope = location.GetSubscope("Call");
 			return operation.Invoke(arguments, scope, node.RangePosition);
 		}
@@ -80,8 +82,9 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, FieldNode node)
 	{
 		Value target = TypeHelper.Unwrap(node.Target.Accept(this, location));
-		Class type = location.Read<Class>(target.Tag, node.Target.RangePosition);
-		return type.ReadProperty(node.Member.Name, node.RangePosition).Value;
+		if (!location.TryRead(target.Tag, out Class? type)) throw new NotExistIssue($"Type '{target.Tag}' in {location}", node.Target.RangePosition);
+		if (!type.TryReadProperty(node.Member.Name, out Variable? variable)) throw new NotExistIssue($"Variable '{node.Member.Name}' in {location}", node.Member.RangePosition);
+		return variable.Value;
 	}
 
 	public Value Evaluate(Scope location, UnaryOperatorNode node)
@@ -89,8 +92,8 @@ internal class Evaluator : IEvaluator<Value>
 		Node nodeTarget = node.Target;
 		IdentifierNode nodeOperator = node.Operator;
 		Value target = TypeHelper.Unwrap(nodeTarget.Accept(this, location));
-		Class type = location.Read<Class>(target.Tag, nodeTarget.RangePosition);
-		Operation operation = type.ReadOperation(nodeOperator.Name, [target.Tag], nodeOperator.RangePosition);
+		if (!location.TryRead(target.Tag, out Class? type)) throw new NotExistIssue($"Type '{target.Tag}' in {location}", nodeTarget.RangePosition);
+		if (!type.TryReadOperation(nodeOperator.Name, [target.Tag], out Operation? operation)) throw new NoOverloadIssue(nodeOperator.Name, 1, nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([target], scope, node.RangePosition);
 	}
@@ -100,8 +103,8 @@ internal class Evaluator : IEvaluator<Value>
 		IdentifierNode nodeOperator = node.Operator;
 		Value left = TypeHelper.Unwrap(node.Left.Accept(this, location));
 		Value right = TypeHelper.Unwrap(node.Right.Accept(this, location));
-		Class type = location.Read<Class>(left.Tag, node.Left.RangePosition);
-		Operation operation = type.ReadOperation(nodeOperator.Name, [left.Tag, right.Tag], nodeOperator.RangePosition);
+		if (!location.TryRead(left.Tag, out Class? type)) throw new NotExistIssue($"Type '{left.Tag}' in {location}", node.Left.RangePosition);
+		if (!type.TryReadOperation(nodeOperator.Name, [left.Tag, right.Tag], out Operation? operation)) throw new NoOverloadIssue(nodeOperator.Name, 2, nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([left, right], scope, node.RangePosition);
 	}

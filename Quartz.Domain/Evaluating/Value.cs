@@ -22,7 +22,7 @@ public abstract class Value(string tag, object content)
 	{
 		IEnumerable<string> types = arguments.Select(arg => arg.Tag).Prepend(Tag);
 		if (!location.TryRead(Tag, out Class? type)) throw new NotExistIssue($"Type '{Tag}' in {location}", range);
-		Operation operation = type.ReadOperation(name, types, range);
+		if (!type.TryReadOperation(name, types, out Operation? operation)) throw new NoOverloadIssue(name, (byte)types.Count(), range);
 		arguments = arguments.Prepend(this);
 		Value result = operation.Invoke(arguments, location, range);
 		return result;

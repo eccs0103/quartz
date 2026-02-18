@@ -14,11 +14,6 @@ public class Operator(string name, Scope location)
 		return location.TryRegister(operation.Name, new Value<Operation>(TypeConstants.Function, operation));
 	}
 
-	public void RegisterOperation(Operation operation, Range<Position> range)
-	{
-		if (!TryRegisterOperation(operation)) throw new AlreadyExistsIssue($"Operation '{operation.Name}' in {location}", range);
-	}
-
 	public bool TryReadOperation(IEnumerable<string> parameters, [NotNullWhen(true)] out Operation? operation)
 	{
 		if (location.TryRead(Mangler.Parameters(parameters), out operation)) return true;
@@ -39,11 +34,5 @@ public class Operator(string name, Scope location)
 		}
 		operation = null;
 		return false;
-	}
-
-	public Operation ReadOperation(IEnumerable<string> parameters, Range<Position> range)
-	{
-		if (!TryReadOperation(parameters, out Operation? operation)) throw new NotExistIssue($"Operation '{Name}{Mangler.Parameters(parameters)}' in {location}", range);
-		return operation;
 	}
 }

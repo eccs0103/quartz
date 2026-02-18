@@ -38,7 +38,7 @@ internal class ClassBuilder(Class type, Scope location)
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(name, Mangler.Parameters(parameters), parameters, result, Wrapper, scope);
-			@operator.RegisterOperation(operation, ~Position.Zero);
+			if (!@operator.TryRegisterOperation(operation)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 			return;
 		}
 
@@ -48,6 +48,6 @@ internal class ClassBuilder(Class type, Scope location)
 			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
 		Operation operationWithSelf = new(name, Mangler.Parameters(parameters), parameters, result, WrapperWithSelf, scope);
-		@operator.RegisterOperation(operationWithSelf, ~Position.Zero);
+		if (!@operator.TryRegisterOperation(operationWithSelf)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 	}
 }
