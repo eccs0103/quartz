@@ -5,9 +5,8 @@ namespace Quartz.Domain.Evaluating;
 
 public delegate Value OperationContent(Value[] arguments, Scope scope, Range<Position> range);
 
-public class Operation(string @operator, string name, IEnumerable<string> parameters, string result, OperationContent content, Scope location)
+public class Operation(string name, IEnumerable<string> parameters, string result, OperationContent content, Scope location)
 {
-	public string Operator { get; } = @operator;
 	public string Name { get; } = name;
 	public IEnumerable<string> Parameters { get; } = parameters;
 	public string Result { get; } = result;

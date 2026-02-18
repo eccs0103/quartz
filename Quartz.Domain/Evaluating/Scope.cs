@@ -43,9 +43,9 @@ public class Scope
 		return TryRegister(name, value.Tag, value, mutable);
 	}
 
-	public bool TryRegister(string name, string typeTag, Value value, bool mutable = false)
+	public bool TryRegister(string name, string tag, Value value, bool mutable = false)
 	{
-		return Variables.TryAdd(name, new Variable(name, typeTag, value, mutable));
+		return Variables.TryAdd(name, new Variable(name, tag, value, mutable));
 	}
 
 	public bool TryRead(string name, [NotNullWhen(true)] out Variable? variable)
@@ -79,9 +79,10 @@ public class Scope
 		{
 			if (variable.Value is Value<T> typed) yield return typed.Content;
 		}
-		if (Parent != null)
+		if (Parent == null) yield break;
+		foreach (T result in Parent.Scan<T>())
 		{
-			foreach (T result in Parent.Scan<T>()) yield return result;
+			yield return result;
 		}
 	}
 }

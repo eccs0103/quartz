@@ -37,7 +37,7 @@ internal class ClassBuilder(Class type, Scope location)
 				Value workspace = new Value<object>(RuntimeBuilder.NameWorkspace, Value.Empty);
 				return content.Invoke(workspace, arguments, scopeCall, range);
 			}
-			Operation operation = new(name, Mangler.Parameters(parameters), parameters, result, Wrapper, scope);
+			Operation operation = new(Mangler.Parameters(parameters), parameters, result, Wrapper, scope);
 			if (!@operator.TryRegisterOperation(operation)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 			return;
 		}
@@ -47,7 +47,7 @@ internal class ClassBuilder(Class type, Scope location)
 		{
 			return content.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
-		Operation operationWithSelf = new(name, Mangler.Parameters(parameters), parameters, result, WrapperWithSelf, scope);
+		Operation operationWithSelf = new(Mangler.Parameters(parameters), parameters, result, WrapperWithSelf, scope);
 		if (!@operator.TryRegisterOperation(operationWithSelf)) throw new AlreadyExistsIssue($"Operation '{name}' in {location}", ~Position.Zero);
 	}
 }
