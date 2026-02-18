@@ -29,9 +29,9 @@ internal class Evaluator : IEvaluator<Value>
 			if (value.Tag != TypeConstants.Type || value.Content is not Class type) throw new TypeMismatchIssue(TypeConstants.Type, value.Tag, nodeGeneric.RangePosition);
 			return type;
 		});
-		if (location.TryRead(node.Name, out Variable? existing))
+		if (location.TryRead(node.Name, out Variable? variable))
 		{
-			if (existing.Value is Value<Class> type) return type;
+			if (variable.Value is Value<Class> type) return type;
 			throw new InvalidSymbolUsageIssue(node.Name, "Class", node.RangePosition);
 		}
 		Class type2 = template.Assemble(node.Name, generics, node.RangePosition);

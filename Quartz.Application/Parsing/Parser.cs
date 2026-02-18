@@ -367,7 +367,7 @@ public class Parser
 				walker.Index++;
 				return new ValueNode("Null", null, token.RangePosition);
 			}
-			throw new UnexpectedKeywordIssue(token.Value, token.RangePosition);
+			throw new UnexpectedIssue(token.Value, token.RangePosition);
 		}
 		case Types.Bracket:
 		{
@@ -379,9 +379,9 @@ public class Parser
 				walker.Index++;
 				return expression;
 			}
-			throw new UnexpectedTokenIssue(token.Value, token.RangePosition);
+			throw new UnexpectedIssue(token.Value, token.RangePosition);
 		}
-		default: throw new UnexpectedTokenIssue(token.Value, token.RangePosition);
+		default: throw new UnexpectedIssue(token.Value, token.RangePosition);
 		}
 	}
 

@@ -13,7 +13,7 @@ public class Template(string name, IEnumerable<string> generics, TemplateBuilder
 		using IEnumerator<Class> iterator = arguments.GetEnumerator();
 		foreach (string generic in generics)
 		{
-			if (!iterator.MoveNext()) throw new InvalidGenericArgumentCountIssue(generics.Count(), arguments.Count(), range);
+			if (!iterator.MoveNext()) throw new ArgumentCountIssue(Name, generics.Count(), arguments.Count(), range);
 			if (!scope.TryRegister(generic, TypeConstants.Type, new Value<Class>(TypeConstants.Type, iterator.Current))) throw new SymbolAlreadyDeclaredIssue(generic, ~Position.Zero);
 		}
 		if (!Location.TryRead(TypeConstants.Any, out Class? typeBase)) throw new SymbolNotFoundIssue(TypeConstants.Any, "Type class", range);
