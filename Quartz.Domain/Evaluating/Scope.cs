@@ -72,6 +72,19 @@ public class Scope
 		return false;
 	}
 
+	public Variable Read(string name, Range<Position> range)
+	{
+		if (TryRead(name, out Variable? variable)) return variable;
+		throw new NotExistIssue($"Variable '{name}' in {this}", range);
+	}
+
+	public T Read<T>(string name, Range<Position> range)
+		where T : notnull
+	{
+		if (TryRead(name, out T? content)) return content;
+		throw new NotExistIssue($"{typeof(T).Name} '{name}' in {this}", range);
+	}
+
 	public IEnumerable<T> Scan<T>()
 		where T : notnull
 	{
