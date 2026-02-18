@@ -42,43 +42,44 @@ public partial class Lexer
 		type = Types.Keyword;
 	}
 
-	[GeneratedRegex(@"^\s+", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G\s+", RegexOptions.Compiled)]
 	private static partial Regex WhitespacePattern();
 
-	[GeneratedRegex(@"^//[^\r\n]*", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G//[^\r\n]*", RegexOptions.Compiled)]
 	private static partial Regex CommentPattern();
 
-	[GeneratedRegex(@"^\d+(\.\d+)?", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G\d+(\.\d+)?", RegexOptions.Compiled)]
 	private static partial Regex NumberPattern();
 
-	[GeneratedRegex(@"^""([^""\\]|\\.)*""", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G""([^""\\]|\\.)*""", RegexOptions.Compiled)]
 	private static partial Regex StringPattern();
 
-	[GeneratedRegex(@"^(>=?|<=?|!=|=|\+|-|\*|/|:|\?|&|\||!|\.)", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G(>=?|<=?|!=|=|\+|-|\*|/|:|\?|&|\||!|\.)", RegexOptions.Compiled)]
 	private static partial Regex OperatorPattern();
 
-	[GeneratedRegex(@"^[A-z]\w*", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G[A-z]\w*", RegexOptions.Compiled)]
 	private static partial Regex IdentifierPattern();
 
-	[GeneratedRegex(@"^[(){}]", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G[(){}]", RegexOptions.Compiled)]
 	private static partial Regex BracketsPattern();
 
-	[GeneratedRegex(@"^[;,]", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G[;,]", RegexOptions.Compiled)]
 	private static partial Regex SeparatorPattern();
 
 	public Token[] Tokenize(string code)
 	{
 		List<Token> tokens = [];
 		Position begin = new(0, 0);
-		for (StringBuilder text = new(code); text.Length > 0;)
+		int cursor = 0;
+		while (cursor < code.Length)
 		{
 			bool hasChanges = false;
 			foreach ((Regex regex, Types? unknown) in Patterns)
 			{
-				Match match = regex.Match(text.ToString());
-				if (!match.Success) continue;
+				Match match = regex.Match(code, cursor);
+				if (!match.Success || match.Index != cursor) continue;
 				(string value, int length) = match;
-				text.Remove(0, length);
+				cursor += length;
 
 				MutablePosition position = new(begin);
 				Position end = position.Increment(value.Take(length - 1)).ToImmutable();
@@ -92,7 +93,7 @@ public partial class Lexer
 				hasChanges = true;
 				break;
 			}
-			if (!hasChanges) throw new UnexpectedCharacterIssue(text[0], ~begin);
+			if (!hasChanges) throw new UnexpectedCharacterIssue(code.First(), ~begin);
 		}
 		return [.. tokens];
 	}

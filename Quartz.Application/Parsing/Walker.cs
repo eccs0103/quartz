@@ -22,9 +22,9 @@ internal class Walker(Token[] tokens, Range<uint> range)
 		set => IndexWrapper.Value = value;
 	}
 	public bool InRange => Max(RangeIndex.Begin, 0) <= Index && Index < Min(Tokens.Length, RangeIndex.End);
-	public Range<Position> RangePosition { get; } = (tokens.FirstOrDefault()?.RangePosition.Begin ?? Position.Zero) >> (tokens.LastOrDefault()?.RangePosition.End ?? Position.Zero);
+	public Range<Position> RangePosition => (Tokens.Length > RangeIndex.Begin ? Tokens[RangeIndex.Begin].RangePosition.Begin : Position.Zero) >> (Tokens.Length > 0 && RangeIndex.End > 0 && RangeIndex.End <= Tokens.Length ? Tokens[RangeIndex.End - 1].RangePosition.End : Position.Zero);
 
-	public Walker(Token[] tokens) : this(tokens, new(0, Convert.ToUInt32(tokens.Length)))
+	public Walker(Token[] tokens) : this(tokens, new(0, (uint) tokens.Length))
 	{
 	}
 
