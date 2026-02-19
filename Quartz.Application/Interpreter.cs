@@ -58,7 +58,6 @@ public class Interpreter(Interpreter.Options options)
 
 	public string GetSystemHeader()
 	{
-		Runtime _ = Runtime;
-		return SystemDetails.Generate();
+		return SystemDetails.Generate(Runtime);
 	}
 }

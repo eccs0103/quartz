@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using Quartz.Application.Evaluating;
@@ -8,142 +9,160 @@ namespace Quartz.Application.Metadata;
 
 public static class SystemDetails
 {
-	private const string Indent = "\t";
-	private const string NewLine = "\n";
-
-	public static string Generate()
+	public static string Generate(Runtime runtime)
 	{
 		StringBuilder builder = new();
-		Scope globalScope = GetGlobalScope();
-		IEnumerable<Variable> variables = GetVariables(globalScope);
+		Scope globalScope = GetGlobalScope(runtime);
+		IEnumerable<Variable> variables = GetVariables(globalScope).OrderBy(variable => variable.Name);
 
 		List<Class> classes = [];
 		List<Template> templates = [];
-		Class? workspaceClass = null;
+		Class? workspace = null;
 
 		foreach (Variable variable in variables)
 		{
-			if (IsType(variable, out Class? classType))
+			if (IsType(variable, out Class? type))
 			{
-				if (classType.Name == TypeConstants.Workspace)
+				if (type.Name == TypeConstants.Workspace)
 				{
-					workspaceClass = classType;
+					workspace = type;
 					continue;
 				}
 
-				classes.Add(classType);
+				classes.Add(type);
 				continue;
 			}
 
 			if (IsTemplate(variable, out Template? template))
 			{
 				templates.Add(template);
+				continue;
 			}
 		}
 
 		foreach (Class type in classes)
 		{
 			builder.Append(FormatClass(type));
-			builder.Append(NewLine);
+			builder.Append(Environment.NewLine);
 		}
 
 		foreach (Template template in templates)
 		{
 			builder.Append(FormatTemplate(template));
-			builder.Append(NewLine);
+			builder.Append(Environment.NewLine);
 		}
 
-		// Print Workspace last
-		if (workspaceClass is not null)
+		if (workspace != null)
 		{
-			builder.Append(FormatClass(workspaceClass, "workspace"));
+			builder.Append(FormatClass(workspace, "workspace"));
 		}
 
 		return builder.ToString();
 	}
 
-	private static string FormatClass(Class type, string? displayName = null)
+	private static string FormatClass(Class type, string? alias = null)
 	{
-		StringBuilder content = new();
-		string name = displayName ?? type.Name;
-		Class? baseClass = GetBaseClass(type);
-		string baseName = baseClass?.Name ?? TypeConstants.Any;
-
-		content.Append(name);
-
-		if (baseClass is not null || type.Name != TypeConstants.Any)
+		StringBuilder builder = new();
+		string name = alias ?? type.Name;
+		Class? typeBase = GetBaseClass(type);
+		string @base = typeBase?.Name ?? TypeConstants.Any;
+		builder.Append(name);
+		if (typeBase != null || type.Name != TypeConstants.Any)
 		{
-			string displayBaseName = baseName == TypeConstants.Workspace ? "workspace" : baseName;
-			content.Append($" from {displayBaseName}");
+			builder.Append(" from ");
+			builder.Append(@base == TypeConstants.Workspace ? "workspace" : @base);
 		}
-
-		content.AppendLine(" {");
-
+		builder.AppendLine(" {");
 		Scope scope = GetScope(type);
 		IEnumerable<Variable> variables = GetVariables(scope);
 		HashSet<string> signatures = [];
-
 		foreach (Variable variable in variables)
 		{
-			if (IsOperator(variable, out Operator? op))
+			if (IsOperator(variable, out Operator? щзукфещк))
 			{
-				Scope opScope = GetScope(op);
+				Scope opScope = GetScope(щзукфещк);
 				foreach (Variable opVar in GetVariables(opScope))
 				{
 					if (!IsOperation(opVar, out Operation? operation)) continue;
-
-					string formatted = FormatOperation(op.Name, operation, type.Name);
-					if (signatures.Add(formatted))
-					{
-						content.AppendLine($"{Indent}{formatted};");
-					}
+					string formatted = FormatOperation(щзукфещк.Name, operation, type.Name);
+					if (!signatures.Add(formatted)) continue;
+					builder.Append('\t');
+					builder.Append(formatted);
+					builder.AppendLine(";");
 				}
 				continue;
 			}
-
 			if (!variable.Name.StartsWith(TypeConstants.Type) && !variable.Name.StartsWith(TypeConstants.Template))
 			{
-				content.AppendLine($"{Indent}{variable.Name} {variable.Tag};");
+				builder.Append('\t');
+				builder.Append(variable.Name);
+				builder.Append(' ');
+				builder.Append(variable.Tag);
+				builder.AppendLine(";");
 			}
 		}
 
-		content.AppendLine("}");
-		return content.ToString();
+		builder.AppendLine("}");
+		return builder.ToString();
 	}
 
 	private static string FormatTemplate(Template template)
 	{
+		StringBuilder builder = new();
 		string name = template.Name;
 		IEnumerable<string> generics = GetGenerics(template);
-		string genericsStr = string.Join(", ", generics);
-		string header = !string.IsNullOrEmpty(genericsStr) ? $"{name}<{genericsStr}>" : name;
 
-		return $"{header} from {TypeConstants.Any} {{\n}}";
-	}
+		builder.Append(name);
 
-	private static string FormatOperation(string name, Operation operation, string className)
-	{
-		List<string> parameters = operation.Parameters.ToList();
-
-		if (className != TypeConstants.Workspace && parameters.Count > 0)
+		using IEnumerator<string> iterator = generics.GetEnumerator();
+		if (iterator.MoveNext())
 		{
-			parameters.RemoveAt(0);
+			builder.Append('<');
+			builder.Append(iterator.Current);
+			while (iterator.MoveNext())
+			{
+				builder.Append(", ");
+				builder.Append(iterator.Current);
+			}
+			builder.Append('>');
 		}
 
+		builder.Append(" from ");
+		builder.Append(TypeConstants.Any);
+		builder.AppendLine(" {");
+		builder.AppendLine("}");
+
+		return builder.ToString();
+	}
+
+	private static string FormatOperation(string name, Operation operation, string type)
+	{
+		List<string> parameters = operation.Parameters.ToList();
+		if (type != TypeConstants.Workspace && parameters.Count > 0) parameters.RemoveAt(0);
 		string args = string.Join(", ", parameters.Select(FormatParameter));
 		return $"{name}({args}) {operation.Result}";
 	}
 
 	private static string FormatParameter(string type)
 	{
-		string typeName = type == TypeConstants.Workspace ? "workspace" : type;
-		return $"other {typeName}";
+		return $"other {(type == TypeConstants.Workspace ? "workspace" : type)}";
 	}
 
-	private static Scope GetGlobalScope()
+	private static Scope GetGlobalScope(Runtime runtime)
 	{
-		PropertyInfo? property = typeof(RuntimeBuilder).GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Static);
-		return (Scope?) property?.GetValue(null) ?? throw new InvalidOperationException("Could not access Global Scope");
+		PropertyInfo? property = typeof(Runtime).GetProperty("Builder", BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new InvalidOperationException("Could not find Builder property on Runtime.");
+		object? builder = property.GetValue(runtime) ?? throw new InvalidOperationException("Runtime Builder is null.");
+
+		Type typeBuilder = builder.GetType();
+		PropertyInfo? location = typeBuilder.GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Static);
+
+		if (location == null)
+		{
+			FieldInfo? fieldLocation = typeBuilder.GetField("Location", BindingFlags.NonPublic | BindingFlags.Static);
+			return (Scope?) fieldLocation?.GetValue(null) ?? throw new InvalidOperationException("Could not find Location on Builder.");
+		}
+
+		return (Scope?) location.GetValue(null) ?? throw new InvalidOperationException("Global Scope is null.");
 	}
 
 	private static Scope GetScope(object container)
@@ -157,22 +176,14 @@ public static class SystemDetails
 		PropertyInfo? property = typeof(Scope).GetProperty("Variables", BindingFlags.NonPublic | BindingFlags.Instance);
 		IDictionary? variables = (IDictionary?) property?.GetValue(scope);
 
-		if (variables is null)
+		if (variables == null)
 		{
-			// Fallback to field if property is not available (e.g. if implementation details change slightly or property is not auto-implemented in expected way)
-			FieldInfo? field = typeof(Scope).GetField("Variables", BindingFlags.NonPublic | BindingFlags.Instance)
-				?? typeof(Scope).GetField("<Variables>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-
-			if (field is not null)
-			{
-				variables = (IDictionary?) field.GetValue(scope);
-			}
+			FieldInfo? field = typeof(Scope).GetField("Variables", BindingFlags.NonPublic | BindingFlags.Instance);
+			if (field == null) yield break;
+			variables = (IDictionary?) field.GetValue(scope);
 		}
 
-		if (variables is null)
-		{
-			yield break;
-		}
+		if (variables == null) yield break;
 
 		foreach (DictionaryEntry entry in variables)
 		{
@@ -189,12 +200,8 @@ public static class SystemDetails
 		foreach (FieldInfo field in fields)
 		{
 			if (field.FieldType != typeof(Class)) continue;
-
-			Class? potentialBase = (Class?) field.GetValue(type);
-			if (potentialBase != null && potentialBase != type)
-			{
-				return potentialBase;
-			}
+			Class? @base = (Class?) field.GetValue(type);
+			if (@base != null && @base != type) return @base;
 		}
 
 		return null;
@@ -218,46 +225,48 @@ public static class SystemDetails
 		return Enumerable.Empty<string>();
 	}
 
-	private static string GetVariableName(Variable variable) => variable.Name;
-
-	private static bool IsType(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Class? classType)
+	private static bool IsType(Variable variable, [NotNullWhen(true)] out Class? type)
 	{
-		if (variable.Value.Tag == TypeConstants.Type && variable.Value.Content is Class c)
+		Value value = variable.Value;
+		if (value.Tag == TypeConstants.Type && value.Content is Class type2)
 		{
-			classType = c;
+			type = type2;
 			return true;
 		}
-		classType = null;
+		type = null;
 		return false;
 	}
 
-	private static bool IsTemplate(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Template? template)
+	private static bool IsTemplate(Variable variable, [NotNullWhen(true)] out Template? template)
 	{
-		if (variable.Value.Tag == TypeConstants.Template && variable.Value.Content is Template t)
+		Value value = variable.Value;
+		if (value.Tag == TypeConstants.Template && value.Content is Template template2)
 		{
-			template = t;
+			template = template2;
 			return true;
 		}
 		template = null;
 		return false;
 	}
 
-	private static bool IsOperator(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Operator? op)
+	private static bool IsOperator(Variable variable, [NotNullWhen(true)] out Operator? @operator)
 	{
-		if (variable.Value.Tag == TypeConstants.Function && variable.Value.Content is Operator o)
+		Value value = variable.Value;
+		if (value.Tag == TypeConstants.Function && value.Content is Operator operator2)
 		{
-			op = o;
+			@operator = operator2;
 			return true;
 		}
-		op = null;
+		@operator = null;
 		return false;
 	}
 
-	private static bool IsOperation(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Operation? operation)
+	private static bool IsOperation(Variable variable, [NotNullWhen(true)] out Operation? operation)
 	{
-		if (variable.Value.Tag == TypeConstants.Function && variable.Value.Content is Operation o)
+		Value value = variable.Value;
+		if (value.Tag == TypeConstants.Function && value.Content is Operation operation2)
 		{
-			operation = o;
+			operation = operation2;
 			return true;
 		}
 		operation = null;

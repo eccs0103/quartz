@@ -1,22 +1,22 @@
 Any {
-	= (other Any) Boolean;
-	!= (other Any) Boolean;
+	=(other Any) Boolean;
+	!=(other Any) Boolean;
 	is_equal(other Any) Boolean;
 	to_string() String;
 }
 
 Boolean from Any {
 	!() Boolean;
-	& (other Boolean) Boolean;
-	| (other Boolean) Boolean;
+	&(other Boolean) Boolean;
+	|(other Boolean) Boolean;
 }
 
 Character from Any {
 	to_number() Number;
-	< (other Character) Boolean;
-	<= (other Character) Boolean;
-	> (other Character) Boolean;
-	>= (other Character) Boolean;
+	<(other Character) Boolean;
+	<=(other Character) Boolean;
+	>(other Character) Boolean;
+	>=(other Character) Boolean;
 	+(other String) String;
 }
 
@@ -32,11 +32,11 @@ Number from Any {
 	-() Number;
 	-(other Number) Number;
 	*(other Number) Number;
-	/ (other Number) Number;
-	< (other Number) Boolean;
-	<= (other Number) Boolean;
-	> (other Number) Boolean;
-	>= (other Number) Boolean;
+	/(other Number) Number;
+	<(other Number) Boolean;
+	<=(other Number) Boolean;
+	>(other Number) Boolean;
+	>=(other Number) Boolean;
 }
 
 String from Any {
