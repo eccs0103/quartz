@@ -147,34 +147,34 @@ while (counter <= 5) {
 
 #### Break statement
 ```
-i Number(1);
-while (i <= 10) {
-	write(i);
-	if (i = 5) {
+index Number(1);
+while (index <= 10) {
+	write(index);
+	if (index = 5) {
 		break;
 	}
-	i : i + 1;
+	index : index + 1;
 }
 write("Loop ended");
 ```
 
 #### Continue statement
 ```
-i Number(0);
-while (i < 5) {
-	i : i + 1;
-	if (i = 3) {
+index Number(0);
+while (index < 5) {
+	index : index + 1;
+	if (index = 3) {
 		continue;
 	}
-	write(i);  // prints 1, 2, 4, 5 (skips 3)
+	write(index);  // prints 1, 2, 4, 5 (skips 3)
 }
 ```
 
 #### For loop
 ```
 sum Number(0);
-for (n Number in range(1, 6)) {
-	sum : sum + n;
+for (number Number in range(1, 6)) {
+	sum : sum + number;
 }
 write("Sum 1 to 5: " + sum.to_string());  // 15
 ```
@@ -183,13 +183,13 @@ write("Sum 1 to 5: " + sum.to_string());  // 15
 
 #### Calculate factorial
 ```
-n Number(5);
+number Number(5);
 result Number(1);
-i Number(1);
+index Number(1);
 
-while (i <= n) {
-	result : result * i;
-	i : i + 1;
+while (index <= number) {
+	result : result * index;
+	index : index + 1;
 }
 write("Factorial: ");
 write(result);  // 120
@@ -350,10 +350,10 @@ write("Decimal: " + value.to_string());
 #### Sequences and iteration
 ```
 write("Even numbers from 0 to 9:");
-for (n Number in range(10)) {
-	remainder Number(n - (n / 2) * 2);
+for (number Number in range(10)) {
+	remainder Number(number - (number / 2) * 2);
 	if (remainder = 0) {
-		write(n.to_string());
+		write(number.to_string());
 	}
 }
 ```
