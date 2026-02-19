@@ -58,8 +58,6 @@ public class Interpreter(Interpreter.Options options)
 
 	public string GetSystemHeader()
 	{
-		// Access Runtime to ensure static initialization runs
-		Runtime? _ = Runtime;
 		return SystemDetails.Generate();
 	}
 }

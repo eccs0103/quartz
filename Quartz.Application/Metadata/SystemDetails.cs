@@ -8,29 +8,24 @@ namespace Quartz.Application.Metadata;
 
 public static class SystemDetails
 {
+	private const string Indent = "\t";
+	private const string NewLine = "\n";
+
 	public static string Generate()
 	{
 		StringBuilder builder = new();
+		Scope globalScope = GetGlobalScope();
+		IEnumerable<Variable> variables = GetVariables(globalScope).OrderBy(GetVariableName);
 
-		Type runtimeBuilderType = typeof(RuntimeBuilder);
-		PropertyInfo? locationProperty = runtimeBuilderType.GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Static);
-
-		if (locationProperty == null) return "Error: Could not find Location property on RuntimeBuilder.";
-		if (locationProperty.GetValue(null) is not Scope globalScope) return "Error: Could not get value of Location property.";
-
-		// Order: Standard classes, Templates, then Workspace at the end.
-		var globalVariables = GetVariables(globalScope).OrderBy(v => v.Name);
-
-		// Separate categories
-		List<Class> classes = new();
-		List<Template> templates = new();
+		List<Class> classes = [];
+		List<Template> templates = [];
 		Class? workspaceClass = null;
 
-		foreach (var variable in globalVariables)
+		foreach (Variable variable in variables)
 		{
-			if (variable.Value.Tag == TypeConstants.Type && variable.Value.Content is Class classType)
+			if (IsType(variable, out Class? classType))
 			{
-				if (classType.Name == TypeConstants.Workspace)
+				if (IsWorkspace(classType))
 				{
 					workspaceClass = classType;
 				}
@@ -39,31 +34,28 @@ public static class SystemDetails
 					classes.Add(classType);
 				}
 			}
-			else if (variable.Value.Tag == TypeConstants.Template && variable.Value.Content is Template template)
+			else if (IsTemplate(variable, out Template? template))
 			{
 				templates.Add(template);
 			}
 		}
 
-		// Print Classes
-		foreach (var type in classes)
+		foreach (Class type in classes)
 		{
-			builder.AppendLine(FormatClass(type));
-			builder.AppendLine();
+			builder.Append(FormatClass(type));
+			builder.Append(NewLine);
 		}
 
-		// Print Templates
-		foreach (var template in templates)
+		foreach (Template template in templates)
 		{
-			builder.AppendLine(FormatTemplate(template));
-			builder.AppendLine();
+			builder.Append(FormatTemplate(template));
+			builder.Append(NewLine);
 		}
 
 		// Print Workspace last
-		if (workspaceClass != null)
+		if (workspaceClass is not null)
 		{
-			// Use "workspace" alias for display, but keep original name internally logic consistent
-			builder.AppendLine(FormatClass(workspaceClass, "workspace"));
+			builder.Append(FormatClass(workspaceClass, "workspace"));
 		}
 
 		return builder.ToString();
@@ -73,80 +65,47 @@ public static class SystemDetails
 	{
 		StringBuilder content = new();
 		string name = displayName ?? type.Name;
-
-		// Base Class Logic
 		Class? baseClass = GetBaseClass(type);
 		string baseName = baseClass?.Name ?? TypeConstants.Any;
 
-		// If type is Any (no base), just print name.
-		// If type is Workspace, base is usually Any but let's just say "from Any" if it has base.
-		if (baseClass == null && type.Name == TypeConstants.Any)
+		content.Append(name);
+
+		if (baseClass is not null || type.Name != TypeConstants.Any)
 		{
-			content.Append($"{name}");
-		}
-		else
-		{
-			// Display base name cleanly (e.g. if base is Workspace, print "workspace")
 			string displayBaseName = baseName == TypeConstants.Workspace ? "workspace" : baseName;
-			content.Append($"{name} from {displayBaseName}");
+			content.Append($" from {displayBaseName}");
 		}
 
 		content.AppendLine(" {");
 
-		Scope? classScope = GetScope(type);
-		if (classScope != null)
+		Scope scope = GetScope(type);
+		IEnumerable<Variable> variables = GetVariables(scope);
+		HashSet<string> signatures = [];
+
+		foreach (Variable variable in variables)
 		{
-			var variables = GetVariables(classScope);
-
-			// To avoid duplicates logic:
-			// We need to group overloading operations or distinct them.
-			// If multiple overloads exist for same name.
-
-			// First collect all members
-			List<string> members = new();
-
-			foreach (var variable in variables)
+			if (IsOperator(variable, out Operator? op))
 			{
-				if (variable.Value.Tag == TypeConstants.Function && variable.Value.Content is Operator op)
+				Scope opScope = GetScope(op);
+				foreach (Variable opVar in GetVariables(opScope))
 				{
-					Scope? opScope = GetScope(op);
-					if (opScope != null)
+					if (IsOperation(opVar, out Operation? operation))
 					{
-						var opVariables = GetVariables(opScope);
-						foreach (var opVar in opVariables)
+						string formatted = FormatOperation(op.Name, operation, type.Name);
+						if (signatures.Add(formatted))
 						{
-							if (opVar.Value.Tag == TypeConstants.Function && opVar.Value.Content is Operation operation)
-							{
-								members.Add($"\t{FormatOperation(op.Name, operation, type.Name)};");
-							}
+							content.AppendLine($"{Indent}{formatted};");
 						}
 					}
 				}
-				else if (variable.Value.Tag != TypeConstants.Type && variable.Value.Tag != TypeConstants.Template)
-				{
-					members.Add($"\t{variable.Name} {variable.Value.Tag};");
-				}
 			}
-
-			// Deduplicate strings as a simple fix for "Duplicate to_string" issue.
-			// Operations might be added multiple times if traverse logic is flawed? 
-			// Or maybe `GetVariables` returns duplicates? Scope.Variables is Dictionary, so keys are unique.
-			// But Operator.Location (Scope) holds operations. Operations have different names (mangled params).
-			// Wait, Operation name in Scope is MANGLED with types.
-			// e.g. "to_string()" vs "to_string(Number)".
-			// But `FormatOperation` formats them nicely.
-			// If we have distinct mangled names, why duplication in output?
-			// Maybe `GetVariables` logic? Or `Runtime` registers same operation multiple times?
-			// Ah, `Evaluator.cs` or `Runtime.cs` might have multiple declarations?
-			// Let's assume distinct output lines.
-
-			foreach (var member in members.Distinct())
+			else if (!variable.Name.StartsWith(TypeConstants.Type) && !variable.Name.StartsWith(TypeConstants.Template))
 			{
-				content.AppendLine(member);
+				content.AppendLine($"{Indent}{variable.Name} {variable.Tag};");
 			}
 		}
 
-		content.Append("}");
+		content.AppendLine("}");
 		return content.ToString();
 	}
 
@@ -154,112 +113,163 @@ public static class SystemDetails
 	{
 		string name = template.Name;
 		IEnumerable<string> generics = GetGenerics(template);
-
 		string genericsStr = string.Join(", ", generics);
 		string header = !string.IsNullOrEmpty(genericsStr) ? $"{name}<{genericsStr}>" : name;
 
 		return $"{header} from {TypeConstants.Any} {{\n}}";
 	}
 
-	private static string FormatOperation(string opName, Operation operation, string className)
+	private static string FormatOperation(string name, Operation operation, string className)
 	{
-		var paramsList = operation.Parameters.ToList();
+		List<string> parameters = operation.Parameters.ToList();
 
-		// Remove 'this' parameter
-		// For Workspace, there is no 'this' parameter in the operation definition usually.
-		// For Class methods, the first parameter is the instance.
-		if (className != TypeConstants.Workspace && paramsList.Count > 0)
+		if (className != TypeConstants.Workspace && parameters.Count > 0)
 		{
-			paramsList.RemoveAt(0);
+			parameters.RemoveAt(0);
 		}
 
-		string args = string.Join(", ", paramsList.Select((p) =>
-		{
-			string typeName = p == TypeConstants.Workspace ? "workspace" : p;
-			return $"other {typeName}";
-		}));
-
-		return $"{opName}({args}) {operation.Result}";
+		string args = string.Join(", ", parameters.Select(FormatParameter));
+		return $"{name}({args}) {operation.Result}";
 	}
 
-	private static IEnumerable<string> GetGenerics(Template template)
+	private static string FormatParameter(string type)
 	{
-		// Try Property
-		PropertyInfo? prop = typeof(Template).GetProperty("Generics");
-		if (prop != null) return (IEnumerable<string>?) prop.GetValue(template) ?? Enumerable.Empty<string>();
+		string typeName = type == TypeConstants.Workspace ? "workspace" : type;
+		return $"other {typeName}";
+	}
 
-		// Try Field
-		FieldInfo[] fields = typeof(Template).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-		foreach (var field in fields)
+	private static Scope GetGlobalScope()
+	{
+		PropertyInfo? property = typeof(RuntimeBuilder).GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Static);
+		return (Scope?)property?.GetValue(null) ?? throw new InvalidOperationException("Could not access Global Scope");
+	}
+
+	private static Scope GetScope(object container)
+	{
+		PropertyInfo? property = typeof(Container).GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Instance);
+		return (Scope?)property?.GetValue(container) ?? throw new InvalidOperationException($"Could not access Scope for {container}");
+	}
+
+	private static IEnumerable<Variable> GetVariables(Scope scope)
+	{
+		PropertyInfo? property = typeof(Scope).GetProperty("Variables", BindingFlags.NonPublic | BindingFlags.Instance);
+		IDictionary? variables = (IDictionary?)property?.GetValue(scope);
+		
+		if (variables is null)
 		{
-			if (typeof(IEnumerable<string>).IsAssignableFrom(field.FieldType) && field.FieldType != typeof(string))
+			// Fallback to field if property is not available (e.g. if implementation details change slightly or property is not auto-implemented in expected way)
+			FieldInfo? field = typeof(Scope).GetField("Variables", BindingFlags.NonPublic | BindingFlags.Instance)
+				?? typeof(Scope).GetField("<Variables>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+			
+			if (field is not null)
 			{
-				var val = field.GetValue(template);
-				if (val != null) return (IEnumerable<string>) val;
+				variables = (IDictionary?)field.GetValue(scope);
 			}
 		}
-		return Enumerable.Empty<string>();
+
+		if (variables is null)
+		{
+			yield break;
+		}
+
+		foreach (DictionaryEntry entry in variables)
+		{
+			if (entry.Value is Variable variable)
+			{
+				yield return variable;
+			}
+		}
 	}
 
 	private static Class? GetBaseClass(Class type)
 	{
-		// Access via reflection on private field.
-		// Inspect all fields of type Class.
-		// We know 'Any' has no base.
 		if (type.Name == TypeConstants.Any) return null;
 
 		FieldInfo[] fields = typeof(Class).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
-		foreach (var field in fields)
+		foreach (FieldInfo field in fields)
 		{
 			if (field.FieldType == typeof(Class))
 			{
-				var value = field.GetValue(type) as Class;
-				if (value != null && value != type) return value;
-			}
-		}
-		return null; // Should ideally return Any if not found? 
-					 // But if field is null, it means no base.
-	}
-
-	private static Scope? GetScope(object container)
-	{
-		Type containerType = typeof(Container);
-		PropertyInfo? prop = containerType.GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Instance);
-		return prop?.GetValue(container) as Scope;
-	}
-
-	private static List<Variable> GetVariables(Scope scope)
-	{
-		// Using Property approach usually works
-		PropertyInfo? prop = typeof(Scope).GetProperty("Variables", BindingFlags.NonPublic | BindingFlags.Instance);
-		var dict = prop?.GetValue(scope) as IDictionary;
-
-		List<Variable> result = new();
-		if (dict != null)
-		{
-			foreach (var val in dict.Values)
-			{
-				if (val is Variable v) result.Add(v);
-			}
-		}
-		else
-		{
-			// Backing field fallback
-			FieldInfo? field = typeof(Scope).GetField("Variables", BindingFlags.NonPublic | BindingFlags.Instance)
-				?? typeof(Scope).GetField("<Variables>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-
-			if (field != null)
-			{
-				dict = field.GetValue(scope) as IDictionary;
-				if (dict != null)
+				Class? potentialBase = (Class?)field.GetValue(type);
+				// Ensure we aren't picking up something else, though Class only has one Class field usually (base)
+				if (potentialBase != null && potentialBase != type)
 				{
-					foreach (var val in dict.Values)
-					{
-						if (val is Variable v) result.Add(v);
-					}
+					return potentialBase;
 				}
 			}
 		}
-		return result;
+		
+		return null;
+	}
+
+	private static IEnumerable<string> GetGenerics(Template template)
+	{
+		FieldInfo[] fields = typeof(Template).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+		foreach (FieldInfo field in fields)
+		{
+			if (typeof(IEnumerable<string>).IsAssignableFrom(field.FieldType) && field.FieldType != typeof(string))
+			{
+				return (IEnumerable<string>?)field.GetValue(template) ?? Enumerable.Empty<string>();
+			}
+		}
+		
+		PropertyInfo? property = typeof(Template).GetProperty("Generics");
+		if (property != null)
+		{
+			return (IEnumerable<string>?)property.GetValue(template) ?? Enumerable.Empty<string>();
+		}
+
+		return Enumerable.Empty<string>();
+	}
+
+	private static string GetVariableName(Variable variable) => variable.Name;
+
+	private static bool IsType(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Class? classType)
+	{
+		if (variable.Value.Tag == TypeConstants.Type && variable.Value.Content is Class c)
+		{
+			classType = c;
+			return true;
+		}
+		classType = null;
+		return false;
+	}
+
+	private static bool IsTemplate(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Template? template)
+	{
+		if (variable.Value.Tag == TypeConstants.Template && variable.Value.Content is Template t)
+		{
+			template = t;
+			return true;
+		}
+		template = null;
+		return false;
+	}
+
+	private static bool IsWorkspace(Class classType)
+	{
+		return classType.Name == TypeConstants.Workspace;
+	}
+
+	private static bool IsOperator(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Operator? op)
+	{
+		if (variable.Value.Tag == TypeConstants.Function && variable.Value.Content is Operator o)
+		{
+			op = o;
+			return true;
+		}
+		op = null;
+		return false;
+	}
+
+	private static bool IsOperation(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Operation? operation)
+	{
+		if (variable.Value.Tag == TypeConstants.Function && variable.Value.Content is Operation o)
+		{
+			operation = o;
+			return true;
+		}
+		operation = null;
+		return false;
 	}
 }
