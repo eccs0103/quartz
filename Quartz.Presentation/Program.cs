@@ -18,7 +18,7 @@ class Program
 			return;
 		}
 
-		if (args.Contains("--header"))
+		if (args.SingleOrDefault() == "--header")
 		{
 			Console.WriteLine(interpreter.GetSystemHeader());
 		}

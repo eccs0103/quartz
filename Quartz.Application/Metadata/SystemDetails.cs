@@ -15,7 +15,7 @@ public static class SystemDetails
 	{
 		StringBuilder builder = new();
 		Scope globalScope = GetGlobalScope();
-		IEnumerable<Variable> variables = GetVariables(globalScope).OrderBy(GetVariableName);
+		IEnumerable<Variable> variables = GetVariables(globalScope);
 
 		List<Class> classes = [];
 		List<Template> templates = [];
@@ -25,16 +25,17 @@ public static class SystemDetails
 		{
 			if (IsType(variable, out Class? classType))
 			{
-				if (IsWorkspace(classType))
+				if (classType.Name == TypeConstants.Workspace)
 				{
 					workspaceClass = classType;
+					continue;
 				}
-				else
-				{
-					classes.Add(classType);
-				}
+
+				classes.Add(classType);
+				continue;
 			}
-			else if (IsTemplate(variable, out Template? template))
+
+			if (IsTemplate(variable, out Template? template))
 			{
 				templates.Add(template);
 			}
@@ -89,17 +90,18 @@ public static class SystemDetails
 				Scope opScope = GetScope(op);
 				foreach (Variable opVar in GetVariables(opScope))
 				{
-					if (IsOperation(opVar, out Operation? operation))
+					if (!IsOperation(opVar, out Operation? operation)) continue;
+
+					string formatted = FormatOperation(op.Name, operation, type.Name);
+					if (signatures.Add(formatted))
 					{
-						string formatted = FormatOperation(op.Name, operation, type.Name);
-						if (signatures.Add(formatted))
-						{
-							content.AppendLine($"{Indent}{formatted};");
-						}
+						content.AppendLine($"{Indent}{formatted};");
 					}
 				}
+				continue;
 			}
-			else if (!variable.Name.StartsWith(TypeConstants.Type) && !variable.Name.StartsWith(TypeConstants.Template))
+
+			if (!variable.Name.StartsWith(TypeConstants.Type) && !variable.Name.StartsWith(TypeConstants.Template))
 			{
 				content.AppendLine($"{Indent}{variable.Name} {variable.Tag};");
 			}
@@ -141,29 +143,29 @@ public static class SystemDetails
 	private static Scope GetGlobalScope()
 	{
 		PropertyInfo? property = typeof(RuntimeBuilder).GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Static);
-		return (Scope?)property?.GetValue(null) ?? throw new InvalidOperationException("Could not access Global Scope");
+		return (Scope?) property?.GetValue(null) ?? throw new InvalidOperationException("Could not access Global Scope");
 	}
 
 	private static Scope GetScope(object container)
 	{
 		PropertyInfo? property = typeof(Container).GetProperty("Location", BindingFlags.NonPublic | BindingFlags.Instance);
-		return (Scope?)property?.GetValue(container) ?? throw new InvalidOperationException($"Could not access Scope for {container}");
+		return (Scope?) property?.GetValue(container) ?? throw new InvalidOperationException($"Could not access Scope for {container}");
 	}
 
 	private static IEnumerable<Variable> GetVariables(Scope scope)
 	{
 		PropertyInfo? property = typeof(Scope).GetProperty("Variables", BindingFlags.NonPublic | BindingFlags.Instance);
-		IDictionary? variables = (IDictionary?)property?.GetValue(scope);
-		
+		IDictionary? variables = (IDictionary?) property?.GetValue(scope);
+
 		if (variables is null)
 		{
 			// Fallback to field if property is not available (e.g. if implementation details change slightly or property is not auto-implemented in expected way)
 			FieldInfo? field = typeof(Scope).GetField("Variables", BindingFlags.NonPublic | BindingFlags.Instance)
 				?? typeof(Scope).GetField("<Variables>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-			
+
 			if (field is not null)
 			{
-				variables = (IDictionary?)field.GetValue(scope);
+				variables = (IDictionary?) field.GetValue(scope);
 			}
 		}
 
@@ -174,10 +176,8 @@ public static class SystemDetails
 
 		foreach (DictionaryEntry entry in variables)
 		{
-			if (entry.Value is Variable variable)
-			{
-				yield return variable;
-			}
+			if (entry.Value is not Variable variable) continue;
+			yield return variable;
 		}
 	}
 
@@ -188,17 +188,15 @@ public static class SystemDetails
 		FieldInfo[] fields = typeof(Class).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 		foreach (FieldInfo field in fields)
 		{
-			if (field.FieldType == typeof(Class))
+			if (field.FieldType != typeof(Class)) continue;
+
+			Class? potentialBase = (Class?) field.GetValue(type);
+			if (potentialBase != null && potentialBase != type)
 			{
-				Class? potentialBase = (Class?)field.GetValue(type);
-				// Ensure we aren't picking up something else, though Class only has one Class field usually (base)
-				if (potentialBase != null && potentialBase != type)
-				{
-					return potentialBase;
-				}
+				return potentialBase;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -207,16 +205,14 @@ public static class SystemDetails
 		FieldInfo[] fields = typeof(Template).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
 		foreach (FieldInfo field in fields)
 		{
-			if (typeof(IEnumerable<string>).IsAssignableFrom(field.FieldType) && field.FieldType != typeof(string))
-			{
-				return (IEnumerable<string>?)field.GetValue(template) ?? Enumerable.Empty<string>();
-			}
+			if (!typeof(IEnumerable<string>).IsAssignableFrom(field.FieldType) || field.FieldType == typeof(string)) continue;
+			return (IEnumerable<string>?) field.GetValue(template) ?? Enumerable.Empty<string>();
 		}
-		
+
 		PropertyInfo? property = typeof(Template).GetProperty("Generics");
 		if (property != null)
 		{
-			return (IEnumerable<string>?)property.GetValue(template) ?? Enumerable.Empty<string>();
+			return (IEnumerable<string>?) property.GetValue(template) ?? Enumerable.Empty<string>();
 		}
 
 		return Enumerable.Empty<string>();
@@ -244,11 +240,6 @@ public static class SystemDetails
 		}
 		template = null;
 		return false;
-	}
-
-	private static bool IsWorkspace(Class classType)
-	{
-		return classType.Name == TypeConstants.Workspace;
 	}
 
 	private static bool IsOperator(Variable variable, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Operator? op)
