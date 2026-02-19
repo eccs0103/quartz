@@ -66,36 +66,14 @@ write(greeting);
 
 ## Character Type
 
-#### Character literals
-```
-first Character('a');
-last Character('z');
-write(first);   // a
-write(last);    // z
-```
-
 #### Character operations
 ```
-letter Character('a');
-write(letter.to_string());  // a
-write(letter.to_number());  // 97
+letter Character('A');
+write(letter.to_string());  // A
+write(letter.to_number());  // 65
 
-upper Character('Z');
-lower Character('z');
-write(upper < lower);   // true
-write(upper > lower);   // false
-```
-
-#### Character and string concatenation
-```
-initial Character('J');
-rest String("ohn");
-full String(initial + rest);
-write(full);  // John
-
-prefix String("Hello, ");
-excl Character('!');
-write(prefix + excl);  // Hello, !
+greeting String(letter + "ello!");
+write(greeting);  // Aello!
 ```
 
 ## Boolean Logic
@@ -194,16 +172,11 @@ while (i < 5) {
 
 #### For loop
 ```
-for (i Number in range(5)) {
-	write(i);  // prints 0, 1, 2, 3, 4
+sum Number(0);
+for (n Number in range(1, 6)) {
+	sum : sum + n;
 }
-```
-
-#### For loop with custom range
-```
-for (n Number in range(3, 8)) {
-	write(n);  // prints 3, 4, 5, 6, 7
-}
+write("Sum 1 to 5: " + sum.to_string());  // 15
 ```
 
 ## Practical Examples
@@ -370,23 +343,17 @@ write(outer);  // 15
 
 #### Member access and method calls
 ```
-n Number(42);
-label String("Value: " + n.to_string());
-write(label);  // Value: 42
-
-ch Character('A');
-write(ch.to_number());  // 65
-
-b Boolean(true);
-result String("Is active: " + b.to_string());
-write(result);  // Is active: true
+value Number(255);
+write("Decimal: " + value.to_string());
 ```
 
-#### Sequences and ranges
+#### Sequences and iteration
 ```
-nums Sequence<Number>(range(1, 4));
-while (nums.next()) {
-	current Number(nums.current());
-	write(current);  // prints 1, 2, 3
+write("Even numbers from 0 to 9:");
+for (n Number in range(10)) {
+	remainder Number(n - (n / 2) * 2);
+	if (remainder = 0) {
+		write(n.to_string());
+	}
 }
 ```

@@ -46,7 +46,24 @@ public class Scope
 	public bool TryRead(string name, [NotNullWhen(true)] out Variable? variable, bool deep = true)
 	{
 		if (Variables.TryGetValue(name, out variable)) return true;
-		if (deep && Parent != null) return Parent.TryRead(name, out variable);
+		if (deep && Parent != null && Parent.TryRead(name, out variable)) return true;
+		if (Mangler.IsGeneric(name, out string? template, out IEnumerable<string>? parameters) && TryRead(template, out Template? definition, deep))
+		{
+			List<Class> arguments = [];
+			foreach (string parameter in parameters)
+			{
+				if (!TryRead(parameter, out Class? generic, deep))
+				{
+					variable = null;
+					return false;
+				}
+				arguments.Add(generic);
+			}
+			Class type = definition.Assemble(name, arguments, ~Position.Zero);
+			if (TryRegister(name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type)) && TryRead(name, out variable, false)) return true;
+			variable = null;
+			return false;
+		}
 		variable = null;
 		return false;
 	}

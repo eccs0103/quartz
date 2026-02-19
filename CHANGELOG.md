@@ -5,9 +5,11 @@
 - Added generic `Sequence<T>` type with `next()` and `current()` operations for sequential iteration.
 - Added `range(max)` and `range(min, max)` workspace functions that produce `Sequence<Number>`.
 - Added `@Workspace` type representing the module-level scope; workspace operations dispatch without a `this` parameter.
-- Added `--header` CLI flag to print the full runtime type system (all types, templates, and operations).
-- Reorganized exception hierarchy into `Lexing`, `Parsing`, and `Semantic` subnamespaces; consolidated redundant error classes.
-- Replaced the internal `Symbol`/`Datum` model with a dedicated `Variable` type carrying name, declared type tag, value, and mutability.
+- Added `--header` CLI flag to print the full runtime type system.
+- Added single-line comment support (`//`).
+- Optimized the lexer: switched from `^`-anchored regex with O(n²) string mutation to `\G`-anchored matching over a cursor, making tokenization linear.
+- Optimized the parser: replaced `JsonSerializer` string deserialization and `Convert.ToDouble` with lightweight `Regex.Unescape` and `double.Parse`.
+- Improved error messages and exception categorization.
 
 ## 0.5.0 (13.02.2026)
 - Added `while` loops with support for `break` and `continue` statements.
