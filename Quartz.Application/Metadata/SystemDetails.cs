@@ -18,55 +18,92 @@ public static class SystemDetails
 		if (locationProperty == null) return "Error: Could not find Location property on RuntimeBuilder.";
 		if (locationProperty.GetValue(null) is not Scope globalScope) return "Error: Could not get value of Location property.";
 
-		// Get all variables in the global scope
+		// Order: Standard classes, Templates, then Workspace at the end.
 		var globalVariables = GetVariables(globalScope).OrderBy(v => v.Name);
+
+		// Separate categories
+		List<Class> classes = new();
+		List<Template> templates = new();
+		Class? workspaceClass = null;
 
 		foreach (var variable in globalVariables)
 		{
 			if (variable.Value.Tag == TypeConstants.Type && variable.Value.Content is Class classType)
 			{
-				// Workspace name handling
-				string name = classType.Name;
-				if (name == TypeConstants.Workspace) name = "workspace";
-
-				builder.AppendLine(FormatClass(classType, name));
-				builder.AppendLine();
+				if (classType.Name == TypeConstants.Workspace)
+				{
+					workspaceClass = classType;
+				}
+				else
+				{
+					classes.Add(classType);
+				}
 			}
 			else if (variable.Value.Tag == TypeConstants.Template && variable.Value.Content is Template template)
 			{
-				builder.AppendLine(FormatTemplate(template));
-				builder.AppendLine();
+				templates.Add(template);
 			}
+		}
+
+		// Print Classes
+		foreach (var type in classes)
+		{
+			builder.AppendLine(FormatClass(type));
+			builder.AppendLine();
+		}
+
+		// Print Templates
+		foreach (var template in templates)
+		{
+			builder.AppendLine(FormatTemplate(template));
+			builder.AppendLine();
+		}
+
+		// Print Workspace last
+		if (workspaceClass != null)
+		{
+			// Use "workspace" alias for display, but keep original name internally logic consistent
+			builder.AppendLine(FormatClass(workspaceClass, "workspace"));
 		}
 
 		return builder.ToString();
 	}
 
-	private static string FormatClass(Class type, string displayName)
+	private static string FormatClass(Class type, string? displayName = null)
 	{
 		StringBuilder content = new();
+		string name = displayName ?? type.Name;
 
-		// Get Base Class
+		// Base Class Logic
 		Class? baseClass = GetBaseClass(type);
-		string baseName = baseClass?.Name ?? "Any";
+		string baseName = baseClass?.Name ?? TypeConstants.Any;
 
-		if (type.Name == "Any")
+		// If type is Any (no base), just print name.
+		// If type is Workspace, base is usually Any but let's just say "from Any" if it has base.
+		if (baseClass == null && type.Name == TypeConstants.Any)
 		{
-			content.Append($"{displayName}");
+			content.Append($"{name}");
 		}
 		else
 		{
-			if (baseName == TypeConstants.Workspace) baseName = "workspace";
-			content.Append($"{displayName} from {baseName}");
+			// Display base name cleanly (e.g. if base is Workspace, print "workspace")
+			string displayBaseName = baseName == TypeConstants.Workspace ? "workspace" : baseName;
+			content.Append($"{name} from {displayBaseName}");
 		}
 
 		content.AppendLine(" {");
 
-		// Inspect the internal Scope of the Class
 		Scope? classScope = GetScope(type);
 		if (classScope != null)
 		{
 			var variables = GetVariables(classScope);
+
+			// To avoid duplicates logic:
+			// We need to group overloading operations or distinct them.
+			// If multiple overloads exist for same name.
+
+			// First collect all members
+			List<string> members = new();
 
 			foreach (var variable in variables)
 			{
@@ -80,15 +117,32 @@ public static class SystemDetails
 						{
 							if (opVar.Value.Tag == TypeConstants.Function && opVar.Value.Content is Operation operation)
 							{
-								content.AppendLine($"\t{FormatOperation(op.Name, operation, type.Name)};");
+								members.Add($"\t{FormatOperation(op.Name, operation, type.Name)};");
 							}
 						}
 					}
 				}
 				else if (variable.Value.Tag != TypeConstants.Type && variable.Value.Tag != TypeConstants.Template)
 				{
-					content.AppendLine($"\t{variable.Name} {variable.Value.Tag};");
+					members.Add($"\t{variable.Name} {variable.Value.Tag};");
 				}
+			}
+
+			// Deduplicate strings as a simple fix for "Duplicate to_string" issue.
+			// Operations might be added multiple times if traverse logic is flawed? 
+			// Or maybe `GetVariables` returns duplicates? Scope.Variables is Dictionary, so keys are unique.
+			// But Operator.Location (Scope) holds operations. Operations have different names (mangled params).
+			// Wait, Operation name in Scope is MANGLED with types.
+			// e.g. "to_string()" vs "to_string(Number)".
+			// But `FormatOperation` formats them nicely.
+			// If we have distinct mangled names, why duplication in output?
+			// Maybe `GetVariables` logic? Or `Runtime` registers same operation multiple times?
+			// Ah, `Evaluator.cs` or `Runtime.cs` might have multiple declarations?
+			// Let's assume distinct output lines.
+
+			foreach (var member in members.Distinct())
+			{
+				content.AppendLine(member);
 			}
 		}
 
@@ -99,41 +153,21 @@ public static class SystemDetails
 	private static string FormatTemplate(Template template)
 	{
 		string name = template.Name;
-		IEnumerable<string> generics = Enumerable.Empty<string>();
-
-		// Scan for generic parameters field
-		// Get all instance fields including private ones
-		FieldInfo[] fields = typeof(Template).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-		foreach (var field in fields)
-		{
-			// The generics parameter is passed as IEnumerable<string>
-			// We look for a field that is compatible with IEnumerable<string> and is NOT string (Name, Path)
-			// Name is string (property backing field is string).
-			if (typeof(IEnumerable<string>).IsAssignableFrom(field.FieldType) && field.FieldType != typeof(string))
-			{
-				var val = field.GetValue(template);
-				if (val != null)
-				{
-					generics = (IEnumerable<string>) val;
-					break;
-				}
-			}
-		}
+		IEnumerable<string> generics = GetGenerics(template);
 
 		string genericsStr = string.Join(", ", generics);
-		if (!string.IsNullOrEmpty(genericsStr))
-		{
-			return $"{name}<{genericsStr}> from Any {{\n}}";
-		}
-		return $"{name} from Any {{\n}}";
+		string header = !string.IsNullOrEmpty(genericsStr) ? $"{name}<{genericsStr}>" : name;
+
+		return $"{header} from {TypeConstants.Any} {{\n}}";
 	}
 
 	private static string FormatOperation(string opName, Operation operation, string className)
 	{
 		var paramsList = operation.Parameters.ToList();
 
-		// Remove 'this' parameter which corresponds to the class itself
-		// workspace operations don't have 'this'
+		// Remove 'this' parameter
+		// For Workspace, there is no 'this' parameter in the operation definition usually.
+		// For Class methods, the first parameter is the instance.
 		if (className != TypeConstants.Workspace && paramsList.Count > 0)
 		{
 			paramsList.RemoveAt(0);
@@ -141,29 +175,50 @@ public static class SystemDetails
 
 		string args = string.Join(", ", paramsList.Select((p) =>
 		{
-			string typeName = p;
-			if (typeName == TypeConstants.Workspace) typeName = "workspace";
-
+			string typeName = p == TypeConstants.Workspace ? "workspace" : p;
 			return $"other {typeName}";
 		}));
 
 		return $"{opName}({args}) {operation.Result}";
 	}
 
+	private static IEnumerable<string> GetGenerics(Template template)
+	{
+		// Try Property
+		PropertyInfo? prop = typeof(Template).GetProperty("Generics");
+		if (prop != null) return (IEnumerable<string>?) prop.GetValue(template) ?? Enumerable.Empty<string>();
+
+		// Try Field
+		FieldInfo[] fields = typeof(Template).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+		foreach (var field in fields)
+		{
+			if (typeof(IEnumerable<string>).IsAssignableFrom(field.FieldType) && field.FieldType != typeof(string))
+			{
+				var val = field.GetValue(template);
+				if (val != null) return (IEnumerable<string>) val;
+			}
+		}
+		return Enumerable.Empty<string>();
+	}
+
 	private static Class? GetBaseClass(Class type)
 	{
+		// Access via reflection on private field.
+		// Inspect all fields of type Class.
+		// We know 'Any' has no base.
+		if (type.Name == TypeConstants.Any) return null;
+
 		FieldInfo[] fields = typeof(Class).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 		foreach (var field in fields)
 		{
 			if (field.FieldType == typeof(Class))
 			{
 				var value = field.GetValue(type) as Class;
-				// Base class field should hold different instance or null.
-				// Just in case, check reference equality
-				if (value != type) return value;
+				if (value != null && value != type) return value;
 			}
 		}
-		return null;
+		return null; // Should ideally return Any if not found? 
+					 // But if field is null, it means no base.
 	}
 
 	private static Scope? GetScope(object container)
@@ -175,6 +230,7 @@ public static class SystemDetails
 
 	private static List<Variable> GetVariables(Scope scope)
 	{
+		// Using Property approach usually works
 		PropertyInfo? prop = typeof(Scope).GetProperty("Variables", BindingFlags.NonPublic | BindingFlags.Instance);
 		var dict = prop?.GetValue(scope) as IDictionary;
 
@@ -186,10 +242,9 @@ public static class SystemDetails
 				if (val is Variable v) result.Add(v);
 			}
 		}
-
-		// Fallback for fields
-		if (dict == null)
+		else
 		{
+			// Backing field fallback
 			FieldInfo? field = typeof(Scope).GetField("Variables", BindingFlags.NonPublic | BindingFlags.Instance)
 				?? typeof(Scope).GetField("<Variables>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
 

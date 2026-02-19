@@ -1,23 +1,7 @@
-workspace from Any {
-	range(other Number) Sequence<Number>;
-	range(other Number, other Number) Sequence<Number>;
-	pi Number;
-	e Number;
-	read(other String) String;
-	write(other Any) Null;
-}
-
 Any {
 	= (other Any) Boolean;
 	!= (other Any) Boolean;
 	is_equal(other Any) Boolean;
-	to_string() String;
-	to_string() String;
-	to_string() String;
-	to_string() String;
-	to_string() String;
-	to_string() String;
-	to_string() String;
 	to_string() String;
 }
 
@@ -42,9 +26,6 @@ Function from Any {
 Null from Any {
 }
 
-Nullable<Content> from Any {
-}
-
 Number from Any {
 	+() Number;
 	+(other Number) Number;
@@ -58,9 +39,6 @@ Number from Any {
 	>= (other Number) Boolean;
 }
 
-Sequence<Content> from Any {
-}
-
 String from Any {
 	+(other String) String;
 	+(other Character) String;
@@ -70,4 +48,19 @@ Template from Any {
 }
 
 Type from Any {
+}
+
+Nullable<Content> from Any {
+}
+
+Sequence<Content> from Any {
+}
+
+workspace from Any {
+	range(other Number) Sequence<Number>;
+	range(other Number, other Number) Sequence<Number>;
+	pi Number;
+	e Number;
+	read(other String) String;
+	write(other Any) Null;
 }
