@@ -1,3 +1,14 @@
+## 0.6.0 (19.02.2026)
+- Added `Character` type with single-quote literal syntax (e.g., `'a'`). Supports `to_string()`, `to_number()`, comparison operators, and concatenation with `String`.
+- Introduced dot-notation for member access and method calls: `value.method()`, `value.field`.
+- Enabled `for` loops with typed iteration variables: `for (item Type in collection) { ... }`.
+- Added generic `Sequence<T>` type with `next()` and `current()` operations for sequential iteration.
+- Added `range(max)` and `range(min, max)` workspace functions that produce `Sequence<Number>`.
+- Added `@Workspace` type representing the module-level scope; workspace operations dispatch without a `this` parameter.
+- Added `--header` CLI flag to print the full runtime type system (all types, templates, and operations).
+- Reorganized exception hierarchy into `Lexing`, `Parsing`, and `Semantic` subnamespaces; consolidated redundant error classes.
+- Replaced the internal `Symbol`/`Datum` model with a dedicated `Variable` type carrying name, declared type tag, value, and mutability.
+
 ## 0.5.0 (13.02.2026)
 - Added `while` loops with support for `break` and `continue` statements.
 - Introduced generic types system with `Template` support (e.g., `Nullable<Number>`, `Nullable<String>`).

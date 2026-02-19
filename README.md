@@ -64,6 +64,40 @@ greeting String("Hello, " + fullName + "!");
 write(greeting);
 ```
 
+## Character Type
+
+#### Character literals
+```
+first Character('a');
+last Character('z');
+write(first);   // a
+write(last);    // z
+```
+
+#### Character operations
+```
+letter Character('a');
+write(letter.to_string());  // a
+write(letter.to_number());  // 97
+
+upper Character('Z');
+lower Character('z');
+write(upper < lower);   // true
+write(upper > lower);   // false
+```
+
+#### Character and string concatenation
+```
+initial Character('J');
+rest String("ohn");
+full String(initial + rest);
+write(full);  // John
+
+prefix String("Hello, ");
+excl Character('!');
+write(prefix + excl);  // Hello, !
+```
+
 ## Boolean Logic
 
 #### Logical operators
@@ -155,6 +189,20 @@ while (i < 5) {
 		continue;
 	}
 	write(i);  // prints 1, 2, 4, 5 (skips 3)
+}
+```
+
+#### For loop
+```
+for (i Number in range(5)) {
+	write(i);  // prints 0, 1, 2, 3, 4
+}
+```
+
+#### For loop with custom range
+```
+for (n Number in range(3, 8)) {
+	write(n);  // prints 3, 4, 5, 6, 7
 }
 ```
 
@@ -318,3 +366,27 @@ outer Number(10);
 	outer : 15;
 }
 write(outer);  // 15
+```
+
+#### Member access and method calls
+```
+n Number(42);
+label String("Value: " + n.to_string());
+write(label);  // Value: 42
+
+ch Character('A');
+write(ch.to_number());  // 65
+
+b Boolean(true);
+result String("Is active: " + b.to_string());
+write(result);  // Is active: true
+```
+
+#### Sequences and ranges
+```
+nums Sequence<Number>(range(1, 4));
+while (nums.next()) {
+	current Number(nums.current());
+	write(current);  // prints 1, 2, 3
+}
+```
