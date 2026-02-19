@@ -1,3 +1,4 @@
+using System.Linq;
 using Quartz.Application;
 using static Quartz.Application.Interpreter;
 
@@ -5,17 +6,27 @@ namespace Quartz.Presentation;
 
 class Program
 {
-	private static void Main(string[] paths)
+	private static void Main(string[] args)
 	{
 		Console.ForegroundColor = ConsoleColor.White;
 		Options options = new() { LogLexing = false, LogParsing = false };
 		Interpreter interpreter = new(options);
-		if (paths.Length < 1)
+
+		if (args.Length < 1)
 		{
 			RunInteractiveMode(interpreter);
 			return;
 		}
-		RunScriptMode(interpreter, paths);
+
+		if (args.Contains("--header"))
+		{
+			Console.WriteLine(interpreter.GetSystemHeader());
+		}
+		else
+		{
+			RunScriptMode(interpreter, args);
+		}
+
 		Console.ReadKey();
 	}
 

@@ -4,6 +4,7 @@ using Quartz.Domain.Parsing;
 using Quartz.Application.Lexing;
 using Quartz.Application.Parsing;
 using Quartz.Application.Evaluating;
+using Quartz.Application.Metadata;
 
 namespace Quartz.Application;
 
@@ -53,5 +54,12 @@ public class Interpreter(Interpreter.Options options)
 			Console.ForegroundColor = temporary;
 		}
 		Console.ForegroundColor = foreground;
+	}
+
+	public string GetSystemHeader()
+	{
+		// Access Runtime to ensure static initialization runs
+		Runtime? _ = Runtime;
+		return SystemDetails.Generate();
 	}
 }

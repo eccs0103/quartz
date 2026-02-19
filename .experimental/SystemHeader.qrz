@@ -1,8 +1,42 @@
+workspace from Any {
+	range(other Number) Sequence<Number>;
+	range(other Number, other Number) Sequence<Number>;
+	pi Number;
+	e Number;
+	read(other String) String;
+	write(other Any) Null;
+}
+
 Any {
-	=(other Any) Boolean;
-	!=(other Any) Boolean;
+	= (other Any) Boolean;
+	!= (other Any) Boolean;
 	is_equal(other Any) Boolean;
 	to_string() String;
+	to_string() String;
+	to_string() String;
+	to_string() String;
+	to_string() String;
+	to_string() String;
+	to_string() String;
+	to_string() String;
+}
+
+Boolean from Any {
+	!() Boolean;
+	& (other Boolean) Boolean;
+	| (other Boolean) Boolean;
+}
+
+Character from Any {
+	to_number() Number;
+	< (other Character) Boolean;
+	<= (other Character) Boolean;
+	> (other Character) Boolean;
+	>= (other Character) Boolean;
+	+(other String) String;
+}
+
+Function from Any {
 }
 
 Null from Any {
@@ -17,32 +51,23 @@ Number from Any {
 	-() Number;
 	-(other Number) Number;
 	*(other Number) Number;
-	/(other Number) Number;
-	<(other Number) Boolean;
-	<=(other Number) Boolean;
-	>(other Number) Boolean;
-	>=(other Number) Boolean;
+	/ (other Number) Number;
+	< (other Number) Boolean;
+	<= (other Number) Boolean;
+	> (other Number) Boolean;
+	>= (other Number) Boolean;
 }
 
-Boolean from Any {
-	!() Boolean;
-	&(other Boolean) Boolean;
-	|(other Boolean) Boolean;
+Sequence<Content> from Any {
 }
 
 String from Any {
 	+(other String) String;
+	+(other Character) String;
 }
 
-Function from Any {
+Template from Any {
 }
 
 Type from Any {
-}
-
-workspace from Any {
-	pi Number;
-	e Number;
-	read(message String) String;
-	write(value Any) Null;
 }
