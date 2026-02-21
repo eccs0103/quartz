@@ -21,13 +21,10 @@ class Program
 		if (args.SingleOrDefault() == "--header")
 		{
 			Console.WriteLine(interpreter.GetSystemHeader());
-		}
-		else
-		{
-			RunScriptMode(interpreter, args);
+			return;
 		}
 
-		Console.ReadKey();
+		RunScriptMode(interpreter, args);
 	}
 
 	private static void RunScriptMode(Interpreter interpreter, string[] paths)

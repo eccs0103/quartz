@@ -1,26 +1,8 @@
 Any {
-	=(other Any) Boolean;
-	!=(other Any) Boolean;
-	is_equal(other Any) Boolean;
+	=(arg_1 Any) Boolean;
+	!=(arg_1 Any) Boolean;
+	is_equal(arg_1 Any) Boolean;
 	to_string() String;
-}
-
-Boolean from Any {
-	!() Boolean;
-	&(other Boolean) Boolean;
-	|(other Boolean) Boolean;
-}
-
-Character from Any {
-	to_number() Number;
-	<(other Character) Boolean;
-	<=(other Character) Boolean;
-	>(other Character) Boolean;
-	>=(other Character) Boolean;
-	+(other String) String;
-}
-
-Function from Any {
 }
 
 Null from Any {
@@ -28,39 +10,60 @@ Null from Any {
 
 Number from Any {
 	+() Number;
-	+(other Number) Number;
+	+(arg_1 Number) Number;
 	-() Number;
-	-(other Number) Number;
-	*(other Number) Number;
-	/(other Number) Number;
-	<(other Number) Boolean;
-	<=(other Number) Boolean;
-	>(other Number) Boolean;
-	>=(other Number) Boolean;
+	-(arg_1 Number) Number;
+	*(arg_1 Number) Number;
+	/(arg_1 Number) Number;
+	<(arg_1 Number) Boolean;
+	<=(arg_1 Number) Boolean;
+	>(arg_1 Number) Boolean;
+	>=(arg_1 Number) Boolean;
+}
+
+Boolean from Any {
+	!() Boolean;
+	&(arg_1 Boolean) Boolean;
+	|(arg_1 Boolean) Boolean;
+}
+
+Character from Any {
+	<(arg_1 Character) Boolean;
+	<=(arg_1 Character) Boolean;
+	>(arg_1 Character) Boolean;
+	>=(arg_1 Character) Boolean;
+	+(arg_1 String) String;
+	to_number() Number;
 }
 
 String from Any {
-	+(other String) String;
-	+(other Character) String;
+	+(arg_1 Character) String;
+	+(arg_1 String) String;
 }
 
-Template from Any {
+Function from Any {
 }
 
 Type from Any {
 }
 
+Template from Any {
+}
+
 Nullable<Content> from Any {
+	get_value() Content;
 }
 
 Sequence<Content> from Any {
+	next() Boolean;
+	current() Content;
 }
 
 workspace from Any {
-	range(other Number) Sequence<Number>;
-	range(other Number, other Number) Sequence<Number>;
 	pi Number;
 	e Number;
-	read(other String) String;
-	write(other Any) Null;
+	read(arg_1 String) String;
+	write(arg_1 Any) Null;
+	range(arg_1 Number) Sequence<Number>;
+	range(arg_1 Number, arg_2 Number) Sequence<Number>;
 }

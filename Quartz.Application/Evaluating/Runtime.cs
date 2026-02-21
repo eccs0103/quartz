@@ -39,7 +39,7 @@ public class Runtime
 				});
 				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
 				{
-					return new Value<string>(TypeConstants.String, $"[{@this.Tag}]");
+					return new Value<string>(TypeConstants.String, $"[instance {@this.Tag}]");
 				});
 			});
 			module.DeclareClass(TypeConstants.Null, TypeConstants.Any, [], static (type, _) =>
@@ -157,14 +157,6 @@ public class Runtime
 			});
 			module.DeclareClass(TypeConstants.Character, TypeConstants.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
-				{
-					return new Value<string>(TypeConstants.String, @this.As<char>().Content.ToString());
-				});
-				type.DeclareOperation("to_number", [], TypeConstants.Number, static (@this, arguments, scope, range) =>
-				{
-					return new Value<double>(TypeConstants.Number, (double) @this.As<char>().Content);
-				});
 				type.DeclareOperation("<", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
@@ -191,18 +183,26 @@ public class Runtime
 					string result = @this.As<char>().Content.ToString() + other.Content;
 					return new Value<string>(TypeConstants.String, result);
 				});
+				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				{
+					return new Value<string>(TypeConstants.String, @this.As<char>().Content.ToString());
+				});
+				type.DeclareOperation("to_number", [], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				{
+					return new Value<double>(TypeConstants.Number, (double) @this.As<char>().Content);
+				});
 			});
 			module.DeclareClass(TypeConstants.String, TypeConstants.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("+", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
-				{
-					Value<string> other = arguments[0].As<string>();
-					string result = @this.As<string>().Content + other.Content;
-					return new Value<string>(TypeConstants.String, result);
-				});
 				type.DeclareOperation("+", [TypeConstants.Character], TypeConstants.String, static (@this, arguments, scope, range) =>
 				{
 					Value<char> other = arguments[0].As<char>();
+					string result = @this.As<string>().Content + other.Content;
+					return new Value<string>(TypeConstants.String, result);
+				});
+				type.DeclareOperation("+", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
+				{
+					Value<string> other = arguments[0].As<string>();
 					string result = @this.As<string>().Content + other.Content;
 					return new Value<string>(TypeConstants.String, result);
 				});
@@ -245,23 +245,6 @@ public class Runtime
 			});
 			module.DeclareClass(TypeConstants.Workspace, TypeConstants.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("range", [TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
-				{
-					Value<double> start = new(TypeConstants.Number, 0);
-					Value end = arguments[0];
-					return @this.RunOperation("range", [start, end], scope, range);
-				});
-				type.DeclareOperation("range", [TypeConstants.Number, TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
-				{
-					double min = arguments[0].As<double>().Content;
-					double max = arguments[1].As<double>().Content;
-					static IEnumerator<Value> Generate(double start, double end)
-					{
-						for (double index = start; index < end; index++) yield return new Value<double>(TypeConstants.Number, index);
-					}
-					IEnumerator<Value> enumerator = Generate(min, max);
-					return new Value<IEnumerator<Value>>($"{TypeConstants.Sequence}<{TypeConstants.Number}>", enumerator);
-				});
 				type.DeclareConstant("pi", TypeConstants.Number, PI);
 				type.DeclareConstant("e", TypeConstants.Number, E);
 				type.DeclareOperation("read", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
@@ -278,6 +261,23 @@ public class Runtime
 					Value text = value.RunOperation("to_string", [], scope, range).As<string>();
 					Console.WriteLine(text.Content);
 					return Value.Null;
+				});
+				type.DeclareOperation("range", [TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
+				{
+					Value<double> start = new(TypeConstants.Number, 0);
+					Value end = arguments[0];
+					return @this.RunOperation("range", [start, end], scope, range);
+				});
+				type.DeclareOperation("range", [TypeConstants.Number, TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
+				{
+					double min = arguments[0].As<double>().Content;
+					double max = arguments[1].As<double>().Content;
+					static IEnumerator<Value> Generate(double start, double end)
+					{
+						for (double index = start; index < end; index++) yield return new Value<double>(TypeConstants.Number, index);
+					}
+					IEnumerator<Value> enumerator = Generate(min, max);
+					return new Value<IEnumerator<Value>>($"{TypeConstants.Sequence}<{TypeConstants.Number}>", enumerator);
 				});
 			});
 		});

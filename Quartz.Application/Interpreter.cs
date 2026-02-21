@@ -16,7 +16,7 @@ public class Interpreter(Interpreter.Options options)
 		public bool LogParsing { get; set; } = false;
 	}
 
-	private static Lexer Tokenizer { get; } = new();
+	private static Lexer Lexer { get; } = new();
 	private static Parser Parser { get; } = new();
 	private static Runtime Runtime { get; } = new();
 	private bool LogLexing { get; } = options.LogLexing;
@@ -32,7 +32,7 @@ public class Interpreter(Interpreter.Options options)
 		try
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			Token[] tokens = Tokenizer.Tokenize(input);
+			Token[] tokens = Lexer.Tokenize(input);
 			if (LogLexing && tokens.Length > 0) Console.WriteLine(string.Join<Token>('\n', tokens));
 
 			Console.ForegroundColor = ConsoleColor.Magenta;

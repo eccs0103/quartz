@@ -11,7 +11,7 @@
 			// "args": [ "--header" ],
 			"cwd": "${workspaceFolder}",
 			"internalConsoleOptions": "neverOpen",
-			"console": "externalTerminal"
+			"console": "integratedTerminal"
 		}
 	]
 }
