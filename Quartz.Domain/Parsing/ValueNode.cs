@@ -1,6 +1,8 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Parsing;
 
@@ -11,11 +13,11 @@ public class ValueNode(string tag, object? value, Range<Position> range) : Node(
 
 	public override string ToString()
 	{
-		if (Tag == "String") return $"\"{Value}\"";
-		if (Tag == "Character") return $"'{Value}'";
-		if (Tag == "Boolean" && Value is bool boolean) return boolean ? "true" : "false";
+		if (Value is string text) return $"\"{Value}\"";
+		if (Value is char character) return $"'{Value}'";
+		if (Value is bool boolean) return boolean ? Keywords.True : Keywords.False;
 		if (Value is double number) return number.ToString(CultureInfo.InvariantCulture);
-		return Value?.ToString() ?? "null";
+		return Value?.ToString() ?? Keywords.Null;
 	}
 
 	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)

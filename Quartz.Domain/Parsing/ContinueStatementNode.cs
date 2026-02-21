@@ -1,5 +1,6 @@
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Parsing;
 
@@ -7,7 +8,7 @@ public class ContinueStatementNode(Range<Position> range) : Node(range)
 {
 	public override string ToString()
 	{
-		return "continue";
+		return Keywords.Continue;
 	}
 
 	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)

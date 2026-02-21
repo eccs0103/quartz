@@ -1,4 +1,4 @@
-﻿using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
 using Quartz.Application.Lexing;
@@ -33,11 +33,11 @@ public class Interpreter(Interpreter.Options options)
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			Token[] tokens = Lexer.Tokenize(input);
-			if (LogLexing && tokens.Length > 0) Console.WriteLine(string.Join<Token>('\n', tokens));
+			if (LogLexing && tokens.Length > 0) Console.WriteLine(string.Join<Token>(Environment.NewLine, tokens));
 
 			Console.ForegroundColor = ConsoleColor.Magenta;
 			List<Node> trees = Parser.Parse(tokens);
-			if (LogParsing && tokens.Length > 0) Console.WriteLine(string.Join('\n', trees));
+			if (LogParsing && tokens.Length > 0) Console.WriteLine(string.Join(Environment.NewLine, trees));
 
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			Runtime.Evaluate(trees);

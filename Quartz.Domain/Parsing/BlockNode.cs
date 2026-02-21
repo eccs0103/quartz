@@ -1,6 +1,8 @@
 using System.Text;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
+
 
 namespace Quartz.Domain.Parsing;
 
@@ -12,14 +14,14 @@ public class BlockNode(IEnumerable<Node> statements, Range<Position> range) : No
 	{
 		const string indent = "  ";
 		StringBuilder builder = new();
-		builder.AppendLine("{");
+		builder.AppendLine(Brackets.OpenBrace);
 		foreach (Node statement in Statements)
 		{
 			string @string = $"{statement}";
 			builder.Append(indent);
-			builder.AppendLine(@string.Replace("\n", $"\n{indent}"));
+			builder.AppendLine(@string.Replace(Environment.NewLine, $"{Environment.NewLine}{indent}"));
 		}
-		builder.Append('}');
+		builder.Append(Brackets.CloseBrace);
 		return builder.ToString();
 	}
 

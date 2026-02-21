@@ -1,4 +1,4 @@
-﻿using Quartz.Shared.Helpers;
+using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Lexing;
 

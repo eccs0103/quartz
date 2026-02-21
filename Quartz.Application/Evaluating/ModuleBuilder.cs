@@ -2,6 +2,7 @@ using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Application.Evaluating;
 
@@ -22,7 +23,7 @@ internal class ModuleBuilder(Module module, Scope location)
 			return;
 		}
 
-		Scope scope = name.Equals(TypeConstants.Workspace)
+		Scope scope = name.Equals(Types.Workspace)
 			? RuntimeBuilder.Workspace
 			: location.GetSubscope(name);
 		Class? typeBase = null;

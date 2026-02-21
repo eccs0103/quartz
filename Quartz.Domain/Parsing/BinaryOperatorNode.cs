@@ -1,5 +1,6 @@
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Parsing;
 
@@ -10,10 +11,10 @@ public class BinaryOperatorNode(IdentifierNode @operator, Node left, Node right,
 
 	private static readonly Dictionary<string, int> Precedence = new()
 	{
-		{ "*", 3 }, { "/", 3 },
-		{ "+", 2 }, { "-", 2 },
-		{ ">", 1 }, { "<", 1 }, { ">=", 1 }, { "<=", 1 },
-		{ "=", 0 }, { "!=", 0 }
+		{ Operators.Multiply, 3 }, { Operators.Divide, 3 },
+		{ Operators.Plus, 2 }, { Operators.Minus, 2 },
+		{ Operators.Greater, 1 }, { Operators.Less, 1 }, { Operators.GreaterOrEqual, 1 }, { Operators.LessOrEqual, 1 },
+		{ Operators.Equal, 0 }, { Operators.NotEqual, 0 }
 	};
 
 	public override string ToString()

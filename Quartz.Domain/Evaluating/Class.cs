@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Evaluating;
 
@@ -8,7 +9,7 @@ public class Class(string name, Scope location, Class? @base) : Container(name, 
 {
 	public bool TryRegisterOperator(Operator @operator)
 	{
-		return Location.TryRegister(@operator.Name, TypeConstants.Function, new Value<Operator>(TypeConstants.Function, @operator), false);
+		return Location.TryRegister(@operator.Name, Types.Function, new Value<Operator>(Types.Function, @operator), false);
 	}
 
 	public bool TryReadOperator(string name, [NotNullWhen(true)] out Operator? @operator)

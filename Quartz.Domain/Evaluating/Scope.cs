@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Evaluating;
 
@@ -60,7 +61,7 @@ public class Scope
 				arguments.Add(generic);
 			}
 			Class type = definition.Assemble(name, arguments, ~Position.Zero);
-			if (TryRegister(name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type)) && TryRead(name, out variable, false)) return true;
+			if (TryRegister(name, Types.Type, new Value<Class>(Types.Type, type)) && TryRead(name, out variable, false)) return true;
 			variable = null;
 			return false;
 		}

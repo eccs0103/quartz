@@ -1,4 +1,4 @@
-﻿namespace Quartz.Shared.Helpers;
+namespace Quartz.Shared.Helpers;
 
 public class Wrapper<T>(T value)
 {

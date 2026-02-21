@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Evaluating;
 
@@ -8,7 +9,7 @@ public class Module(string name, Scope location) : Container(name, location)
 {
 	public bool TryRegisterTemplate(Template template)
 	{
-		return Location.TryRegister(template.Name, TypeConstants.Template, new Value<Template>(TypeConstants.Template, template));
+		return Location.TryRegister(template.Name, Types.Template, new Value<Template>(Types.Template, template));
 	}
 
 	public bool TryReadTemplate(string name, [NotNullWhen(true)] out Template? template)
@@ -18,7 +19,7 @@ public class Module(string name, Scope location) : Container(name, location)
 
 	public bool TryRegisterClass(Class type)
 	{
-		return Location.TryRegister(type.Name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type));
+		return Location.TryRegister(type.Name, Types.Type, new Value<Class>(Types.Type, type));
 	}
 
 	public bool TryReadClass(string name, [NotNullWhen(true)] out Class? type)

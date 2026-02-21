@@ -4,7 +4,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
 
-public class InvokationNode(Node target, IEnumerable<Node> arguments, Range<Position> range) : Node(range)
+public class InvocationNode(Node target, IEnumerable<Node> arguments, Range<Position> range) : Node(range)
 {
 	public Node Target { get; } = target;
 	public IEnumerable<Node> Arguments { get; } = arguments;

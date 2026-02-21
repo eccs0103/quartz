@@ -1,5 +1,6 @@
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Evaluating;
 
@@ -14,9 +15,9 @@ public class Template(string name, IEnumerable<string> generics, TemplateBuilder
 		foreach (string generic in generics)
 		{
 			if (!iterator.MoveNext()) throw new ArgumentCountIssue(Name, generics.Count(), arguments.Count(), range);
-			if (!scope.TryRegister(generic, TypeConstants.Type, new Value<Class>(TypeConstants.Type, iterator.Current))) throw new SymbolAlreadyDeclaredIssue(generic, ~Position.Zero);
+			if (!scope.TryRegister(generic, Types.Type, new Value<Class>(Types.Type, iterator.Current))) throw new SymbolAlreadyDeclaredIssue(generic, ~Position.Zero);
 		}
-		if (!Location.TryRead(TypeConstants.Any, out Class? typeBase)) throw new SymbolNotFoundIssue(TypeConstants.Any, "Type class", range);
+		if (!Location.TryRead(Types.Any, out Class? typeBase)) throw new SymbolNotFoundIssue(Types.Any, "Type class", range);
 		Class type = new(name, scope, typeBase);
 		builder.Invoke(type, arguments, scope);
 		return type;

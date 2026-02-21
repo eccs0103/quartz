@@ -2,6 +2,7 @@ using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Application.Evaluating;
 
@@ -30,11 +31,11 @@ internal class ClassBuilder(Class type, Scope location)
 			if (!type.TryRegisterOperator(@operator)) throw new SymbolAlreadyDeclaredIssue(name, ~Position.Zero);
 		}
 
-		if (type.Name == TypeConstants.Workspace)
+		if (type.Name == Types.Workspace)
 		{
 			Value OperationWrapper(Value[] arguments, Scope scopeCall, Range<Position> range)
 			{
-				Value workspace = new Value<object>(TypeConstants.Workspace, Value.Empty);
+				Value workspace = new Value<object>(Types.Workspace, Value.Empty);
 				return configurator.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(Mangler.Parameters(parameters), parameters, result, OperationWrapper, scope);

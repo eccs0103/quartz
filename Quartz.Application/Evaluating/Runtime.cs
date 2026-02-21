@@ -2,6 +2,7 @@ using System.Globalization;
 using Quartz.Domain.Evaluating;
 using Quartz.Domain.Parsing;
 using static System.Math;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Application.Evaluating;
 
@@ -14,44 +15,44 @@ public class Runtime
 	{
 		Builder.DeclareModule(static (module) =>
 		{
-			module.DeclareClass(TypeConstants.Any, null, [], static (type, _) =>
+			module.DeclareClass(Types.Any, null, [], static (type, _) =>
 			{
-				type.DeclareOperation("=", [TypeConstants.Any], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Equal, [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value other = arguments[0];
 					Value isEqual = @this.RunOperation("is_equal", [other], scope, range);
 					return isEqual;
 				});
-				type.DeclareOperation("!=", [TypeConstants.Any], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.NotEqual, [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value other = arguments[0];
-					Value isEqual = @this.RunOperation("=", [other], scope, range);
-					Value isNotEqual = isEqual.RunOperation("!", [], scope, range);
+					Value isEqual = @this.RunOperation(Operators.Equal, [other], scope, range);
+					Value isNotEqual = isEqual.RunOperation(Operators.Not, [], scope, range);
 					return isNotEqual;
 				});
-				type.DeclareOperation("is_equal", [TypeConstants.Any], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("is_equal", [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value other = arguments[0];
 					object left = @this.Content;
 					object right = other.Content;
 					bool result = left.Equals(right);
-					return new Value<bool>(TypeConstants.Boolean, result);
+					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
-					return new Value<string>(TypeConstants.String, $"[instance {@this.Tag}]");
+					return new Value<string>(Types.String, $"[instance {@this.Tag}]");
 				});
 			});
-			module.DeclareClass(TypeConstants.Null, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Null, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
-					return new Value<string>(TypeConstants.String, "null");
+					return new Value<string>(Types.String, Keywords.Null);
 				});
 			});
-			module.DeclareClass(TypeConstants.Nullable, TypeConstants.Any, ["Content"], static (type, generics) =>
+			module.DeclareClass(Types.Nullable, Types.Any, ["Content"], static (type, generics) =>
 			{
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
 					return @this.RunOperation("to_string", [], scope, range);
 				});
@@ -60,182 +61,182 @@ public class Runtime
 					return TypeHelper.Unwrap(@this);
 				});
 			});
-			module.DeclareClass(TypeConstants.Number, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Number, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("+", [], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Plus, [], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					double result = +@this.As<double>().Content;
-					return new Value<double>(TypeConstants.Number, result);
+					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation("+", [TypeConstants.Number], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Plus, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content + other.Content;
-					return new Value<double>(TypeConstants.Number, result);
+					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation("-", [], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Minus, [], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					double result = -@this.As<double>().Content;
-					return new Value<double>(TypeConstants.Number, result);
+					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation("-", [TypeConstants.Number], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Minus, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content - other.Content;
-					return new Value<double>(TypeConstants.Number, result);
+					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation("*", [TypeConstants.Number], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Multiply, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content * other.Content;
-					return new Value<double>(TypeConstants.Number, result);
+					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation("/", [TypeConstants.Number], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Divide, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content / other.Content;
-					return new Value<double>(TypeConstants.Number, result);
+					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation("<", [TypeConstants.Number], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Less, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					bool result = @this.As<double>().Content < other.Content;
-					return new Value<bool>(TypeConstants.Boolean, result);
+					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation("<=", [TypeConstants.Number], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.LessOrEqual, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
-					Value<bool> isLess = @this.RunOperation("<", [other], scope, range).As<bool>();
-					if (isLess.Content) return new Value<bool>(TypeConstants.Boolean, true);
-					Value<bool> isEqual = @this.RunOperation("=", [other], scope, range).As<bool>();
-					return new Value<bool>(TypeConstants.Boolean, isEqual.Content);
+					Value<bool> isLess = @this.RunOperation(Operators.Less, [other], scope, range).As<bool>();
+					if (isLess.Content) return Value.True;
+					Value<bool> isEqual = @this.RunOperation(Operators.Equal, [other], scope, range).As<bool>();
+					return isEqual.Content ? Value.True : Value.False;
 				});
-				type.DeclareOperation(">", [TypeConstants.Number], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Greater, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					bool result = @this.As<double>().Content > other.Content;
-					return new Value<bool>(TypeConstants.Boolean, result);
+					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation(">=", [TypeConstants.Number], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.GreaterOrEqual, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
-					Value<bool> isGreater = @this.RunOperation(">", [other], scope, range).As<bool>();
-					if (isGreater.Content) return new Value<bool>(TypeConstants.Boolean, true);
-					Value<bool> isEqual = @this.RunOperation("=", [other], scope, range).As<bool>();
-					return new Value<bool>(TypeConstants.Boolean, isEqual.Content);
+					Value<bool> isGreater = @this.RunOperation(Operators.Greater, [other], scope, range).As<bool>();
+					if (isGreater.Content) return Value.True;
+					Value<bool> isEqual = @this.RunOperation(Operators.Equal, [other], scope, range).As<bool>();
+					return isEqual.Content ? Value.True : Value.False;
 				});
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
 					string result = @this.As<double>().Content.ToString(CultureInfo.InvariantCulture);
-					return new Value<string>(TypeConstants.String, result);
+					return new Value<string>(Types.String, result);
 				});
 			});
-			module.DeclareClass(TypeConstants.Boolean, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Boolean, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("!", [], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Not, [], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					bool result = !@this.As<bool>().Content;
-					return new Value<bool>(TypeConstants.Boolean, result);
+					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation("&", [TypeConstants.Boolean], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.And, [Types.Boolean], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<bool> other = arguments[0].As<bool>();
 					bool result = @this.As<bool>().Content && other.Content;
-					return new Value<bool>(TypeConstants.Boolean, result);
+					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation("|", [TypeConstants.Boolean], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Or, [Types.Boolean], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<bool> other = arguments[0].As<bool>();
 					bool result = @this.As<bool>().Content || other.Content;
-					return new Value<bool>(TypeConstants.Boolean, result);
+					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
 					bool result = @this.As<bool>().Content;
-					return new Value<string>(TypeConstants.String, result ? "true" : "false");
+					return new Value<string>(Types.String, result ? Keywords.True : Keywords.False);
 				});
 			});
-			module.DeclareClass(TypeConstants.Character, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Character, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("<", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Less, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
-					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content < other);
+					return @this.As<char>().Content < other ? Value.True : Value.False;
 				});
-				type.DeclareOperation("<=", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.LessOrEqual, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
-					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content <= other);
+					return @this.As<char>().Content <= other ? Value.True : Value.False;
 				});
-				type.DeclareOperation(">", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Greater, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
-					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content > other);
+					return @this.As<char>().Content > other ? Value.True : Value.False;
 				});
-				type.DeclareOperation(">=", [TypeConstants.Character], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.GreaterOrEqual, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
-					return new Value<bool>(TypeConstants.Boolean, @this.As<char>().Content >= other);
+					return @this.As<char>().Content >= other ? Value.True : Value.False;
 				});
-				type.DeclareOperation("+", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Plus, [Types.String], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<string> other = arguments[0].As<string>();
 					string result = @this.As<char>().Content.ToString() + other.Content;
-					return new Value<string>(TypeConstants.String, result);
+					return new Value<string>(Types.String, result);
 				});
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
-					return new Value<string>(TypeConstants.String, @this.As<char>().Content.ToString());
+					return new Value<string>(Types.String, @this.As<char>().Content.ToString());
 				});
-				type.DeclareOperation("to_number", [], TypeConstants.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_number", [], Types.Number, static (@this, arguments, scope, range) =>
 				{
-					return new Value<double>(TypeConstants.Number, (double) @this.As<char>().Content);
+					return new Value<double>(Types.Number, (double) @this.As<char>().Content);
 				});
 			});
-			module.DeclareClass(TypeConstants.String, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.String, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("+", [TypeConstants.Character], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Plus, [Types.Character], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<char> other = arguments[0].As<char>();
 					string result = @this.As<string>().Content + other.Content;
-					return new Value<string>(TypeConstants.String, result);
+					return new Value<string>(Types.String, result);
 				});
-				type.DeclareOperation("+", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Plus, [Types.String], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<string> other = arguments[0].As<string>();
 					string result = @this.As<string>().Content + other.Content;
-					return new Value<string>(TypeConstants.String, result);
+					return new Value<string>(Types.String, result);
 				});
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
 					return @this;
 				});
 			});
-			module.DeclareClass(TypeConstants.Function, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Function, Types.Any, [], static (type, _) =>
 			{
 			});
-			module.DeclareClass(TypeConstants.Type, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Type, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Class value = @this.As<Class>().Content;
-					return new Value<string>(TypeConstants.String, value.Name);
+					return new Value<string>(Types.String, value.Name);
 				});
 			});
-			module.DeclareClass(TypeConstants.Template, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Template, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation("to_string", [], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Template value = @this.As<Template>().Content;
-					return new Value<string>(TypeConstants.String, value.Name);
+					return new Value<string>(Types.String, value.Name);
 				});
 			});
-			module.DeclareClass(TypeConstants.Sequence, TypeConstants.Any, ["Content"], static (type, generics) =>
+			module.DeclareClass(Types.Sequence, Types.Any, ["Content"], static (type, generics) =>
 			{
-				type.DeclareOperation("next", [], TypeConstants.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("next", [], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					IEnumerator<Value> enumerator = @this.As<IEnumerator<Value>>().Content;
-					return new Value<bool>(TypeConstants.Boolean, enumerator.MoveNext());
+					return enumerator.MoveNext() ? Value.True : Value.False;
 				});
 				type.DeclareOperation("current", [], generics[0].Name, static (@this, arguments, scope, range) =>
 				{
@@ -243,41 +244,41 @@ public class Runtime
 					return enumerator.Current;
 				});
 			});
-			module.DeclareClass(TypeConstants.Workspace, TypeConstants.Any, [], static (type, _) =>
+			module.DeclareClass(Types.Workspace, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareConstant("pi", TypeConstants.Number, PI);
-				type.DeclareConstant("e", TypeConstants.Number, E);
-				type.DeclareOperation("read", [TypeConstants.String], TypeConstants.String, static (@this, arguments, scope, range) =>
+				type.DeclareConstant("pi", Types.Number, PI);
+				type.DeclareConstant("e", Types.Number, E);
+				type.DeclareOperation("read", [Types.String], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<string> message = arguments[0].As<string>();
 					Console.Write(message.Content);
 					string? input = Console.ReadLine();
 					ArgumentNullException.ThrowIfNull(input);
-					return new Value<string>(TypeConstants.String, input);
+					return new Value<string>(Types.String, input);
 				});
-				type.DeclareOperation("write", [TypeConstants.Any], TypeConstants.Null, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("write", [Types.Any], Types.Null, static (@this, arguments, scope, range) =>
 				{
 					Value value = arguments[0];
 					Value text = value.RunOperation("to_string", [], scope, range).As<string>();
 					Console.WriteLine(text.Content);
 					return Value.Null;
 				});
-				type.DeclareOperation("range", [TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
+				type.DeclareOperation("range", [Types.Number], $"{Types.Sequence}<{Types.Number}>", static (@this, arguments, scope, range) =>
 				{
-					Value<double> start = new(TypeConstants.Number, 0);
+					Value<double> start = new(Types.Number, 0);
 					Value end = arguments[0];
 					return @this.RunOperation("range", [start, end], scope, range);
 				});
-				type.DeclareOperation("range", [TypeConstants.Number, TypeConstants.Number], $"{TypeConstants.Sequence}<{TypeConstants.Number}>", static (@this, arguments, scope, range) =>
+				type.DeclareOperation("range", [Types.Number, Types.Number], $"{Types.Sequence}<{Types.Number}>", static (@this, arguments, scope, range) =>
 				{
 					double min = arguments[0].As<double>().Content;
 					double max = arguments[1].As<double>().Content;
 					static IEnumerator<Value> Generate(double start, double end)
 					{
-						for (double index = start; index < end; index++) yield return new Value<double>(TypeConstants.Number, index);
+						for (double index = start; index < end; index++) yield return new Value<double>(Types.Number, index);
 					}
 					IEnumerator<Value> enumerator = Generate(min, max);
-					return new Value<IEnumerator<Value>>($"{TypeConstants.Sequence}<{TypeConstants.Number}>", enumerator);
+					return new Value<IEnumerator<Value>>($"{Types.Sequence}<{Types.Number}>", enumerator);
 				});
 			});
 		});

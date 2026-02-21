@@ -1,4 +1,4 @@
-﻿namespace Quartz.Shared.Helpers;
+namespace Quartz.Shared.Helpers;
 
 public class Range<T>(in T begin, in T end)
 {

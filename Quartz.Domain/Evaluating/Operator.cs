@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
 using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Evaluating;
 
@@ -9,7 +10,7 @@ public class Operator(string name, Scope location) : Container(name, location)
 {
 	public bool TryRegisterOperation(Operation operation)
 	{
-		return Location.TryRegister(operation.Name, TypeConstants.Function, new Value<Operation>(TypeConstants.Function, operation));
+		return Location.TryRegister(operation.Name, Types.Function, new Value<Operation>(Types.Function, operation));
 	}
 
 	public bool TryReadOperation(IEnumerable<string> parameters, [NotNullWhen(true)] out Operation? operation)

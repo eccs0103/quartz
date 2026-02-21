@@ -5,6 +5,7 @@ using System.Text;
 using Quartz.Application.Evaluating;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Application.Metadata;
 
@@ -16,7 +17,7 @@ public static class SystemDetails
 
 		List<Class> types = RuntimeBuilder.Workspace.Scan<Class>().ToList();
 		List<Template> templates = RuntimeBuilder.Workspace.Scan<Template>().ToList();
-		Class workspace = types.FirstOrDefault(type => type.Name == TypeConstants.Workspace) ?? throw new InvalidOperationException($"Class '{TypeConstants.Workspace}' not found.");
+		Class workspace = types.FirstOrDefault(type => type.Name == Types.Workspace) ?? throw new InvalidOperationException($"Class '{Types.Workspace}' not found.");
 		types.Remove(workspace);
 
 		foreach (Class type in types)
@@ -43,7 +44,7 @@ public static class SystemDetails
 		string name = alias ?? type.Name;
 		builder.Append(name);
 
-		if (type.Name != TypeConstants.Any)
+		if (type.Name != Types.Any)
 		{
 			Class typeBase = GetBase(type);
 			builder.Append($" from {typeBase.Name}");
@@ -59,7 +60,7 @@ public static class SystemDetails
 				AppendOperatorSignatures(builder, @operator, type.Name);
 				continue;
 			}
-			if (variable.Tag is TypeConstants.Type or TypeConstants.Template) continue;
+			if (variable.Tag is Types.Type or Types.Template) continue;
 			builder.AppendLine($"\t{variable.Name} {variable.Tag};");
 		}
 
@@ -97,7 +98,7 @@ public static class SystemDetails
 	private static string FormatOperation(string name, Operation operation, string type)
 	{
 		List<string> parameters = operation.Parameters.ToList();
-		if (type != TypeConstants.Workspace && parameters.Count > 0) parameters.RemoveAt(0);
+		if (type != Types.Workspace && parameters.Count > 0) parameters.RemoveAt(0);
 		string signature = string.Join(", ", parameters.Select(FormatParameter));
 		return $"{name}({signature}) {operation.Result}";
 	}
@@ -146,7 +147,7 @@ public static class SystemDetails
 
 	private static bool IsOperator(Variable variable, [NotNullWhen(true)] out Operator? @operator)
 	{
-		if (variable.Tag == TypeConstants.Function && variable.Value.Content is Operator content)
+		if (variable.Tag == Types.Function && variable.Value.Content is Operator content)
 		{
 			@operator = content;
 			return true;
@@ -157,7 +158,7 @@ public static class SystemDetails
 
 	private static bool IsOperation(Variable variable, [NotNullWhen(true)] out Operation? operation)
 	{
-		if (variable.Tag == TypeConstants.Function && variable.Value.Content is Operation content)
+		if (variable.Tag == Types.Function && variable.Value.Content is Operation content)
 		{
 			operation = content;
 			return true;

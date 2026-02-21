@@ -1,4 +1,4 @@
-﻿namespace Quartz.Shared.Helpers;
+namespace Quartz.Shared.Helpers;
 
 public class MutablePosition(uint column, uint line) : Position(column, line)
 {

@@ -2,6 +2,7 @@ using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Domain.Parsing;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Application.Evaluating;
 
@@ -22,11 +23,11 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, GenericNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
-		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new SymbolNotFoundIssue(nodeTarget.Name, "Template", nodeTarget.RangePosition);
+		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new SymbolNotFoundIssue(nodeTarget.Name, Types.Template, nodeTarget.RangePosition);
 		IEnumerable<Class> generics = node.Generics.Select((nodeGeneric) =>
 		{
 			Value value = nodeGeneric.Accept(this, location);
-			if (value.Tag != TypeConstants.Type || value.Content is not Class type) throw new TypeMismatchIssue(TypeConstants.Type, value.Tag, nodeGeneric.RangePosition);
+			if (value.Tag != Types.Type || value.Content is not Class type) throw new TypeMismatchIssue(Types.Type, value.Tag, nodeGeneric.RangePosition);
 			return type;
 		});
 		if (location.TryRead(node.Name, out Variable? variable))
@@ -35,15 +36,15 @@ internal class Evaluator : IEvaluator<Value>
 			throw new InvalidSymbolUsageIssue(node.Name, "Class", node.RangePosition);
 		}
 		Class type2 = template.Assemble(node.Name, generics, node.RangePosition);
-		if (!location.TryRegister(node.Name, TypeConstants.Type, new Value<Class>(TypeConstants.Type, type2))) throw new SymbolAlreadyDeclaredIssue(node.Name, node.RangePosition);
-		return new Value<Class>(TypeConstants.Type, type2);
+		if (!location.TryRegister(node.Name, Types.Type, new Value<Class>(Types.Type, type2))) throw new SymbolAlreadyDeclaredIssue(node.Name, node.RangePosition);
+		return new Value<Class>(Types.Type, type2);
 	}
 
 	public Value Evaluate(Scope location, DeclarationNode node)
 	{
 		IdentifierNode nodeType = node.Type;
 		Value typeValue = nodeType.Accept(this, location);
-		if (typeValue.Content is not Class typeClass) throw new TypeMismatchIssue(TypeConstants.Type, typeValue.Tag, nodeType.RangePosition);
+		if (typeValue.Content is not Class typeClass) throw new TypeMismatchIssue(Types.Type, typeValue.Tag, nodeType.RangePosition);
 		string typeName = typeClass.Name;
 		IdentifierNode nodeIdentifier = node.Identifier;
 		if (node.Value == null && !TypeHelper.IsOptional(typeName)) throw new VariableNotInitializedIssue(nodeIdentifier.Name, nodeIdentifier.RangePosition);
@@ -62,7 +63,7 @@ internal class Evaluator : IEvaluator<Value>
 		return Value.Null;
 	}
 
-	public Value Evaluate(Scope location, InvokationNode node)
+	public Value Evaluate(Scope location, InvocationNode node)
 	{
 		IEnumerable<Value> arguments = node.Arguments.Select(argument => TypeHelper.Unwrap(argument.Accept(this, location)));
 		if (node.Target is FieldNode nodeField)
@@ -120,7 +121,7 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, IfStatementNode node)
 	{
 		Value condition = node.Condition.Accept(this, location);
-		if (condition.Tag != TypeConstants.Boolean) throw new TypeMismatchIssue(TypeConstants.Boolean, condition.Tag, node.Condition.RangePosition);
+		if (condition.Tag != Types.Boolean) throw new TypeMismatchIssue(Types.Boolean, condition.Tag, node.Condition.RangePosition);
 		Node? nodeBranch = condition.As<bool>().Content ? node.Then : node.Else;
 		nodeBranch?.Accept(this, location);
 		return Value.Null;
@@ -131,7 +132,7 @@ internal class Evaluator : IEvaluator<Value>
 		while (true)
 		{
 			Value condition = node.Condition.Accept(this, location);
-			if (condition.Tag != TypeConstants.Boolean) throw new TypeMismatchIssue(TypeConstants.Boolean, condition.Tag, node.Condition.RangePosition);
+			if (condition.Tag != Types.Boolean) throw new TypeMismatchIssue(Types.Boolean, condition.Tag, node.Condition.RangePosition);
 			if (!condition.As<bool>().Content) break;
 			Scope scope = location.GetSubscope("While");
 			try { node.Body.Accept(this, scope); }
@@ -147,7 +148,7 @@ internal class Evaluator : IEvaluator<Value>
 		while (true)
 		{
 			Value hasNext = generator.RunOperation("next", [], location, node.RangePosition);
-			if (hasNext.Tag != TypeConstants.Boolean) throw new TypeMismatchIssue(TypeConstants.Boolean, hasNext.Tag, node.RangePosition);
+			if (hasNext.Tag != Types.Boolean) throw new TypeMismatchIssue(Types.Boolean, hasNext.Tag, node.RangePosition);
 			if (!hasNext.As<bool>().Content) break;
 			Value current = generator.RunOperation("current", [], location, node.RangePosition);
 			Scope scope = location.GetSubscope("ForIn");

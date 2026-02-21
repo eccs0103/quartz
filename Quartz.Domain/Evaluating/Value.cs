@@ -1,12 +1,15 @@
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Evaluating;
 
 public abstract class Value(string tag, object content)
 {
 	public static object Empty { get; } = new();
-	public static Value Null { get; } = new Value<object>("Null", Empty);
+	public static Value Null { get; } = new Value<object>(Types.Null, Empty);
+	public static Value True { get; } = new Value<bool>(Types.Boolean, true);
+	public static Value False { get; } = new Value<bool>(Types.Boolean, false);
 	public string Tag { get; } = tag;
 	public object Content { get; } = content;
 
@@ -23,7 +26,7 @@ public abstract class Value(string tag, object content)
 		IEnumerable<string> types = arguments.Select(arg => arg.Tag).Prepend(Tag);
 		if (!location.TryRead(Tag, out Class? type)) throw new SymbolNotFoundIssue(Tag, "Type class", range);
 
-		if (Tag == TypeConstants.Workspace)
+		if (Tag == Types.Workspace)
 		{
 			types = arguments.Select(arg => arg.Tag);
 			if (!type.TryReadOperation(name, types, out Operation? operation)) throw new NoMatchingOverloadIssue(name, types, range);

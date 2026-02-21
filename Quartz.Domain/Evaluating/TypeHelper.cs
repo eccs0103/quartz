@@ -1,4 +1,5 @@
 using Quartz.Domain.Exceptions;
+using static Quartz.Shared.Constants;
 
 namespace Quartz.Domain.Evaluating;
 
@@ -6,11 +7,11 @@ public static class TypeHelper
 {
 	public static bool IsCompatible(string target, string value, Scope scope)
 	{
-		if (target == TypeConstants.Any) return true;
+		if (target == Types.Any) return true;
 		if (target == value) return true;
 		if (Mangler.IsNullable(target, out string? inner))
 		{
-			if (value == TypeConstants.Null) return true;
+			if (value == Types.Null) return true;
 			return IsCompatible(inner, value, scope);
 		}
 		if (scope.TryRead(target, out Class? typeTarget) && scope.TryRead(value, out Class? typeValue))
@@ -23,7 +24,7 @@ public static class TypeHelper
 
 	public static bool IsOptional(string tag)
 	{
-		return tag == TypeConstants.Null || Mangler.IsNullable(tag, out _);
+		return tag == Types.Null || Mangler.IsNullable(tag, out _);
 	}
 
 	public static Value Unwrap(Value value)

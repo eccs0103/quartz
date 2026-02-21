@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.RegularExpressions;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Exceptions.Lexing;
@@ -6,6 +6,7 @@ using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
 using Quartz.Domain.Lexing;
 using static Quartz.Domain.Lexing.Token;
+using Quartz.Shared;
 
 namespace Quartz.Application.Lexing;
 
@@ -23,19 +24,7 @@ public partial class Lexer
 		{ BracketsPattern(), Types.Bracket },
 		{ SeparatorPattern(), Types.Separator },
 	};
-	private static HashSet<string> Keywords { get; } =
-	[
-		"true",
-		"false",
-		"null",
-		"if",
-		"else",
-		"while",
-		"for",
-		"in",
-		"continue",
-		"break"
-	];
+	private static HashSet<string> Keywords { get; } = [.. Constants.Keywords.All];
 
 	private static void FixKeyword(ref Types type, string value)
 	{
