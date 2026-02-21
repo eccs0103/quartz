@@ -12,7 +12,9 @@ bubble_sort(array Array<Number>) Null {
 	}
 }
 
-array Array<Integer>(8, 15, 32, 4, 0, -5);
-write(array);
-bubble_sort(array);
-write(array);
+main() Null {
+	array Array<Integer>(8, 15, 32, 4, 0, -5);
+	write(array);
+	bubble_sort(array);
+	write(array);
+}

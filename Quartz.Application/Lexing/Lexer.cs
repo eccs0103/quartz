@@ -97,7 +97,7 @@ public partial class Lexer
 				hasChanges = true;
 				break;
 			}
-			if (!hasChanges) throw new UnexpectedCharacterIssue(code.First(), ~begin);
+			if (!hasChanges) throw new UnexpectedCharacterIssue(code[cursor], ~begin);
 		}
 		return [.. tokens];
 	}
