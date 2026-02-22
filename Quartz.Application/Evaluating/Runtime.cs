@@ -2,7 +2,7 @@ using System.Globalization;
 using Quartz.Domain.Evaluating;
 using Quartz.Domain.Parsing;
 using static System.Math;
-using static Quartz.Shared.Constants;
+using static Quartz.Domain.Definitions;
 
 namespace Quartz.Application.Evaluating;
 

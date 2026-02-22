@@ -2,7 +2,7 @@ using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
-using static Quartz.Shared.Constants;
+using static Quartz.Domain.Definitions;
 
 namespace Quartz.Application.Evaluating;
 

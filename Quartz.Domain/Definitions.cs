@@ -1,6 +1,6 @@
-namespace Quartz.Shared;
+namespace Quartz.Domain;
 
-public static class Constants
+public static class Definitions
 {
 	public static class Keywords
 	{

@@ -1,6 +1,6 @@
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
-using static Quartz.Shared.Constants;
+using static Quartz.Domain.Definitions;
 
 namespace Quartz.Domain.Parsing;
 

@@ -1,5 +1,5 @@
 using Quartz.Domain.Exceptions;
-using static Quartz.Shared.Constants;
+using static Quartz.Domain.Definitions;
 
 namespace Quartz.Domain.Evaluating;
 

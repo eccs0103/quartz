@@ -7,6 +7,7 @@ using Quartz.Shared.Helpers;
 using Quartz.Domain.Lexing;
 using static Quartz.Domain.Lexing.Token;
 using Quartz.Shared;
+using Quartz.Domain;
 
 namespace Quartz.Application.Lexing;
 
@@ -24,7 +25,7 @@ public partial class Lexer
 		{ BracketsPattern(), Types.Bracket },
 		{ SeparatorPattern(), Types.Separator },
 	};
-	private static HashSet<string> Keywords { get; } = [.. Constants.Keywords.All];
+	private static HashSet<string> Keywords { get; } = [.. Definitions.Keywords.All];
 
 	private static void FixKeyword(ref Types type, string value)
 	{

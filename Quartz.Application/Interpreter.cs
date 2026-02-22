@@ -1,10 +1,12 @@
+using Quartz.Application.Evaluating;
+using Quartz.Application.Lexing;
+using Quartz.Application.Metadata;
+using Quartz.Application.Parsing;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
-using Quartz.Application.Lexing;
-using Quartz.Application.Parsing;
-using Quartz.Application.Evaluating;
-using Quartz.Application.Metadata;
+using System.Collections.Generic;
+using Quartz.Shared;
 
 namespace Quartz.Application;
 
@@ -33,12 +35,14 @@ public class Interpreter(Interpreter.Options options)
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			Token[] tokens = Lexer.Tokenize(input);
+#if DEBUG
 			if (LogLexing && tokens.Length > 0) Console.WriteLine(string.Join<Token>(Environment.NewLine, tokens));
-
+#endif
 			Console.ForegroundColor = ConsoleColor.Magenta;
 			List<Node> trees = Parser.Parse(tokens);
+#if DEBUG
 			if (LogParsing && tokens.Length > 0) Console.WriteLine(string.Join(Environment.NewLine, trees));
-
+#endif
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			Runtime.Evaluate(trees);
 		}
@@ -56,8 +60,30 @@ public class Interpreter(Interpreter.Options options)
 		Console.ForegroundColor = foreground;
 	}
 
-	public string GetSystemHeader()
+	public void WriteHeader()
 	{
-		return SystemDetails.Generate(Runtime);
+		Console.WriteLine(SystemDetails.Generate(Runtime));
+	}
+
+	public void RunInteractiveMode()
+	{
+		foreach (string instruction in Source.ReadInstructions())
+		{
+			this.Run(instruction);
+		}
+	}
+
+	public void RunScriptMode(string[] paths)
+	{
+		foreach (string path in paths)
+		{
+			string? code = Source.Fetch(path);
+			if (code == null)
+			{
+				Console.WriteLine($"Unable to read code at '{path}'");
+				continue;
+			}
+			this.Run(code);
+		}
 	}
 }

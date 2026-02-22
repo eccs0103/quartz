@@ -1,3 +1,9 @@
+## 0.6.1 (22.02.2026)
+- Reduced memory allocations during evaluation of logical and comparison operations.
+- Fixed a lexer bug: error messages now correctly report the unexpected character at the cursor position.
+- Improved formatting and increased stability of the runtime type-system output produced by the `--header` CLI flag.
+- Enhanced documentation (`README.md`) with many new, detailed code examples.
+
 ## 0.6.0 (19.02.2026)
 - Added `Character` type with single-quote literal syntax (e.g., `'a'`). Supports `to_string()`, `to_number()`, comparison operators, and concatenation with `String`.
 - Introduced dot-notation for member access and method calls: `value.method()`, `value.field`.

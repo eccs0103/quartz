@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
-using static Quartz.Shared.Constants;
+using static Quartz.Domain.Definitions;
 
 namespace Quartz.Domain.Evaluating;
 
