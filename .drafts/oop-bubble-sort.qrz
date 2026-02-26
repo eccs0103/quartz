@@ -14,7 +14,7 @@ Array<Number> {
 	bubble_sort() Null {
 		for (index_1 Integer in range(0, this.length)) {
 			for (index_2 Integer in range(index_1, this.length)) {
-				this.swap(index_1, index_2);
+				if (this[index_1] > this[index_2]) this.swap(index_1, index_2);
 			}
 		}
 	}

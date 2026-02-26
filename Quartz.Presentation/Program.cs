@@ -6,22 +6,22 @@ namespace Quartz.Presentation;
 
 class Program
 {
-	private static void Main(string[] args)
+	private static void Main(string[] arguments)
 	{
 		Interpreter interpreter = new();
 
-		if (args.Length < 1)
+		if (arguments.Length < 1)
 		{
 			interpreter.RunInteractiveMode();
 			return;
 		}
 
-		if (args.SingleOrDefault() == "--header")
+		if (arguments.SingleOrDefault() == "--header")
 		{
 			interpreter.WriteHeader();
 			return;
 		}
 
-		interpreter.RunScriptMode(args);
+		interpreter.RunScriptMode(arguments);
 	}
 }

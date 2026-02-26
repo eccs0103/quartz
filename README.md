@@ -2,7 +2,7 @@
 
 A simplified, custom-built programming language.
 
-[Change log](./CHANGELOG.md) | [Grammar](./Grammar.ebnf)
+[Change log](./CHANGELOG.md) | [Grammar](./grammar.ebnf)
 
 ## Examples
 
