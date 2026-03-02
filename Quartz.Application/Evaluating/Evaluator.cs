@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Exceptions.Semantic;
@@ -56,11 +57,36 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, AssignmentNode node)
 	{
-		IdentifierNode nodeIdentifier = node.Identifier;
 		Value value = node.Value.Accept(this, location);
-		if (!location.TryRead(nodeIdentifier.Name, out Variable? variable)) throw new SymbolNotFoundIssue(nodeIdentifier.Name, "Variable", nodeIdentifier.RangePosition);
-		variable.Assign(value, location, nodeIdentifier.RangePosition);
-		return Value.Null;
+		Node nodeTarget = node.Target;
+		if (nodeTarget is IdentifierNode nodeIdentifier)
+		{
+			if (!location.TryRead(nodeIdentifier.Name, out Variable? variable)) throw new SymbolNotFoundIssue(nodeIdentifier.Name, "Variable", nodeIdentifier.RangePosition);
+			variable.Assign(value, location, nodeIdentifier.RangePosition);
+			return Value.Null;
+		}
+		if (nodeTarget is IndexNode nodeIndex)
+		{
+			Value target = nodeIndex.Target.Accept(this, location);
+			Value index = nodeIndex.Index.Accept(this, location);
+			return target.RunOperation("[]", [index, value], location, node.RangePosition);
+		}
+		throw new InvalidSymbolUsageIssue(nodeTarget.ToString()!, "Assignment Target", node.Target.RangePosition);
+	}
+
+	public Value Evaluate(Scope location, ArrayNode node)
+	{
+		List<Value> elements = node.Elements.Select(element => element.Accept(this, location)).ToList();
+		string tag = elements.Count > 0 ? elements[0].Tag : Types.Any;
+		if (elements.Any(element => element.Tag != tag)) tag = Types.Any;
+		return new Value<List<Value>>(Mangler.Generics(Types.Array, [tag]), elements);
+	}
+
+	public Value Evaluate(Scope location, IndexNode node)
+	{
+		Value target = node.Target.Accept(this, location);
+		Value index = node.Index.Accept(this, location);
+		return target.RunOperation("[]", [index], location, node.RangePosition);
 	}
 
 	public Value Evaluate(Scope location, InvocationNode node)
@@ -73,10 +99,17 @@ internal class Evaluator : IEvaluator<Value>
 		}
 		if (node.Target is IdentifierNode nodeIdentifier)
 		{
-			if (!location.TryRead(nodeIdentifier.Name, out Operator? @operator)) throw new SymbolNotFoundIssue(nodeIdentifier.Name, "Operator", nodeIdentifier.RangePosition);
-			if (!@operator.TryReadOperation(arguments.Select(result => result.Tag), out Operation? operation)) throw new NoMatchingOverloadIssue(nodeIdentifier.Name, arguments.Select(a => a.Tag), nodeIdentifier.RangePosition);
-			Scope scope = location.GetSubscope("Call");
-			return operation.Invoke(arguments, scope, node.RangePosition);
+			if (location.TryRead(nodeIdentifier.Name, out Operator? @operator))
+			{
+				if (!@operator.TryReadOperation(arguments.Select(result => result.Tag), out Operation? operation)) throw new NoMatchingOverloadIssue(nodeIdentifier.Name, arguments.Select(a => a.Tag), nodeIdentifier.RangePosition);
+				Scope scope = location.GetSubscope("Call");
+				return operation.Invoke(arguments, scope, node.RangePosition);
+			}
+			if (location.TryRead(nodeIdentifier.Name, out Class? type))
+			{
+				if (arguments.Count() == 1) return arguments.First();
+			}
+			throw new SymbolNotFoundIssue(nodeIdentifier.Name, "Operator", nodeIdentifier.RangePosition);
 		}
 		throw new NotCallableIssue(node.Target.ToString()!, node.Target.RangePosition);
 	}
@@ -145,6 +178,9 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, ForStatementNode node)
 	{
 		Value generator = node.Collection.Accept(this, location);
+		if (location.TryRead(generator.Tag, out Class? type) && type.TryReadOperation("...", [generator.Tag], out Operation? operation))
+			generator = operation.Invoke([generator], location, node.RangePosition);
+
 		while (true)
 		{
 			Value hasNext = generator.RunOperation("next", [], location, node.RangePosition);

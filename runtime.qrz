@@ -276,6 +276,46 @@ while (manual_sequence.next()) {
 	write("Manual: " + manual_value.to_string());
 }
 
+// ------------------------------------------------------------
+// [SECTION 14] Arrays
+// ------------------------------------------------------------
+
+numbers Array<Number>([10, 20, 30]);
+write("Array created: " + numbers.to_string());
+write("Length: " + numbers.length().to_string());
+
+write("Element access:");
+write("numbers[0] = " + numbers[0].to_string());
+write("numbers[2] = " + numbers[2].to_string());
+
+numbers[1] : 99;
+write("After numbers[1] is 99: " + numbers.to_string());
+
+write("push / pop:");
+numbers.push(42);
+write("After push(42): " + numbers.to_string());
+numbers.pop();
+write("After pop(): " + numbers.to_string());
+
+write("For-each iteration:");
+for (item Number in numbers) {
+	write(item.to_string());
+}
+
+write("Algorithms: Bubble Sort");
+unsorted Array<Number>([5, 1, 4, 2, 8]);
+write("Before: " + unsorted.to_string());
+count Number(unsorted.length());
+for (index Number in range(0, count)) {
+	for (index_2 Number in range(index, count)) {
+		if (unsorted[index] <= unsorted[index_2]) continue;
+		temporary Number(unsorted[index]);
+		unsorted[index] : unsorted[index_2];
+		unsorted[index_2] : temporary;
+	}
+}
+write("After: " + unsorted.to_string());
+
 // ============================================================
 // TEST COMPLETE
 // ============================================================

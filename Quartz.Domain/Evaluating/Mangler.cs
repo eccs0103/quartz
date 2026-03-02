@@ -4,19 +4,24 @@ namespace Quartz.Domain.Evaluating;
 
 public static class Mangler
 {
+	public static string List(IEnumerable<object> items)
+	{
+		return string.Join(", ", items);
+	}
+
 	public static string Parameters(IEnumerable<string> parameters)
 	{
 		return $"({List(parameters)})";
 	}
 
+	public static string Enumerations(IEnumerable<object> enumerations)
+	{
+		return $"[{List(enumerations)}]";
+	}
+
 	public static string Generics(string target, IEnumerable<string> generics)
 	{
 		return $"{target}<{List(generics)}>";
-	}
-
-	public static string List(IEnumerable<object> items)
-	{
-		return string.Join(", ", items);
 	}
 
 	public static bool IsGeneric(string tag, [NotNullWhen(true)] out string? template, [NotNullWhen(true)] out IEnumerable<string>? arguments)

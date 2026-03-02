@@ -90,7 +90,7 @@ public static class SystemDetails
 			Class type = new(generic, new Scope(generic), null);
 			arguments.Add(type);
 		}
-		string name = $"{template.Name}<{string.Join(", ", generics)}>";
+		string name = Mangler.Generics(template.Name, generics);
 		Class assembled = template.Assemble(template.Name, arguments, ~Position.Zero);
 		return FormatClass(assembled, name);
 	}

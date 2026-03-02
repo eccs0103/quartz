@@ -2,7 +2,7 @@
 	"profiles": {
 		"Quartz.Presentation": {
 			"commandName": "Project",
-			"commandLineArgs": "\".\\Code.qrz\""
+			"commandLineArgs": "\".\\runtime.qrz\""
 		}
 	}
 }

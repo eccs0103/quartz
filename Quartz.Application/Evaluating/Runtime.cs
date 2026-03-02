@@ -1,5 +1,7 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Quartz.Domain.Evaluating;
+using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Domain.Parsing;
 using static System.Math;
 using static Quartz.Domain.Definitions;
@@ -242,6 +244,60 @@ public class Runtime
 				{
 					IEnumerator<Value> enumerator = @this.As<IEnumerator<Value>>().Content;
 					return enumerator.Current;
+				});
+			});
+			module.DeclareClass(Types.Array, Types.Any, ["Content"], static (type, generics) =>
+			{
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
+				{
+					List<Value> elements = @this.As<List<Value>>().Content;
+					IEnumerable<string> strings = elements.Select(value => value.RunOperation("to_string", [], scope, range).As<string>().Content);
+					return new Value<string>(Types.String, Mangler.Enumerations(strings));
+				});
+
+				type.DeclareOperation("...", [], $"{Types.Sequence}<{generics[0].Name}>", (@this, arguments, scope, range) =>
+				{
+					List<Value> elements = @this.As<List<Value>>().Content;
+					IEnumerator<Value> enumerator = elements.GetEnumerator();
+					return new Value<IEnumerator<Value>>($"{Types.Sequence}<{generics[0].Name}>", enumerator);
+				});
+
+				type.DeclareOperation("length", [], Types.Number, static (@this, arguments, scope, range) =>
+				{
+					List<Value> elements = @this.As<List<Value>>().Content;
+					return new Value<double>(Types.Number, elements.Count);
+				});
+
+				type.DeclareOperation("[]", [Types.Number], generics[0].Name, static (@this, arguments, scope, range) =>
+				{
+					List<Value> elements = @this.As<List<Value>>().Content;
+					int index = (int) arguments[0].As<double>().Content;
+					if (index < 0 || index >= elements.Count) throw new OutOfRangeIssue(index, elements.Count, range);
+					return elements[index];
+				});
+
+				type.DeclareOperation("[]", [Types.Number, generics[0].Name], Types.Null, static (@this, arguments, scope, range) =>
+				{
+					List<Value> elements = @this.As<List<Value>>().Content;
+					int index = (int) arguments[0].As<double>().Content;
+					Value value = arguments[1];
+					if (index < 0 || index >= elements.Count) throw new OutOfRangeIssue(index, elements.Count, range);
+					elements[index] = value;
+					return Value.Null;
+				});
+				type.DeclareOperation("push", [generics[0].Name], Types.Null, static (@this, arguments, scope, range) =>
+				{
+					List<Value> elements = @this.As<List<Value>>().Content;
+					Value value = arguments[0];
+					elements.Add(value);
+					return Value.Null;
+				});
+				type.DeclareOperation("pop", [], Types.Null, static (@this, arguments, scope, range) =>
+				{
+					List<Value> elements = @this.As<List<Value>>().Content;
+					if (elements.Count == 0) throw new OutOfRangeIssue(-1, 0, range); // TODO: what TF is this error?
+					elements.RemoveAt(elements.Count - 1);
+					return Value.Null;
 				});
 			});
 			module.DeclareClass(Types.Workspace, Types.Any, [], static (type, _) =>

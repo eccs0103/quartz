@@ -30,6 +30,7 @@ public static class Definitions
 		public const string Type = "Type";
 		public const string Template = "Template";
 		public const string Sequence = "Sequence";
+		public const string Array = "Array";
 		public const string Function = "Function";
 		public const string Workspace = "@Workspace";
 	}
@@ -62,6 +63,8 @@ public static class Definitions
 		public const string CloseBrace = "}";
 		public const string OpenAngle = "<";
 		public const string CloseAngle = ">";
+		public const string OpenBracket = "[";
+		public const string CloseBracket = "]";
 	}
 
 	public static class Separators

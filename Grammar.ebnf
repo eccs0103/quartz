@@ -79,7 +79,12 @@ Unary
 	| "!" ) ], Primary;
 
 Primary
-	= Atomic, { ".", Identifier | "(", [ Arguments ], ")" };
+	= Atomic, { Postfix };
+
+Postfix
+	= ".", Identifier
+	| "(", [ Arguments ], ")"
+	| "[", Expression, "]";
 
 Atomic
 	= "null"
@@ -87,7 +92,8 @@ Atomic
 	| Boolean
 	| String
 	| IdentifierExpression
-	| "(", Expression, ")";
+	| "(", Expression, ")"
+	| "[", [ Arguments ], "]";
 
 IdentifierExpression
 	= Identifier, [ GenericArguments | Invocation ];
