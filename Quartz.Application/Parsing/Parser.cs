@@ -1,12 +1,9 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Quartz.Domain;
-using Quartz.Domain.Exceptions;
 using Quartz.Domain.Exceptions.Parsing;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
-using Quartz.Shared;
-using Quartz.Shared.Helpers;
 using static Quartz.Domain.Lexing.Token;
 
 namespace Quartz.Application.Parsing;
@@ -169,7 +166,7 @@ public class Parser
 		IEnumerable<Node> statements = [.. ParseProgram(subwalker)];
 		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(close, ~walker.RangePosition.End);
 		walker.Index++;
-		
+
 		return new BlockNode(statements, token1.RangePosition >> token2.RangePosition);
 	}
 

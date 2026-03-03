@@ -1,4 +1,3 @@
-using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Exceptions.Semantic;

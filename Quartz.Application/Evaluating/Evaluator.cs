@@ -1,6 +1,5 @@
-using System.Runtime.CompilerServices;
 using Quartz.Domain.Evaluating;
-using Quartz.Domain.Exceptions;
+using Quartz.Domain.Exceptions.Flow;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Domain.Parsing;
 using static Quartz.Domain.Definitions;
@@ -198,11 +197,11 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, BreakStatementNode node)
 	{
-		throw new BreakSignal();
+		throw new BreakSignal(node.RangePosition);
 	}
 
 	public Value Evaluate(Scope location, ContinueStatementNode node)
 	{
-		throw new ContinueSignal();
+		throw new ContinueSignal(node.RangePosition);
 	}
 }

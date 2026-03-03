@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Domain.Parsing;

@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Quartz.Application;
 
 namespace Quartz.Presentation;

@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
 using static Quartz.Domain.Definitions;

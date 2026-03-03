@@ -5,7 +5,6 @@ using Quartz.Application.Parsing;
 using Quartz.Domain.Exceptions;
 using Quartz.Domain.Lexing;
 using Quartz.Domain.Parsing;
-using System.Collections.Generic;
 using Quartz.Shared;
 
 namespace Quartz.Application;
@@ -62,7 +61,7 @@ public class Interpreter(Interpreter.Options options)
 
 	public void WriteHeader()
 	{
-		Console.WriteLine(SystemDetails.Generate(Runtime));
+		Console.WriteLine(Reflection.Generate(Runtime));
 	}
 
 	public void RunInteractiveMode()

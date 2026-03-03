@@ -1,13 +1,10 @@
-using System.Text;
 using System.Text.RegularExpressions;
-using Quartz.Domain.Exceptions;
+using Quartz.Domain;
 using Quartz.Domain.Exceptions.Lexing;
+using Quartz.Domain.Lexing;
 using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
-using Quartz.Domain.Lexing;
 using static Quartz.Domain.Lexing.Token;
-using Quartz.Shared;
-using Quartz.Domain;
 
 namespace Quartz.Application.Lexing;
 

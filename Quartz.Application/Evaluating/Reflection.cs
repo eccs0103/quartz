@@ -9,7 +9,7 @@ using static Quartz.Domain.Definitions;
 
 namespace Quartz.Application.Metadata;
 
-public static class SystemDetails
+public static class Reflection
 {
 	public static string Generate(Runtime runtime)
 	{

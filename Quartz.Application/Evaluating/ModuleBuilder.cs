@@ -1,5 +1,4 @@
 using Quartz.Domain.Evaluating;
-using Quartz.Domain.Exceptions;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Shared.Helpers;
 using static Quartz.Domain.Definitions;

@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Quartz.Domain.Exceptions;
 using Quartz.Shared.Helpers;
 using static Quartz.Domain.Definitions;
 

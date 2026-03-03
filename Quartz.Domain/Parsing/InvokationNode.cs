@@ -1,5 +1,4 @@
 using Quartz.Domain.Evaluating;
-using Quartz.Shared.Extensions;
 using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
