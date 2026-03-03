@@ -72,9 +72,9 @@ public class Parser
 			return DeclarationParse(walker);
 		}
 
-		walker.SaveIndex();
 		try
 		{
+			walker.SaveIndex();
 			return AssignmentParse(walker);
 		}
 		catch (Issue)
@@ -169,8 +169,8 @@ public class Parser
 		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, open)) throw new ExpectedIssue(open, walker.RangePosition);
 		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
 		Walker subwalker = walker.GetSubwalker(open, close);
-		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(close, ~walker.RangePosition.End);
 		IEnumerable<Node> statements = [.. ProgramParse(subwalker)];
+		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(close, ~walker.RangePosition.End);
 		walker.Index++;
 		return new BlockNode(statements, token1.RangePosition >> token2.RangePosition);
 	}
@@ -354,7 +354,7 @@ public class Parser
 			walker.Index++;
 			return character;
 		}
-		case Types.Identifier: return IdentifierExpressionParse(walker);
+		case Types.Identifier: return DesignatorParse(walker);
 		case Types.Keyword:
 		{
 			if (token.Represents(Definitions.Keywords.True, Definitions.Keywords.False))
@@ -434,7 +434,7 @@ public class Parser
 		return node;
 	}
 
-	private Node IdentifierExpressionParse(Walker walker)
+	private Node DesignatorParse(Walker walker)
 	{
 		if (!walker.Peek(out Token? token)) throw new ExpectedIssue("identifier expression", ~walker.RangePosition.Begin);
 		IdentifierNode identifier = new(token.Value, token.RangePosition);

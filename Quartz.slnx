@@ -4,7 +4,7 @@
 		<File Path=".gitattributes" />
 		<File Path=".gitignore" />
 		<File Path="CHANGELOG.md" />
-		<File Path="Grammar.ebnf" />
+		<File Path="grammar.ebnf" />
 		<File Path="LICENSE" />
 		<File Path="README.md" />
 		<File Path="runtime.header.qrz" />
