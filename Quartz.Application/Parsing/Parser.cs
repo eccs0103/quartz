@@ -67,20 +67,9 @@ public class Parser
 		if (token1.Represents(Types.Keyword, Definitions.Keywords.Break)) return BreakStatementParse(walker);
 		if (token1.Represents(Types.Keyword, Definitions.Keywords.Continue)) return ContinueStatementParse(walker);
 
-		if (token1.Represents(Types.Identifier) && walker.Peek(out Token? token2, 1) && token2.Represents(Types.Identifier))
-		{
-			return DeclarationParse(walker);
-		}
+		if (token1.Represents(Types.Identifier) && walker.Peek(out Token? token2, 1) && token2.Represents(Types.Identifier)) return DeclarationParse(walker);
 
-		try
-		{
-			walker.SaveIndex();
-			return AssignmentParse(walker);
-		}
-		catch (Issue)
-		{
-			walker.RestoreIndex();
-		}
+		if (walker.Attempt(() => AssignmentParse(walker), out AssignmentNode? assignment)) return assignment;
 
 		return ExpressionParse(walker);
 	}
@@ -220,22 +209,16 @@ public class Parser
 
 	private GenericNode? TemplateParse(Walker walker, IdentifierNode identifier)
 	{
-		try
+		if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, Definitions.Brackets.OpenAngle)) return null;
+		if (walker.Attempt(() =>
 		{
-			if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, Definitions.Brackets.OpenAngle)) return null;
-			walker.SaveIndex();
 			walker.Index++;
 			IEnumerable<IdentifierNode> generics = [.. GenericsParse(walker)];
 			if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Operator, Definitions.Brackets.CloseAngle)) throw new ExpectedIssue(Definitions.Brackets.CloseAngle, ~walker.RangePosition.End);
 			walker.Index++;
-			walker.DropIndex();
 			return new GenericNode(identifier, generics, identifier.RangePosition >> token2.RangePosition);
-		}
-		catch (Issue)
-		{
-			walker.RestoreIndex();
-			return null;
-		}
+		}, out GenericNode? generic)) return generic;
+		return null;
 	}
 
 	private IEnumerable<IdentifierNode> GenericsParse(Walker walker)
