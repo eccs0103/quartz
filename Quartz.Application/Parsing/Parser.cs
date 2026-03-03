@@ -57,6 +57,7 @@ public class Parser
 		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(Definitions.Separators.Semicolon, ~walker.RangePosition.End);
 		if (!token2.Represents(Types.Separator, Definitions.Separators.Semicolon)) throw new ExpectedIssue(Definitions.Separators.Semicolon, token2.RangePosition);
 		walker.Index++;
+
 		return statement;
 	}
 
@@ -79,6 +80,7 @@ public class Parser
 		Node target = PrimaryParse(walker);
 		if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, Definitions.Operators.Colon)) throw new ExpectedIssue(Definitions.Operators.Colon, ~target.RangePosition.End);
 		walker.Index++;
+
 		Node value = ExpressionParse(walker);
 		return new AssignmentNode(target, value, target.RangePosition >> value.RangePosition);
 	}
@@ -125,6 +127,7 @@ public class Parser
 	{
 		if (!walker.Peek(out Token? token) || !token.Represents(Types.Keyword, Definitions.Keywords.Break)) throw new ExpectedIssue(Definitions.Keywords.Break, walker.RangePosition);
 		walker.Index++;
+
 		return new BreakStatementNode(token.RangePosition);
 	}
 
@@ -132,6 +135,7 @@ public class Parser
 	{
 		if (!walker.Peek(out Token? token) || !token.Represents(Types.Keyword, Definitions.Keywords.Continue)) throw new ExpectedIssue(Definitions.Keywords.Continue, walker.RangePosition);
 		walker.Index++;
+
 		return new ContinueStatementNode(token.RangePosition);
 	}
 
@@ -161,6 +165,7 @@ public class Parser
 		IEnumerable<Node> statements = [.. ProgramParse(subwalker)];
 		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(close, ~walker.RangePosition.End);
 		walker.Index++;
+		
 		return new BlockNode(statements, token1.RangePosition >> token2.RangePosition);
 	}
 
@@ -178,6 +183,7 @@ public class Parser
 		Node value = ExpressionParse(walker.GetSubwalker(open, close));
 		if (!walker.Peek(out Token? token3)) throw new ExpectedIssue(close, ~type.RangePosition.End);
 		walker.Index++;
+
 		return new DeclarationNode(type, identifier, value, identifier.RangePosition >> token3.RangePosition);
 	}
 
@@ -192,33 +198,33 @@ public class Parser
 			string open = token2.Value;
 			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
 			walker.Index++;
+
 			IEnumerable<IdentifierNode> generics = [.. GenericsParse(walker)];
 			if (!walker.Peek(out Token? token3)) throw new ExpectedIssue(close, ~type.RangePosition.End);
 			walker.Index++;
-			type = new GenericNode(type, generics, type.RangePosition >> token3.RangePosition);
+
+			type = new TemplateNode(type, generics, type.RangePosition >> token3.RangePosition);
 		}
 
 		if (walker.Peek(out Token? token4) && token4.Represents(Types.Operator, Definitions.Operators.Question))
 		{
-			type = new GenericNode(new IdentifierNode(Definitions.Types.Nullable, type.RangePosition), [type], type.RangePosition >> token4.RangePosition);
+			type = new TemplateNode(new IdentifierNode(Definitions.Types.Nullable, type.RangePosition), [type], type.RangePosition >> token4.RangePosition);
 			walker.Index++;
 		}
 
 		return type;
 	}
 
-	private GenericNode? TemplateParse(Walker walker, IdentifierNode identifier)
+	private TemplateNode TemplateParse(Walker walker, IdentifierNode identifier)
 	{
-		if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, Definitions.Brackets.OpenAngle)) return null;
-		if (walker.Attempt(() =>
-		{
-			walker.Index++;
-			IEnumerable<IdentifierNode> generics = [.. GenericsParse(walker)];
-			if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Operator, Definitions.Brackets.CloseAngle)) throw new ExpectedIssue(Definitions.Brackets.CloseAngle, ~walker.RangePosition.End);
-			walker.Index++;
-			return new GenericNode(identifier, generics, identifier.RangePosition >> token2.RangePosition);
-		}, out GenericNode? generic)) return generic;
-		return null;
+		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Operator, Definitions.Brackets.OpenAngle)) throw new ExpectedIssue(Definitions.Brackets.OpenAngle, walker.RangePosition);
+		walker.Index++;
+
+		IEnumerable<IdentifierNode> generics = [.. GenericsParse(walker)];
+		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Operator, Definitions.Brackets.CloseAngle)) throw new ExpectedIssue(Definitions.Brackets.CloseAngle, ~walker.RangePosition.End);
+		walker.Index++;
+
+		return new TemplateNode(identifier, generics, identifier.RangePosition >> token2.RangePosition);
 	}
 
 	private IEnumerable<IdentifierNode> GenericsParse(Walker walker)
@@ -244,6 +250,7 @@ public class Parser
 		{
 			IdentifierNode @operator = new(token.Value, token.RangePosition);
 			walker.Index++;
+
 			Node right = ConjunctionParse(walker);
 			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
 		}
@@ -257,6 +264,7 @@ public class Parser
 		{
 			IdentifierNode @operator = new(token.Value, token.RangePosition);
 			walker.Index++;
+
 			Node right = RelationParse(walker);
 			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
 		}
@@ -270,6 +278,7 @@ public class Parser
 		{
 			IdentifierNode @operator = new(token.Value, token.RangePosition);
 			walker.Index++;
+
 			Node right = AdditiveParse(walker);
 			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
 		}
@@ -283,6 +292,7 @@ public class Parser
 		{
 			IdentifierNode @operator = new(token.Value, token.RangePosition);
 			walker.Index++;
+
 			Node right = MultiplicativeParse(walker);
 			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
 		}
@@ -296,6 +306,7 @@ public class Parser
 		{
 			IdentifierNode @operator = new(token.Value, token.RangePosition);
 			walker.Index++;
+
 			Node right = PrefixParse(walker);
 			left = new BinaryOperatorNode(@operator, left, right, left.RangePosition >> right.RangePosition);
 		}
@@ -307,6 +318,7 @@ public class Parser
 		if (!walker.Peek(out Token? token) || !token.Represents(Types.Operator, Definitions.Operators.Plus, Definitions.Operators.Minus, Definitions.Operators.Not)) return PrimaryParse(walker);
 		IdentifierNode @operator = new(token.Value, token.RangePosition);
 		walker.Index++;
+
 		Node target = PrimaryParse(walker);
 		return new UnaryOperatorNode(@operator, target, token.RangePosition >> target.RangePosition);
 	}
@@ -321,6 +333,7 @@ public class Parser
 			double value = double.Parse(token.Value, CultureInfo.InvariantCulture);
 			ValueNode number = new(Definitions.Types.Number, value, token.RangePosition);
 			walker.Index++;
+
 			return number;
 		}
 		case Types.String:
@@ -328,6 +341,7 @@ public class Parser
 			string value = Regex.Unescape(token.Value[1..^1]);
 			ValueNode @string = new(Definitions.Types.String, value, token.RangePosition);
 			walker.Index++;
+
 			return @string;
 		}
 		case Types.Character:
@@ -335,6 +349,7 @@ public class Parser
 			char value = Regex.Unescape(token.Value[1..^1]).Single();
 			ValueNode character = new(Definitions.Types.Character, value, token.RangePosition);
 			walker.Index++;
+
 			return character;
 		}
 		case Types.Identifier: return DesignatorParse(walker);
@@ -360,6 +375,7 @@ public class Parser
 				if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token.RangePosition);
 				Node expression = ExpressionParse(walker.GetSubwalker(open, close));
 				walker.Index++;
+
 				return expression;
 			}
 			if (token.Represents(Definitions.Brackets.OpenBracket))
@@ -369,6 +385,7 @@ public class Parser
 				IEnumerable<Node> elements = [.. ArgumentsParse(walker.GetSubwalker(open, close))];
 				if (!walker.Peek(out Token? closeToken)) throw new ExpectedIssue(close, ~token.RangePosition.End);
 				walker.Index++;
+
 				return new ArrayNode(elements, token.RangePosition >> closeToken.RangePosition);
 			}
 			throw new UnexpectedIssue(token.Value, token.RangePosition);
@@ -394,6 +411,7 @@ public class Parser
 			if (!walker.Peek(out Token? idToken) || !idToken.Represents(Types.Identifier)) throw new ExpectedIssue("member name", ~token.RangePosition.End);
 			IdentifierNode member = new(idToken.Value, idToken.RangePosition);
 			walker.Index++;
+
 			return new FieldNode(node, member, node.RangePosition >> member.RangePosition);
 		}
 		if (token.Represents(Types.Bracket, Definitions.Brackets.OpenParen))
@@ -403,6 +421,7 @@ public class Parser
 			IEnumerable<Node> arguments = [.. ArgumentsParse(walker.GetSubwalker(open, close))];
 			if (!walker.Peek(out Token? closeToken)) throw new ExpectedIssue(close, ~node.RangePosition.End);
 			walker.Index++;
+
 			return new InvocationNode(node, arguments, node.RangePosition >> closeToken.RangePosition);
 		}
 		if (token.Represents(Types.Bracket, Definitions.Brackets.OpenBracket))
@@ -412,6 +431,7 @@ public class Parser
 			Node index = ExpressionParse(walker.GetSubwalker(open, close));
 			if (!walker.Peek(out Token? closeToken)) throw new ExpectedIssue(close, ~node.RangePosition.End);
 			walker.Index++;
+
 			return new IndexNode(node, index, node.RangePosition >> closeToken.RangePosition);
 		}
 		return node;
@@ -423,8 +443,7 @@ public class Parser
 		IdentifierNode identifier = new(token.Value, token.RangePosition);
 		walker.Index++;
 
-		GenericNode? generic = TemplateParse(walker, identifier);
-		if (generic != null) return generic;
+		if (walker.Attempt(() => TemplateParse(walker, identifier), out TemplateNode? template)) return template;
 
 		return InvocationParse(walker, identifier);
 	}
@@ -437,6 +456,7 @@ public class Parser
 		IEnumerable<Node> arguments = [.. ArgumentsParse(walker.GetSubwalker(open, close))];
 		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(close, ~identifier.RangePosition.End);
 		walker.Index++;
+
 		return new InvocationNode(identifier, arguments, identifier.RangePosition >> token2.RangePosition);
 	}
 

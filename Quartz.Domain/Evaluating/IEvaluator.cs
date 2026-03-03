@@ -6,7 +6,7 @@ public interface IEvaluator<out TReturn>
 {
 	public TReturn Evaluate(Scope location, ValueNode node);
 	public TReturn Evaluate(Scope location, IdentifierNode node);
-	public TReturn Evaluate(Scope location, GenericNode node);
+	public TReturn Evaluate(Scope location, TemplateNode node);
 	public TReturn Evaluate(Scope location, DeclarationNode node);
 	public TReturn Evaluate(Scope location, AssignmentNode node);
 	public TReturn Evaluate(Scope location, ArrayNode node);

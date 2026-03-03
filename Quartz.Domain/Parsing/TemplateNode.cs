@@ -4,7 +4,7 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
 
-public class GenericNode(IdentifierNode target, IEnumerable<IdentifierNode> generics, Range<Position> range) : IdentifierNode(Mangler.Generics(target.Name, generics.Select(generic => generic.Name)), range)
+public class TemplateNode(IdentifierNode target, IEnumerable<IdentifierNode> generics, Range<Position> range) : IdentifierNode(Mangler.Generics(target.Name, generics.Select(generic => generic.Name)), range)
 {
 	public IdentifierNode Target { get; } = target;
 	public IEnumerable<IdentifierNode> Generics { get; } = generics;

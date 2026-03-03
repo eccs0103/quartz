@@ -21,7 +21,7 @@ internal class Evaluator : IEvaluator<Value>
 		throw new SymbolNotFoundIssue(node.Name, "Variable", node.RangePosition);
 	}
 
-	public Value Evaluate(Scope location, GenericNode node)
+	public Value Evaluate(Scope location, TemplateNode node)
 	{
 		IdentifierNode nodeTarget = node.Target;
 		if (!location.TryRead(nodeTarget.Name, out Template? template)) throw new SymbolNotFoundIssue(nodeTarget.Name, Types.Template, nodeTarget.RangePosition);
