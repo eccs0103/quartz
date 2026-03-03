@@ -91,7 +91,9 @@ public class Parser
 		walker.Index++;
 
 		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, Definitions.Brackets.OpenParen)) throw new ExpectedIssue(Definitions.Brackets.OpenParen, ~token1.RangePosition.End);
-		Node condition = ExpressionParse(walker.GetSubwalker(Definitions.Brackets.OpenParen, Definitions.Brackets.CloseParen));
+		string open = token2.Value;
+		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
+		Node condition = ExpressionParse(walker.GetSubwalker(open, close));
 		walker.Index++;
 
 		Node body = StatementParse(walker);
@@ -145,7 +147,9 @@ public class Parser
 		walker.Index++;
 
 		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, Definitions.Brackets.OpenParen)) throw new ExpectedIssue(Definitions.Brackets.OpenParen, ~token1.RangePosition.End);
-		Node condition = ExpressionParse(walker.GetSubwalker(Definitions.Brackets.OpenParen, Definitions.Brackets.CloseParen));
+		string open = token2.Value;
+		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
+		Node condition = ExpressionParse(walker.GetSubwalker(open, close));
 		walker.Index++;
 
 		Node then = StatementParse(walker);
@@ -158,8 +162,8 @@ public class Parser
 
 	private BlockNode BlockParse(Walker walker)
 	{
-		const string open = Definitions.Brackets.OpenBrace;
-		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, open)) throw new ExpectedIssue(open, walker.RangePosition);
+		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, Definitions.Brackets.OpenBrace)) throw new ExpectedIssue(Definitions.Brackets.OpenBrace, walker.RangePosition);
+		string open = token1.Value;
 		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
 		Walker subwalker = walker.GetSubwalker(open, close);
 		IEnumerable<Node> statements = [.. ProgramParse(subwalker)];
@@ -416,7 +420,7 @@ public class Parser
 		}
 		if (token.Represents(Types.Bracket, Definitions.Brackets.OpenParen))
 		{
-			const string open = Definitions.Brackets.OpenParen;
+			string open = token.Value;
 			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token.RangePosition);
 			IEnumerable<Node> arguments = [.. ArgumentsParse(walker.GetSubwalker(open, close))];
 			if (!walker.Peek(out Token? closeToken)) throw new ExpectedIssue(close, ~node.RangePosition.End);
@@ -426,7 +430,7 @@ public class Parser
 		}
 		if (token.Represents(Types.Bracket, Definitions.Brackets.OpenBracket))
 		{
-			const string open = Definitions.Brackets.OpenBracket;
+			string open = token.Value;
 			if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token.RangePosition);
 			Node index = ExpressionParse(walker.GetSubwalker(open, close));
 			if (!walker.Peek(out Token? closeToken)) throw new ExpectedIssue(close, ~node.RangePosition.End);
@@ -450,8 +454,8 @@ public class Parser
 
 	private Node InvocationParse(Walker walker, IdentifierNode identifier)
 	{
-		const string open = Definitions.Brackets.OpenParen;
-		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, open)) return identifier;
+		if (!walker.Peek(out Token? token1) || !token1.Represents(Types.Bracket, Definitions.Brackets.OpenParen)) return identifier;
+		string open = token1.Value;
 		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
 		IEnumerable<Node> arguments = [.. ArgumentsParse(walker.GetSubwalker(open, close))];
 		if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(close, ~identifier.RangePosition.End);
