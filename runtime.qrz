@@ -89,6 +89,16 @@ greeting_part String : "Hello";
 subject_part String : "World";
 full_sentence String : greeting_part + " " + subject_part + "!";
 write("Concatenation: " + full_sentence);
+write("String length: " + full_sentence.length().to_string());
+
+write("String element access:");
+write("full_sentence[0] = " + full_sentence[0].to_string());
+write("full_sentence[6] = " + full_sentence[6].to_string());
+
+write("String characters iteration:");
+for (char Character in greeting_part) {
+	write(char.to_string());
+}
 
 // ------------------------------------------------------------
 // [SECTION 5] Control Flow: Conditions

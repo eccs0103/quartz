@@ -211,7 +211,7 @@ public class Runtime
 				});
 				type.DeclareOperation(Operators.Indexer, [Types.Number, Types.Character], Types.Null, static (@this, arguments, scope, range) =>
 				{
-					throw new InvalidOperandIssue(Operators.Indexer, Types.String, range);
+					throw new ImmutableAssignmentIssue(Types.String, range);
 				});
 				type.DeclareOperation(Operators.Plus, [Types.Character], Types.String, static (@this, arguments, scope, range) =>
 				{
