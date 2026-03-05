@@ -36,9 +36,14 @@ Character from Any {
 	to_number() Number;
 }
 
-String from Any {
+String from Array<Character> {
+	...() Sequence<Character>;
+	[](arg_1 Number) Character;
+	[](arg_1 Number, arg_2 Character) Null;
 	+(arg_1 Character) String;
 	+(arg_1 String) String;
+	to_string() String;
+	length() Number;
 }
 
 Function from Any {
@@ -57,6 +62,13 @@ Nullable<Content> from Any {
 Sequence<Content> from Any {
 	next() Boolean;
 	current() Content;
+}
+
+Array<Content> from Any {
+	...() Sequence<Content>;
+	[](arg_1 Number) Content;
+	[](arg_1 Number, arg_2 Content) Null;
+	length() Number;
 }
 
 workspace from Any {

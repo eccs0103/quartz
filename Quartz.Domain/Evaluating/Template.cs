@@ -17,8 +17,7 @@ public class Template(string name, IEnumerable<string> generics, TemplateBuilder
 			if (!iterator.MoveNext()) throw new ArgumentCountIssue(Name, generics.Count(), arguments.Count(), range);
 			if (!scope.TryRegister(generic, Types.Type, new Value<Class>(Types.Type, iterator.Current))) throw new SymbolAlreadyDeclaredIssue(generic, ~Position.Zero);
 		}
-		if (!Location.TryRead(Types.Any, out Class? typeBase)) throw new SymbolNotFoundIssue(Types.Any, "Type class", range);
-		Class type = new(name, scope, typeBase);
+		Class type = new(name, scope, Types.Any);
 		builder.Invoke(type, arguments, scope);
 		return type;
 	}

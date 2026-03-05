@@ -46,8 +46,8 @@ public static class Reflection
 
 		if (type.Name != Types.Any)
 		{
-			Class typeBase = GetBase(type);
-			builder.Append($" from {typeBase.Name}");
+			string @base = GetBase(type);
+			builder.Append($" from {@base}");
 		}
 
 		builder.AppendLine(" {");
@@ -123,9 +123,9 @@ public static class Reflection
 		}
 	}
 
-	private static Class GetBase(Class type)
+	private static string GetBase(Class type)
 	{
-		return GetFieldValue<Class>(type, typeof(Class), "<base>P");
+		return GetFieldValue<string>(type, typeof(Class), "<base>P");
 	}
 
 	private static IEnumerable<string> GetGenerics(Template template)

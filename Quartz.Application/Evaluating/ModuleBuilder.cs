@@ -25,9 +25,7 @@ internal class ModuleBuilder(Module module, Scope location)
 		Scope scope = name.Equals(Types.Workspace)
 			? RuntimeBuilder.Workspace
 			: location.GetSubscope(name);
-		Class? typeBase = null;
-		if (@base != null) module.TryReadClass(@base, out typeBase);
-		Class type = new(name, scope, typeBase);
+		Class type = new(name, scope, @base);
 		if (!module.TryRegisterClass(type)) throw new SymbolAlreadyDeclaredIssue(name, ~Position.Zero);
 		configurator.Invoke(new ClassBuilder(type, scope), []);
 	}

@@ -3,8 +3,15 @@ using static Quartz.Domain.Definitions;
 
 namespace Quartz.Domain.Evaluating;
 
-public class Class(string name, Scope location, Class? @base) : Container(name, location)
+public class Class(string name, Scope location, string? @base) : Container(name, location)
 {
+	private bool TryGetBase([NotNullWhen(true)] out Class? type)
+	{
+		if (@base != null) return Location.TryRead(@base, out type);
+		type = null;
+		return false;
+	}
+
 	public bool TryRegisterOperator(Operator @operator)
 	{
 		return Location.TryRegister(@operator.Name, Types.Function, new Value<Operator>(Types.Function, @operator), false);
@@ -13,7 +20,7 @@ public class Class(string name, Scope location, Class? @base) : Container(name, 
 	public bool TryReadOperator(string name, [NotNullWhen(true)] out Operator? @operator)
 	{
 		if (Location.TryRead(name, out @operator, false)) return true;
-		if (@base != null) return @base.TryReadOperator(name, out @operator);
+		if (TryGetBase(out Class? baseClass)) return baseClass.TryReadOperator(name, out @operator);
 		@operator = null;
 		return false;
 	}
@@ -31,7 +38,7 @@ public class Class(string name, Scope location, Class? @base) : Container(name, 
 	public bool TryReadOperation(string name, IEnumerable<string> parameters, [NotNullWhen(true)] out Operation? operation)
 	{
 		if (TryReadOperator(name, out Operator? @operator) && @operator.TryReadOperation(parameters, out operation)) return true;
-		if (@base != null) return @base.TryReadOperation(name, parameters, out operation);
+		if (TryGetBase(out Class? baseClass)) return baseClass.TryReadOperation(name, parameters, out operation);
 		operation = null;
 		return false;
 	}
@@ -49,7 +56,7 @@ public class Class(string name, Scope location, Class? @base) : Container(name, 
 	public bool TryReadProperty(string name, [NotNullWhen(true)] out Variable? variable)
 	{
 		if (Location.TryRead(name, out variable, false)) return true;
-		if (@base != null) return @base.TryReadProperty(name, out variable);
+		if (TryGetBase(out Class? baseClass)) return baseClass.TryReadProperty(name, out variable);
 		variable = null;
 		return false;
 	}
