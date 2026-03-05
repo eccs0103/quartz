@@ -53,6 +53,8 @@ public static class Definitions
 		public const string Or = "|";
 		public const string Not = "!";
 		public const string Dot = ".";
+		public const string Indexer = "[]";
+		public const string Spread = "...";
 	}
 
 	public static class Brackets

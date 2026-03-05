@@ -75,10 +75,10 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, ArrayNode node)
 	{
-		List<Value> elements = node.Elements.Select(element => element.Accept(this, location)).ToList();
-		string tag = elements.Count > 0 ? elements[0].Tag : Types.Any;
+		Value[] elements = node.Elements.Select(element => element.Accept(this, location)).ToArray();
+		string tag = elements.Length > 0 ? elements[0].Tag : Types.Any;
 		if (elements.Any(element => element.Tag != tag)) tag = Types.Any;
-		return new Value<List<Value>>(Mangler.Generics(Types.Array, [tag]), elements);
+		return new Value<Value[]>(Mangler.Generics(Types.Array, [tag]), elements);
 	}
 
 	public Value Evaluate(Scope location, IndexNode node)

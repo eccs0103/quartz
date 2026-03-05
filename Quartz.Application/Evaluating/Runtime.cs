@@ -194,8 +194,25 @@ public class Runtime
 					return new Value<double>(Types.Number, (double) @this.As<char>().Content);
 				});
 			});
-			module.DeclareClass(Types.String, Types.Any, [], static (type, _) =>
+			module.DeclareClass(Types.String, $"{Types.Array}<{Types.Character}>", [], static (type, _) =>
 			{
+				type.DeclareOperation(Operators.Spread, [], $"{Types.Sequence}<{Types.Character}>", (@this, arguments, scope, range) =>
+				{
+					string text = @this.As<string>().Content;
+					IEnumerator<Value> enumerator = text.Select(character => new Value<char>(Types.Character, character)).GetEnumerator();
+					return new Value<IEnumerator<Value>>($"{Types.Sequence}<{Types.Character}>", enumerator);
+				});
+				type.DeclareOperation(Operators.Indexer, [Types.Number], Types.Character, static (@this, arguments, scope, range) =>
+				{
+					string text = @this.As<string>().Content;
+					int index = (int) arguments[0].As<double>().Content;
+					if (index < 0 || index >= text.Length) throw new OutOfRangeIssue(index, text.Length, range);
+					return new Value<char>(Types.Character, text[index]);
+				});
+				type.DeclareOperation(Operators.Indexer, [Types.Number, Types.Character], Types.Null, static (@this, arguments, scope, range) =>
+				{
+					throw new InvalidOperandIssue(Operators.Indexer, Types.String, range);
+				});
 				type.DeclareOperation(Operators.Plus, [Types.Character], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<char> other = arguments[0].As<char>();
@@ -211,6 +228,11 @@ public class Runtime
 				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
 					return @this;
+				});
+				type.DeclareOperation("length", [], Types.Number, static (@this, arguments, scope, range) =>
+				{
+					string text = @this.As<string>().Content;
+					return new Value<double>(Types.Number, text.Length);
 				});
 			});
 			module.DeclareClass(Types.Function, Types.Any, [], static (type, _) =>
@@ -247,56 +269,38 @@ public class Runtime
 			});
 			module.DeclareClass(Types.Array, Types.Any, ["Content"], static (type, generics) =>
 			{
-				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Spread, [], $"{Types.Sequence}<{generics[0].Name}>", (@this, arguments, scope, range) =>
 				{
-					List<Value> elements = @this.As<List<Value>>().Content;
-					IEnumerable<string> strings = elements.Select(value => value.RunOperation("to_string", [], scope, range).As<string>().Content);
-					return new Value<string>(Types.String, Mangler.Enumerations(strings));
-				});
-
-				type.DeclareOperation("...", [], $"{Types.Sequence}<{generics[0].Name}>", (@this, arguments, scope, range) =>
-				{
-					List<Value> elements = @this.As<List<Value>>().Content;
-					IEnumerator<Value> enumerator = elements.GetEnumerator();
+					Value[] elements = @this.As<Value[]>().Content;
+					IEnumerator<Value> enumerator = elements.AsEnumerable().GetEnumerator();
 					return new Value<IEnumerator<Value>>($"{Types.Sequence}<{generics[0].Name}>", enumerator);
 				});
-
-				type.DeclareOperation("length", [], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Indexer, [Types.Number], generics[0].Name, static (@this, arguments, scope, range) =>
 				{
-					List<Value> elements = @this.As<List<Value>>().Content;
-					return new Value<double>(Types.Number, elements.Count);
-				});
-
-				type.DeclareOperation("[]", [Types.Number], generics[0].Name, static (@this, arguments, scope, range) =>
-				{
-					List<Value> elements = @this.As<List<Value>>().Content;
+					Value[] elements = @this.As<Value[]>().Content;
 					int index = (int) arguments[0].As<double>().Content;
-					if (index < 0 || index >= elements.Count) throw new OutOfRangeIssue(index, elements.Count, range);
+					if (index < 0 || index >= elements.Length) throw new OutOfRangeIssue(index, elements.Length, range);
 					return elements[index];
 				});
-
-				type.DeclareOperation("[]", [Types.Number, generics[0].Name], Types.Null, static (@this, arguments, scope, range) =>
+				type.DeclareOperation(Operators.Indexer, [Types.Number, generics[0].Name], Types.Null, static (@this, arguments, scope, range) =>
 				{
-					List<Value> elements = @this.As<List<Value>>().Content;
+					Value[] elements = @this.As<Value[]>().Content;
 					int index = (int) arguments[0].As<double>().Content;
 					Value value = arguments[1];
-					if (index < 0 || index >= elements.Count) throw new OutOfRangeIssue(index, elements.Count, range);
+					if (index < 0 || index >= elements.Length) throw new OutOfRangeIssue(index, elements.Length, range);
 					elements[index] = value;
 					return Value.Null;
 				});
-				type.DeclareOperation("push", [generics[0].Name], Types.Null, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
 				{
-					List<Value> elements = @this.As<List<Value>>().Content;
-					Value value = arguments[0];
-					elements.Add(value);
-					return Value.Null;
+					Value[] elements = @this.As<Value[]>().Content;
+					IEnumerable<string> strings = elements.Select(value => value.RunOperation("to_string", [], scope, range).As<string>().Content);
+					return new Value<string>(Types.String, Mangler.Enumerations(strings));
 				});
-				type.DeclareOperation("pop", [], Types.Null, static (@this, arguments, scope, range) =>
+				type.DeclareOperation("length", [], Types.Number, static (@this, arguments, scope, range) =>
 				{
-					List<Value> elements = @this.As<List<Value>>().Content;
-					if (elements.Count == 0) throw new OutOfRangeIssue(-1, 0, range); // TODO: what TF is this error?
-					elements.RemoveAt(elements.Count - 1);
-					return Value.Null;
+					Value[] elements = @this.As<Value[]>().Content;
+					return new Value<double>(Types.Number, elements.Length);
 				});
 			});
 			module.DeclareClass(Types.Workspace, Types.Any, [], static (type, _) =>

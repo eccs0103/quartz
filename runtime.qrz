@@ -291,12 +291,6 @@ write("numbers[2] = " + numbers[2].to_string());
 numbers[1] : 99;
 write("After numbers[1] is 99: " + numbers.to_string());
 
-write("push / pop:");
-numbers.push(42);
-write("After push(42): " + numbers.to_string());
-numbers.pop();
-write("After pop(): " + numbers.to_string());
-
 write("For-each iteration:");
 for (item Number in numbers) {
 	write(item.to_string());
