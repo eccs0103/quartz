@@ -177,15 +177,11 @@ public class Parser
 		walker.Index++;
 
 		IdentifierNode type = ParseType(walker);
-		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, Definitions.Brackets.OpenParen)) return new DeclarationNode(type, identifier, null, identifier.RangePosition >> type.RangePosition);
-
-		string open = token2.Value;
-		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token2.RangePosition);
-		Node value = ParseExpression(walker.GetSubwalker(open, close));
-		if (!walker.Peek(out Token? token3)) throw new ExpectedIssue(close, ~type.RangePosition.End);
+		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Operator, Definitions.Operators.Colon)) return new DeclarationNode(type, identifier, null, identifier.RangePosition >> type.RangePosition);
 		walker.Index++;
 
-		return new DeclarationNode(type, identifier, value, identifier.RangePosition >> token3.RangePosition);
+		Node value = ParseExpression(walker);
+		return new DeclarationNode(type, identifier, value, identifier.RangePosition >> value.RangePosition);
 	}
 
 	private IdentifierNode ParseType(Walker walker)

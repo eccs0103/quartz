@@ -34,7 +34,7 @@ Block
 	= "{", { Statement }, "}";
 
 Declaration
-	= Identifier, Type, [ Invocation ];
+	= Identifier, Type, [ ":", Expression ];
 
 Type
 	= Identifier, [ Template ], [ "?" ];
