@@ -1,5 +1,6 @@
 Program
-	= { Function };
+	= { Function
+	| Declaration, ";" };
 
 Function
 	= Identifier, "(", [ Parameters ], ")", Type, Block;

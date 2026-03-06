@@ -10,9 +10,8 @@ public class ReturnNode(Node? value, Range<Position> range) : Node(range)
 
 	public override string ToString()
 	{
-		StringBuilder builder = new(Definitions.Keywords.Return);
-		if (Value != null) builder.AppendJoin(' ', Value);
-		return builder.ToString();
+		if (Value == null) return Definitions.Keywords.Return;
+		return $"{Definitions.Keywords.Return} {Value}";
 	}
 
 	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)

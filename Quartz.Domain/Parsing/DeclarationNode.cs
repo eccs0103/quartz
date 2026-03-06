@@ -12,7 +12,7 @@ public class DeclarationNode(IdentifierNode type, IdentifierNode identifier, Nod
 	public override string ToString()
 	{
 		if (Value == null) return $"{Identifier} {Type}";
-		return $"{Identifier} {Type}({Value})";
+		return $"{Identifier} {Type}: {Value}";
 	}
 
 	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)

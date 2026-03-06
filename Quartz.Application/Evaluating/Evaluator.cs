@@ -207,29 +207,25 @@ internal class Evaluator : IEvaluator<Value>
 
 	public Value Evaluate(Scope location, FunctionNode node)
 	{
-		string name = node.Identifier.Name;
-		string result = node.Result.Name;
+		IdentifierNode nodeIdentifier = node.Identifier;
 		IEnumerable<ParameterNode> nodeParameters = node.Parameters;
 		IEnumerable<string> parameters = nodeParameters.Select(parameter => parameter.Type.Name);
-		Operation operation = new(Mangler.Parameters(parameters), parameters, result, (arguments, scope, range) =>
+		Operation operation = new(Mangler.Parameters(parameters), parameters, node.Result.Name, (arguments, scope, range) =>
 		{
-			for (int index = 0; index < arguments.Length; index++)
+			foreach ((ParameterNode parameter, Value argument) in nodeParameters.Zip(arguments))
 			{
-				ParameterNode parameter = nodeParameters.ElementAt(index);
-				scope.TryRegister(parameter.Identifier.Name, parameter.Type.Name, arguments[index]);
+				scope.TryRegister(parameter.Identifier.Name, parameter.Type.Name, argument);
 			}
 			try { node.Body.Accept(this, scope); }
 			catch (ReturnSignal signal) { return signal.Value; }
 			return Value.Null;
 		}, location);
-
-		if (!RuntimeBuilder.Workspace.TryRead(name, out Operator? @operator, false))
+		if (!RuntimeBuilder.Workspace.TryRead(nodeIdentifier.Name, out Operator? @operator, false))
 		{
-			@operator = new Operator(name, RuntimeBuilder.Workspace);
-			RuntimeBuilder.Workspace.TryRegister(name, Types.Function, new Value<Operator>(Types.Function, @operator));
+			@operator = new Operator(nodeIdentifier.Name, RuntimeBuilder.Workspace.GetSubscope(nodeIdentifier.Name));
+			RuntimeBuilder.Workspace.TryRegister(nodeIdentifier.Name, Types.Function, new Value<Operator>(Types.Function, @operator));
 		}
 		@operator.TryRegisterOperation(operation);
-
 		return Value.Null;
 	}
 

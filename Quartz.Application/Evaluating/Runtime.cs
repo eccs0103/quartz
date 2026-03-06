@@ -347,7 +347,7 @@ public class Runtime
 	{
 		foreach (Node node in nodes) node.Accept(Evaluator, RuntimeBuilder.Workspace);
 
-		if (RuntimeBuilder.Workspace.TryRead("main", out Operator? mainOperator) && mainOperator.TryReadOperation([], out Operation? main))
+		if (RuntimeBuilder.Workspace.TryRead("main", out Operator? @operator) && @operator.TryReadOperation([], out Operation? main))
 		{
 			main.Invoke([], RuntimeBuilder.Workspace, ~Shared.Helpers.Position.Zero);
 		}

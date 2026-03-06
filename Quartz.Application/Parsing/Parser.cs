@@ -28,8 +28,17 @@ public class Parser
 	{
 		while (walker.InRange)
 		{
-			Node function = ParseFunction(walker);
-			yield return function;
+			if (walker.Peek(out Token? token1, 1) && token1.Represents(Types.Bracket, Definitions.Brackets.OpenParen))
+			{
+				yield return ParseFunction(walker);
+				continue;
+			}
+
+			Node declaration = ParseDeclaration(walker);
+			if (!walker.Peek(out Token? token2)) throw new ExpectedIssue(Definitions.Separators.Semicolon, ~walker.RangePosition.End);
+			if (!token2.Represents(Types.Separator, Definitions.Separators.Semicolon)) throw new ExpectedIssue(Definitions.Separators.Semicolon, token2.RangePosition);
+			walker.Index++;
+			yield return declaration;
 		}
 	}
 
@@ -227,9 +236,14 @@ public class Parser
 		string open = token1.Value;
 		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
 		Walker subwalker = walker.GetSubwalker(open, close);
-		List<Node> statements = [];
-		while (subwalker.InRange) statements.Add(ParseStatement(subwalker));
-		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, close)) throw new ExpectedIssue(close, ~walker.RangePosition.End);
+		
+		IEnumerable<Node> ParseStatements()
+		{
+			while (subwalker.InRange) yield return ParseStatement(subwalker);
+		}
+		IEnumerable<Node> statements = [.. ParseStatements()];
+
+		if (!walker.Peek(out Token? token2) || !token2.Represents(Types.Bracket, close)) throw new ExpectedIssue(close, ~subwalker.RangePosition.End);
 		walker.Index++;
 
 		return new BlockNode(statements, token1.RangePosition >> token2.RangePosition);
