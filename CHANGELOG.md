@@ -1,3 +1,12 @@
+## 0.7.0 (07.03.2026)
+- First-Class Functions: Full support for function declarations, parameters, and `return` semantics.
+- Arrays & Sequences: Added array literals and indexer access.
+- Advanced Control Flow: Implemented standard `break`, `continue`, and `return` behavior across all scopes.
+- Enhanced Templates: Improved handling of generic types and more robust nullable type unwrapping.
+- Stricter Validation: Refined overload resolution and stricter argument compatibility checks.
+- Improved Error Reporting: Added specific diagnostics for common runtime issues, including `OutOfRange` errors for collections.
+- Refined Runtime: Significant performance and stability optimizations for the core execution engine.
+
 ## 0.6.1 (22.02.2026)
 - Reduced memory allocations during evaluation of logical and comparison operations.
 - Fixed a lexer bug: error messages now correctly report the unexpected character at the cursor position.

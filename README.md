@@ -2,6 +2,8 @@
 
 A simplified, custom-built programming language.
 
+*The project is under active development; new releases may contain changes that are not fully backward compatible. Upgrading to newer versions is possible, but it is done at the user's own risk and responsibility regarding compatibility.*
+
 [Change log](./CHANGELOG.md) | [Grammar](./grammar.ebnf)
 
 ## Examples
