@@ -295,7 +295,7 @@ public class Runtime
 				{
 					Value[] elements = @this.As<Value[]>().Content;
 					IEnumerable<string> strings = elements.Select(value => value.RunOperation("to_string", [], scope, range).As<string>().Content);
-					return new Value<string>(Types.String, Mangler.Enumerations(strings));
+					return new Value<string>(Types.String, Mangler.Collection(strings));
 				});
 				type.DeclareOperation("length", [], Types.Number, static (@this, arguments, scope, range) =>
 				{
@@ -346,5 +346,10 @@ public class Runtime
 	public void Evaluate(IEnumerable<Node> nodes)
 	{
 		foreach (Node node in nodes) node.Accept(Evaluator, RuntimeBuilder.Workspace);
+
+		if (RuntimeBuilder.Workspace.TryRead("main", out Operator? mainOperator) && mainOperator.TryReadOperation([], out Operation? main))
+		{
+			main.Invoke([], RuntimeBuilder.Workspace, ~Shared.Helpers.Position.Zero);
+		}
 	}
 }

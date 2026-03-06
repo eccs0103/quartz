@@ -99,8 +99,7 @@ public static class Reflection
 	{
 		List<string> parameters = operation.Parameters.ToList();
 		if (type != Types.Workspace && parameters.Count > 0) parameters.RemoveAt(0);
-		string signature = string.Join(", ", parameters.Select(FormatParameter));
-		return $"{name}({signature}) {operation.Result}";
+		return $"{name}{Mangler.Parameters(parameters.Select(FormatParameter))} {operation.Result}";
 	}
 
 	private static string FormatParameter(string type, int index)

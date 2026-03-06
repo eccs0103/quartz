@@ -1,12 +1,25 @@
 Program
-	= { Statement };
+	= { Function };
+
+Function
+	= Identifier, "(", [ Parameters ], ")", Type, Block;
+
+Parameters
+	= Parameter, { ",", Parameter };
+
+Parameter
+	= Identifier, Type;
 
 Statement
 	= ( [ SimpleStatement ], ";" )
 	| Block
 	| IfStatement
 	| WhileStatement
-	| ForStatement;
+	| ForStatement
+	| ReturnStatement;
+
+ReturnStatement
+	= "return", [ Expression ];
 
 SimpleStatement
 	= Declaration

@@ -204,4 +204,43 @@ internal class Evaluator : IEvaluator<Value>
 	{
 		throw new ContinueSignal(node.RangePosition);
 	}
+
+	public Value Evaluate(Scope location, FunctionNode node)
+	{
+		string name = node.Identifier.Name;
+		string result = node.Result.Name;
+		IEnumerable<ParameterNode> nodeParameters = node.Parameters;
+		IEnumerable<string> parameters = nodeParameters.Select(parameter => parameter.Type.Name);
+		Operation operation = new(Mangler.Parameters(parameters), parameters, result, (arguments, scope, range) =>
+		{
+			for (int index = 0; index < arguments.Length; index++)
+			{
+				ParameterNode parameter = nodeParameters.ElementAt(index);
+				scope.TryRegister(parameter.Identifier.Name, parameter.Type.Name, arguments[index]);
+			}
+			try { node.Body.Accept(this, scope); }
+			catch (ReturnSignal signal) { return signal.Value; }
+			return Value.Null;
+		}, location);
+
+		if (!RuntimeBuilder.Workspace.TryRead(name, out Operator? @operator, false))
+		{
+			@operator = new Operator(name, RuntimeBuilder.Workspace);
+			RuntimeBuilder.Workspace.TryRegister(name, Types.Function, new Value<Operator>(Types.Function, @operator));
+		}
+		@operator.TryRegisterOperation(operation);
+
+		return Value.Null;
+	}
+
+	public Value Evaluate(Scope location, ParameterNode node)
+	{
+		return Value.Null;
+	}
+
+	public Value Evaluate(Scope location, ReturnNode node)
+	{
+		Value value = node.Value?.Accept(this, location) ?? Value.Null;
+		throw new ReturnSignal(node.RangePosition, value);
+	}
 }

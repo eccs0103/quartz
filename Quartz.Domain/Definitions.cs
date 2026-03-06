@@ -14,8 +14,9 @@ public static class Definitions
 		public const string In = "in";
 		public const string Continue = "continue";
 		public const string Break = "break";
+		public const string Return = "return";
 
-		public static readonly string[] All = [True, False, Null, If, Else, While, For, In, Continue, Break];
+		public static readonly string[] All = [True, False, Null, If, Else, While, For, In, Continue, Break, Return];
 	}
 
 	public static class Types

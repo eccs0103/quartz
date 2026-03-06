@@ -3,13 +3,14 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
 
-public class ArrayNode(IEnumerable<Node> elements, Range<Position> range) : Node(range)
+public class ParameterNode(IdentifierNode type, IdentifierNode identifier, Range<Position> range) : Node(range)
 {
-	public IEnumerable<Node> Elements { get; } = elements;
+	public IdentifierNode Type { get; } = type;
+	public IdentifierNode Identifier { get; } = identifier;
 
 	public override string ToString()
 	{
-		return Mangler.Collection(Elements);
+		return $"{Identifier} {Type}";
 	}
 
 	public override T Accept<T>(IEvaluator<T> evaluator, Scope location)
