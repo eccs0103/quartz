@@ -46,7 +46,7 @@ public static class Reflection
 
 		if (type.Name != Types.Any)
 		{
-			string @base = GetBase(type);
+			string @base = GetBase(type) ?? throw new InvalidOperationException($"Base class not found for {type.Name}.");
 			builder.Append($" from {@base}");
 		}
 
@@ -122,9 +122,9 @@ public static class Reflection
 		}
 	}
 
-	private static string GetBase(Class type)
+	private static string? GetBase(Class type)
 	{
-		return GetFieldValue<string>(type, typeof(Class), "<base>P");
+		return GetFieldValue<string?>(type, typeof(Class), "<base>P");
 	}
 
 	private static IEnumerable<string> GetGenerics(Template template)
