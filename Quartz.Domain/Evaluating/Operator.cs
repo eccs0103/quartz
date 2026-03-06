@@ -15,16 +15,8 @@ public class Operator(string name, Scope location) : Container(name, location)
 		if (Location.TryRead(Mangler.Parameters(parameters), out operation)) return true;
 		foreach (Operation overload in Location.Scan<Operation>())
 		{
-			bool isMatch = true;
-			using IEnumerator<string> iterator = parameters.GetEnumerator();
-			foreach (string expected in overload.Parameters)
-			{
-				if (iterator.MoveNext() && TypeHelper.IsCompatible(expected, iterator.Current, Location)) continue;
-				isMatch = false;
-				break;
-			}
-			if (!isMatch) continue;
-			if (iterator.MoveNext()) continue;
+			if (parameters.Count() != overload.Parameters.Count()) continue;
+			if (parameters.Zip(overload.Parameters).Any(pair => !TypeHelper.IsCompatible(pair.Second, pair.First, Location))) continue;
 			operation = overload;
 			return true;
 		}

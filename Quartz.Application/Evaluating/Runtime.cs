@@ -2,6 +2,7 @@ using System.Globalization;
 using Quartz.Domain.Evaluating;
 using Quartz.Domain.Exceptions.Semantic;
 using Quartz.Domain.Parsing;
+using Quartz.Shared.Helpers;
 using static System.Math;
 using static Quartz.Domain.Definitions;
 
@@ -346,10 +347,7 @@ public class Runtime
 	public void Evaluate(IEnumerable<Node> nodes)
 	{
 		foreach (Node node in nodes) node.Accept(Evaluator, RuntimeBuilder.Workspace);
-
-		if (RuntimeBuilder.Workspace.TryRead("main", out Operator? @operator) && @operator.TryReadOperation([], out Operation? main))
-		{
-			main.Invoke([], RuntimeBuilder.Workspace, ~Shared.Helpers.Position.Zero);
-		}
+		if (!RuntimeBuilder.Workspace.TryRead("main", out Operator? @operator) || !@operator.TryReadOperation([], out Operation? main)) throw new SymbolNotFoundIssue("main", Types.Function, ~Position.Zero);
+		main.Invoke([], RuntimeBuilder.Workspace, ~Position.Zero);
 	}
 }

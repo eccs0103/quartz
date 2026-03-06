@@ -5,321 +5,352 @@
 // ------------------------------------------------------------
 // [SECTION 1] Arithmetic & Precedence
 // ------------------------------------------------------------
+test_arithmetic_and_precedence() Null {
+	first_number Number : 10;
+	second_number Number : 3;
+	sum_result Number : first_number + second_number;
+	difference_result Number : first_number - second_number;
+	product_result Number : first_number * second_number;
+	quotient_result Number : first_number / second_number;
 
-first_number Number : 10;
-second_number Number : 3;
-sum_result Number : first_number + second_number;
-difference_result Number : first_number - second_number;
-product_result Number : first_number * second_number;
-quotient_result Number : first_number / second_number;
+	write("10 + 3 = " + sum_result.to_string());
+	write("10 - 3 = " + difference_result.to_string());
+	write("10 * 3 = " + product_result.to_string());
+	write("10 / 3 = " + quotient_result.to_string());
 
-write("10 + 3 = " + sum_result.to_string());
-write("10 - 3 = " + difference_result.to_string());
-write("10 * 3 = " + product_result.to_string());
-write("10 / 3 = " + quotient_result.to_string());
+	operator_precedence_one Number : 2 + 3 * 4;
+	write("2 + 3 * 4 (expect 14) = " + operator_precedence_one.to_string());
 
-operator_precedence_one Number : 2 + 3 * 4;
-write("2 + 3 * 4 (expect 14) = " + operator_precedence_one.to_string());
+	operator_precedence_parentheses Number : (2 + 3) * 4;
+	write("(2 + 3) * 4 (expect 20) = " + operator_precedence_parentheses.to_string());
 
-operator_precedence_parentheses Number : (2 + 3) * 4;
-write("(2 + 3) * 4 (expect 20) = " + operator_precedence_parentheses.to_string());
-
-operator_precedence_unary Number : -3 * 2;
-write("-3 * 2 (expect -6) = " + operator_precedence_unary.to_string());
-write("-(3 * 2) (expect -6) = " + (-(3 * 2)).to_string());
+	operator_precedence_unary Number : -3 * 2;
+	write("-3 * 2 (expect -6) = " + operator_precedence_unary.to_string());
+	write("-(3 * 2) (expect -6) = " + (-(3 * 2)).to_string());
+}
 
 // ------------------------------------------------------------
 // [SECTION 2] Boolean Logic & Comparisons
 // ------------------------------------------------------------
+test_boolean_logic() Null {
+	boolean_true Boolean : true;
+	boolean_false Boolean : false;
 
-boolean_true Boolean : true;
-boolean_false Boolean : false;
+	write("true & true = " + (boolean_true & boolean_true).to_string());
+	write("true & false = " + (boolean_true & boolean_false).to_string());
+	write("false & true = " + (boolean_false & boolean_true).to_string());
+	write("false & false = " + (boolean_false & boolean_false).to_string());
 
-write("true & true = " + (boolean_true & boolean_true).to_string());
-write("true & false = " + (boolean_true & boolean_false).to_string());
-write("false & true = " + (boolean_false & boolean_true).to_string());
-write("false & false = " + (boolean_false & boolean_false).to_string());
+	write("true | true = " + (boolean_true | boolean_true).to_string());
+	write("true | false = " + (boolean_true | boolean_false).to_string());
+	write("false | true = " + (boolean_false | boolean_true).to_string());
+	write("false | false = " + (boolean_false | boolean_false).to_string());
 
-write("true | true = " + (boolean_true | boolean_true).to_string());
-write("true | false = " + (boolean_true | boolean_false).to_string());
-write("false | true = " + (boolean_false | boolean_true).to_string());
-write("false | false = " + (boolean_false | boolean_false).to_string());
+	write("!true = " + (!boolean_true).to_string());
+	write("!false = " + (!boolean_false).to_string());
 
-write("!true = " + (!boolean_true).to_string());
-write("!false = " + (!boolean_false).to_string());
+	comparison_left Number : 5;
+	comparison_right Number : 10;
+	write("5 < 10 = " + (comparison_left < comparison_right).to_string());
+	write("5 > 10 = " + (comparison_left > comparison_right).to_string());
+	write("5 <= 5 = " + (comparison_left <= 5).to_string());
+	write("5 >= 5 = " + (comparison_left >= 5).to_string());
+	write("5 = 5 = " + (comparison_left = 5).to_string());
+	write("5 != 10 = " + (comparison_left != comparison_right).to_string());
 
-comparison_left Number : 5;
-comparison_right Number : 10;
-write("5 < 10 = " + (comparison_left < comparison_right).to_string());
-write("5 > 10 = " + (comparison_left > comparison_right).to_string());
-write("5 <= 5 = " + (comparison_left <= 5).to_string());
-write("5 >= 5 = " + (comparison_left >= 5).to_string());
-write("5 = 5 = " + (comparison_left = 5).to_string());
-write("5 != 10 = " + (comparison_left != comparison_right).to_string());
-
-logic_combination_result Boolean : (5 < 10) & (10 > 5);
-write("(5 < 10) & (10 > 5) = " + logic_combination_result.to_string());
+	logic_combination_result Boolean : (5 < 10) & (10 > 5);
+	write("(5 < 10) & (10 > 5) = " + logic_combination_result.to_string());
+}
 
 // ------------------------------------------------------------
 // [SECTION 3] Types & Polymorphism
 // ------------------------------------------------------------
+test_types_and_polymorphism() Null {
+	polymorphic_value Any : 123;
+	write("Any holds Number: " + polymorphic_value.to_string());
 
-polymorphic_value Any : 123;
-write("Any holds Number: " + polymorphic_value.to_string());
+	polymorphic_value : "String value";
+	write("Any holds String: " + polymorphic_value.to_string());
 
-polymorphic_value : "String value";
-write("Any holds String: " + polymorphic_value.to_string());
+	polymorphic_value : true;
+	write("Any holds Boolean: " + polymorphic_value.to_string());
 
-polymorphic_value : true;
-write("Any holds Boolean: " + polymorphic_value.to_string());
+	polymorphic_value : null;
+	write("Any holds Null: " + polymorphic_value.to_string());
 
-polymorphic_value : null;
-write("Any holds Null: " + polymorphic_value.to_string());
-
-optional_number Number?;
-write("Uninitialized Number? is: " + optional_number.to_string());
-optional_number : 100;
-write("Initialized Number? is: " + optional_number.to_string());
+	optional_number Number?;
+	write("Uninitialized Number? is: " + optional_number.to_string());
+	optional_number : 100;
+	write("Initialized Number? is: " + optional_number.to_string());
+}
 
 // ------------------------------------------------------------
 // [SECTION 4] Strings
 // ------------------------------------------------------------
+test_strings() Null {
+	greeting_part String : "Hello";
+	subject_part String : "World";
+	full_sentence String : greeting_part + " " + subject_part + "!";
+	write("Concatenation: " + full_sentence);
+	write("String length: " + full_sentence.length().to_string());
 
-greeting_part String : "Hello";
-subject_part String : "World";
-full_sentence String : greeting_part + " " + subject_part + "!";
-write("Concatenation: " + full_sentence);
-write("String length: " + full_sentence.length().to_string());
+	write("String element access:");
+	write("full_sentence[0] = " + full_sentence[0].to_string());
+	write("full_sentence[6] = " + full_sentence[6].to_string());
 
-write("String element access:");
-write("full_sentence[0] = " + full_sentence[0].to_string());
-write("full_sentence[6] = " + full_sentence[6].to_string());
-
-write("String characters iteration:");
-for (char Character in greeting_part) {
-	write(char.to_string());
+	write("String characters iteration:");
+	for (char Character in greeting_part) {
+		write(char.to_string());
+	}
 }
 
 // ------------------------------------------------------------
 // [SECTION 5] Control Flow: Conditions
 // ------------------------------------------------------------
+test_control_flow_conditions() Null {
+	condition_check_value Number : 10;
+	if (condition_check_value > 5) {
+		write("condition_check_value > 5 (Correct)");
+	} else {
+		write("condition_check_value <= 5 (Incorrect)");
+	}
 
-condition_check_value Number : 10;
-if (condition_check_value > 5) {
-	write("condition_check_value > 5 (Correct)");
-} else {
-	write("condition_check_value <= 5 (Incorrect)");
-}
-
-if (condition_check_value < 5) {
-	write("condition_check_value < 5 (Incorrect)");
-} else {
-	write("condition_check_value >= 5 (Correct)");
+	if (condition_check_value < 5) {
+		write("condition_check_value < 5 (Incorrect)");
+	} else {
+		write("condition_check_value >= 5 (Correct)");
+	}
 }
 
 // ------------------------------------------------------------
 // [SECTION 6] Control Flow: Loops (While)
 // ------------------------------------------------------------
-
-loop_counter Number : 0;
-write("Counting to 5:");
-while (loop_counter < 5) {
-	loop_counter : loop_counter + 1;
-	write("Count: " + loop_counter.to_string());
-}
-
-write("Loop with break (stop at 3):");
-loop_counter : 0;
-while (loop_counter < 10) {
-	loop_counter : loop_counter + 1;
-	if (loop_counter = 3) {
-		write("Breaking at 3");
-		break;
+test_control_flow_loops() Null {
+	loop_counter Number : 0;
+	write("Counting to 5:");
+	while (loop_counter < 5) {
+		loop_counter : loop_counter + 1;
+		write("Count: " + loop_counter.to_string());
 	}
-	write(loop_counter.to_string());
-}
 
-write("Loop with continue (skip 2):");
-loop_counter : 0;
-while (loop_counter < 4) {
-	loop_counter : loop_counter + 1;
-	if (loop_counter = 2) {
-		write("Skipping 2");
-		continue;
+	write("Loop with break (stop at 3):");
+	loop_counter : 0;
+	while (loop_counter < 10) {
+		loop_counter : loop_counter + 1;
+		if (loop_counter = 3) {
+			write("Breaking at 3");
+			break;
+		}
+		write(loop_counter.to_string());
 	}
-	write("Value: " + loop_counter.to_string());
+
+	write("Loop with continue (skip 2):");
+	loop_counter : 0;
+	while (loop_counter < 4) {
+		loop_counter : loop_counter + 1;
+		if (loop_counter = 2) {
+			write("Skipping 2");
+			continue;
+		}
+		write("Value: " + loop_counter.to_string());
+	}
 }
 
 // ------------------------------------------------------------
 // [SECTION 7] Scopes & Blocks
 // ------------------------------------------------------------
+test_scopes_and_blocks() Null {
+	outer_scope_value Number : 100;
+	{
+		inner_scope_value Number : 200;
+		write("Inside block: outer=" + outer_scope_value.to_string() + ", inner=" + inner_scope_value.to_string());
+		outer_scope_value : 101;
 
-outer_scope_value Number : 100;
-{
-	inner_scope_value Number : 200;
-	write("Inside block: outer=" + outer_scope_value.to_string() + ", inner=" + inner_scope_value.to_string());
-	outer_scope_value : 101;
-
-	shadowed_variable Number : 999;
-	write("Block shadow: " + shadowed_variable.to_string());
+		shadowed_variable Number : 999;
+		write("Block shadow: " + shadowed_variable.to_string());
+	}
+	shadowed_variable Number : 1;
+	write("Outside block: outer=" + outer_scope_value.to_string() + " (modified), shadow=" + shadowed_variable.to_string() + " (new var)");
 }
-shadowed_variable Number : 1;
-write("Outside block: outer=" + outer_scope_value.to_string() + " (modified), shadow=" + shadowed_variable.to_string() + " (new var)");
 
 // ------------------------------------------------------------
 // [SECTION 8] Algorithms: Factorial
 // ------------------------------------------------------------
-
-factorial_target Number : 5;
-factorial_accumulator Number : 1;
-iteration_index Number : 1;
-while (iteration_index <= factorial_target) {
-	factorial_accumulator : factorial_accumulator * iteration_index;
-	iteration_index : iteration_index + 1;
+test_algorithms_factorial() Null {
+	factorial_target Number : 5;
+	factorial_accumulator Number : 1;
+	iteration_index Number : 1;
+	while (iteration_index <= factorial_target) {
+		factorial_accumulator : factorial_accumulator * iteration_index;
+		iteration_index : iteration_index + 1;
+	}
+	write("Factorial of 5 is: " + factorial_accumulator.to_string());
 }
-write("Factorial of 5 is: " + factorial_accumulator.to_string());
 
 // ------------------------------------------------------------
 // [SECTION 9] Algorithms: Fibonacci
 // ------------------------------------------------------------
-
-fibonacci_limit Number : 10;
-fibonacci_previous Number : 0;
-fibonacci_current Number : 1;
-fibonacci_swap_temp Number : 0;
-iteration_index : 0;
-write("Fibonacci first 10:");
-while (iteration_index < fibonacci_limit) {
-	write(fibonacci_previous.to_string());
-	fibonacci_swap_temp : fibonacci_previous + fibonacci_current;
-	fibonacci_previous : fibonacci_current;
-	fibonacci_current : fibonacci_swap_temp;
-	iteration_index : iteration_index + 1;
+test_algorithms_fibonacci() Null {
+	fibonacci_limit Number : 10;
+	fibonacci_previous Number : 0;
+	fibonacci_current Number : 1;
+	fibonacci_swap_temp Number : 0;
+	iteration_index Number : 0;
+	write("Fibonacci first 10:");
+	while (iteration_index < fibonacci_limit) {
+		write(fibonacci_previous.to_string());
+		fibonacci_swap_temp : fibonacci_previous + fibonacci_current;
+		fibonacci_previous : fibonacci_current;
+		fibonacci_current : fibonacci_swap_temp;
+		iteration_index : iteration_index + 1;
+	}
 }
 
 // ------------------------------------------------------------
 // [SECTION 10] Templates & Ambiguity
 // ------------------------------------------------------------
+test_templates_and_ambiguity() Null {
+	write("Nullable (bare type): " + Nullable.to_string());
 
-write("Nullable (bare type): " + Nullable.to_string());
+	write("Nullable<Number> (type): " + Nullable<Number>.to_string());
+	explicit_nullable Nullable<Number> : 42;
+	write("Nullable<Number>(42): " + explicit_nullable.to_string());
 
-write("Nullable<Number> (type): " + Nullable<Number>.to_string());
-explicit_nullable Nullable<Number> : 42;
-write("Nullable<Number>(42): " + explicit_nullable.to_string());
+	explicit_nullable : null;
+	write("Assigned null: " + explicit_nullable.to_string());
 
-explicit_nullable : null;
-write("Assigned null: " + explicit_nullable.to_string());
+	explicit_nullable : 7;
+	write("Re-assigned 7: " + explicit_nullable.to_string());
 
-explicit_nullable : 7;
-write("Re-assigned 7: " + explicit_nullable.to_string());
+	write("Nullable<Boolean> (type): " + Nullable<Boolean>.to_string());
+	generic_bool Nullable<Boolean> : true;
+	write("Nullable<Boolean>(true): " + generic_bool.to_string());
 
-write("Nullable<Boolean> (type): " + Nullable<Boolean>.to_string());
-generic_bool Nullable<Boolean> : true;
-write("Nullable<Boolean>(true): " + generic_bool.to_string());
+	write("Nullable<String> (type): " + Nullable<String>.to_string());
+	generic_string Nullable<String> : "Templates work!";
+	write("Nullable<String>: " + generic_string.to_string());
 
-write("Nullable<String> (type): " + Nullable<String>.to_string());
-generic_string Nullable<String> : "Templates work!";
-write("Nullable<String>: " + generic_string.to_string());
+	optional_with_sugar Number?;
+	write("Number? (uninitialized): " + optional_with_sugar.to_string());
+	optional_with_sugar : 99;
+	write("Number? (assigned 99): " + optional_with_sugar.to_string());
 
-optional_with_sugar Number?;
-write("Number? (uninitialized): " + optional_with_sugar.to_string());
-optional_with_sugar : 99;
-write("Number? (assigned 99): " + optional_with_sugar.to_string());
-
-write("Ambiguity check (Identifier < Identifier):");
-ambiguity_a Number : 10;
-ambiguity_b Number : 20;
-ambiguity_left_result Boolean : ambiguity_a < ambiguity_b;
-write("10 < 20: " + ambiguity_left_result.to_string());
+	write("Ambiguity check (Identifier < Identifier):");
+	ambiguity_a Number : 10;
+	ambiguity_b Number : 20;
+	ambiguity_left_result Boolean : ambiguity_a < ambiguity_b;
+	write("10 < 20: " + ambiguity_left_result.to_string());
+}
 
 // ------------------------------------------------------------
 // [SECTION 11] Complex Expression Casting
 // ------------------------------------------------------------
-
-write("Complex Calc: " + ((10 + 2) * 5 - 20 / 4).to_string());
+test_complex_expressions() Null {
+	write("Complex Calc: " + ((10 + 2) * 5 - 20 / 4).to_string());
+}
 
 // ------------------------------------------------------------
 // [SECTION 12] Characters
 // ------------------------------------------------------------
+test_characters() Null {
+	character_first Character : 'a';
+	character_second Character : 'b';
+	character_symbol Character : '!';
 
-character_first Character : 'a';
-character_second Character : 'b';
-character_symbol Character : '!';
+	write("Char 'a': " + character_first.to_string());
+	write("Char 'b': " + character_second.to_string());
+	write("Char '!': " + character_symbol.to_string());
 
-write("Char 'a': " + character_first.to_string());
-write("Char 'b': " + character_second.to_string());
-write("Char '!': " + character_symbol.to_string());
+	write("Char 'a' to number: " + character_first.to_number().to_string());
+	write("Char 'b' to number: " + character_second.to_number().to_string());
 
-write("Char 'a' to number: " + character_first.to_number().to_string());
-write("Char 'b' to number: " + character_second.to_number().to_string());
+	write("'a' < 'b': " + (character_first < character_second).to_string());
+	write("'a' <= 'b': " + (character_first <= character_second).to_string());
+	write("'a' > 'b': " + (character_first > character_second).to_string());
+	write("'a' >= 'b': " + (character_first >= character_second).to_string());
 
-write("'a' < 'b': " + (character_first < character_second).to_string());
-write("'a' <= 'b': " + (character_first <= character_second).to_string());
-write("'a' > 'b': " + (character_first > character_second).to_string());
-write("'a' >= 'b': " + (character_first >= character_second).to_string());
+	concatenation_string_char String : "Start " + character_first;
+	write("String + Char: " + concatenation_string_char);
 
-concatenation_string_char String : "Start " + character_first;
-write("String + Char: " + concatenation_string_char);
-
-concatenation_char_string String : character_second + " End";
-write("Char + String: " + concatenation_char_string);
+	concatenation_char_string String : character_second + " End";
+	write("Char + String: " + concatenation_char_string);
+}
 
 // ------------------------------------------------------------
 // [SECTION 13] Sequences & For Loop
 // ------------------------------------------------------------
+test_sequences_and_for_loop() Null {
+	sequence_range Sequence<Number> : range(5);
+	write("Sequence Range 0-5:");
+	for (item Number in sequence_range) {
+		write(item.to_string());
+	}
 
-sequence_range Sequence<Number> : range(5);
-write("Sequence Range 0-5:");
-for (item Number in sequence_range) {
-	write(item.to_string());
-}
+	write("Sequence Range 3-7:");
+	for (number Number in range(3, 7)) {
+		write(number.to_string());
+	}
 
-write("Sequence Range 3-7:");
-for (number Number in range(3, 7)) {
-	write(number.to_string());
-}
-
-write("Manual sequence iteration:");
-manual_sequence Sequence<Number> : range(1, 4);
-while (manual_sequence.next()) {
-	manual_value Number : manual_sequence.current();
-	write("Manual: " + manual_value.to_string());
+	write("Manual sequence iteration:");
+	manual_sequence Sequence<Number> : range(1, 4);
+	while (manual_sequence.next()) {
+		manual_value Number : manual_sequence.current();
+		write("Manual: " + manual_value.to_string());
+	}
 }
 
 // ------------------------------------------------------------
 // [SECTION 14] Arrays
 // ------------------------------------------------------------
+test_arrays() Null {
+	numbers Array<Number> : [10, 20, 30];
+	write("Array created: " + numbers.to_string());
+	write("Length: " + numbers.length().to_string());
 
-numbers Array<Number> : [10, 20, 30];
-write("Array created: " + numbers.to_string());
-write("Length: " + numbers.length().to_string());
+	write("Element access:");
+	write("numbers[0] = " + numbers[0].to_string());
+	write("numbers[2] = " + numbers[2].to_string());
 
-write("Element access:");
-write("numbers[0] = " + numbers[0].to_string());
-write("numbers[2] = " + numbers[2].to_string());
+	numbers[1] : 99;
+	write("After numbers[1] is 99: " + numbers.to_string());
 
-numbers[1] : 99;
-write("After numbers[1] is 99: " + numbers.to_string());
-
-write("For-each iteration:");
-for (item Number in numbers) {
-	write(item.to_string());
-}
-
-write("Algorithms: Bubble Sort");
-unsorted Array<Number> : [5, 1, 4, 2, 8];
-write("Before: " + unsorted.to_string());
-count Number : unsorted.length();
-for (index Number in range(0, count)) {
-	for (index_2 Number in range(index, count)) {
-		if (unsorted[index] <= unsorted[index_2]) continue;
-		temporary Number : unsorted[index];
-		unsorted[index] : unsorted[index_2];
-		unsorted[index_2] : temporary;
+	write("For-each iteration:");
+	for (item Number in numbers) {
+		write(item.to_string());
 	}
+
+	write("Algorithms: Bubble Sort");
+	unsorted Array<Number> : [5, 1, 4, 2, 8];
+	write("Before: " + unsorted.to_string());
+	count Number : unsorted.length();
+	for (index Number in range(0, count)) {
+		for (index_2 Number in range(index, count)) {
+			if (unsorted[index] <= unsorted[index_2]) continue;
+			temporary Number : unsorted[index];
+			unsorted[index] : unsorted[index_2];
+			unsorted[index_2] : temporary;
+		}
+	}
+	write("After: " + unsorted.to_string());
 }
-write("After: " + unsorted.to_string());
 
 // ============================================================
-// TEST COMPLETE
+// ENTRY POINT
 // ============================================================
+main() Null {
+	test_arithmetic_and_precedence();
+	test_boolean_logic();
+	test_types_and_polymorphism();
+	test_strings();
+	test_control_flow_conditions();
+	test_control_flow_loops();
+	test_scopes_and_blocks();
+	test_algorithms_factorial();
+	test_algorithms_fibonacci();
+	test_templates_and_ambiguity();
+	test_complex_expressions();
+	test_characters();
+	test_sequences_and_for_loop();
+	test_arrays();
+	write("=== TEST COMPLETE ===");
+}

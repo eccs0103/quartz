@@ -6,98 +6,144 @@
 // [SECTION 1] Lexing Errors
 // ------------------------------------------------------------
 
-// Unexpected character
-// $invalid_char;
+test_unexpected_character() Null {
+	// $invalid_char;
+}
 
 // ------------------------------------------------------------
 // [SECTION 2] Parsing Errors
 // ------------------------------------------------------------
 
-// Expected statement (empty file is fine, but garbage is not)
-// ;
+test_expected_statement() Null {
+	// ;
+}
 
-// Expected ';'
-// missing_semicolon Number : 10
+test_missing_semicolon() Null {
+	// missing_semicolon Number : 10
+}
 
-// Expected identifier (for variable)
-// Number : 10;
+test_expected_identifier_for_var() Null {
+	// Number : 10;
+}
 
-// Expected identifier (for type)
-// valid_name : 10;
+test_expected_identifier_for_type() Null {
+	// valid_name : 10;
+}
 
-// Expected '(' in if
-// if true { }
+test_expected_lparen_in_if() Null {
+	// if true { }
+}
 
-// Expected ')'
-// if (true { }
+test_expected_rparen_in_if() Null {
+	// if (true { }
+}
 
-// Expected '{'
-// if (true) write("no block");
+test_expected_lbrace() Null {
+	// if (true) write("no block");
+}
 
-// Unmatched bracket
-// (10 + 2;
+test_unmatched_bracket() Null {
+	// (10 + 2;
+}
 
-// Assignment target must be valid
-// 10 : 20;
+test_assignment_target_valid() Null {
+	// 10 : 20;
+}
 
-// Unexpected token
-// 10 + if;
+test_unexpected_token() Null {
+	// 10 + if;
+}
 
 // ------------------------------------------------------------
 // [SECTION 3] Semantic Errors: Symbols & Scope
 // ------------------------------------------------------------
 
-// Symbol not found
-// write(undefined_variable);
+test_symbol_not_found() Null {
+	// write(undefined_variable);
+}
 
-// Symbol already declared
-// duplicate_var Number : 1;
-// duplicate_var Number : 2;
-
-// Constant assignment (if constants exist in scope, e.g. true/false/null are keywords but maybe some system consts?)
-// No user-definable constants yet, but let's try assuming a hypothetical one if added later.
+test_symbol_already_declared() Null {
+	// duplicate_var Number : 1;
+	// duplicate_var Number : 2;
+}
 
 // ------------------------------------------------------------
 // [SECTION 4] Semantic Errors: Types
 // ------------------------------------------------------------
 
-// Type mismatch (Declaration)
-// wrong_type Number : "not a number";
+test_type_mismatch_decl() Null {
+	// wrong_type Number : "not a number";
+}
 
-// Type mismatch (Assignment)
-// x Number : 10;
-// x : "string";
+test_type_mismatch_assign() Null {
+	// x Number : 10;
+	// x : "string";
+}
 
-// Variable not initialized (non-optional)
-// uninit Number;
+test_variable_not_initialized() Null {
+	// uninit Number;
+}
 
-// Invalid Generic Argument Count
-// wrong_generic Nullable<Number, String>;
+test_invalid_generic_argument_count() Null {
+	// wrong_generic Nullable<Number, String>;
+}
 
-// Invalid Generic Argument Token (not a type)
-// wrong_generic_type Nullable<10 >;
+test_invalid_generic_argument_token() Null {
+	// wrong_generic_type Nullable<10 >;
+}
 
 // ------------------------------------------------------------
 // [SECTION 5] Semantic Errors: Functions & Operations
 // ------------------------------------------------------------
 
-// Not callable
-// not_func Number : 10;
-// not_func(10);
+test_not_callable() Null {
+	// not_func Number : 10;
+	// not_func(10);
+}
 
-// No matching overload (wrong arg count)
-// write("a", "b");
+test_no_matching_overload_count() Null {
+	// write("a", "b");
+}
 
-// No matching overload (wrong arg types)
-// 10 + "string";
+test_no_matching_overload_types() Null {
+	// 10 + "string";
+}
 
-// Invalid operarand (Unary)
-// !10;
+test_invalid_operand_unary() Null {
+	// !10;
+}
 
-// Invalid cast
-// invalid_cast Number : 10;
-// invalid_cast.as<String>(); // Assuming .as exists or implicit cast fails
+test_invalid_cast() Null {
+	// invalid_cast Number : 10;
+	// invalid_cast.as<String>();
+}
 
 // ============================================================
-// ERROR SUITE COMPLETE
+// ENTRY POINT
 // ============================================================
+main() Null {
+	// test_unexpected_character();
+	// test_expected_statement();
+	// test_missing_semicolon();
+	// test_expected_identifier_for_var();
+	// test_expected_identifier_for_type();
+	// test_expected_lparen_in_if();
+	// test_expected_rparen_in_if();
+	// test_expected_lbrace();
+	// test_unmatched_bracket();
+	// test_assignment_target_valid();
+	// test_unexpected_token();
+	// test_symbol_not_found();
+	// test_symbol_already_declared();
+	// test_type_mismatch_decl();
+	// test_type_mismatch_assign();
+	// test_variable_not_initialized();
+	// test_invalid_generic_argument_count();
+	// test_invalid_generic_argument_token();
+	// test_not_callable();
+	// test_no_matching_overload_count();
+	// test_no_matching_overload_types();
+	// test_invalid_operand_unary();
+	// test_invalid_cast();
+	write("No error thrown. Uncomment one error above to test errors.");
+}
