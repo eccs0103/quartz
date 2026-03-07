@@ -11,11 +11,7 @@ namespace Quartz.Application;
 
 public class Interpreter(Interpreter.Options options)
 {
-	public class Options
-	{
-		public bool LogLexing { get; set; } = false;
-		public bool LogParsing { get; set; } = false;
-	}
+	public record Options(bool LogLexing = false, bool LogParsing = false);
 
 	private static Lexer Lexer { get; } = new();
 	private static Parser Parser { get; } = new();
