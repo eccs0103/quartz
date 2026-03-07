@@ -2,11 +2,12 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build",
-			"command": "dotnet",
+			"label": "Build",
 			"type": "process",
+			"command": "dotnet",
 			"args": [ "build", "${workspaceFolder}/Quartz.Presentation/Quartz.Presentation.csproj" ],
-			"problemMatcher": "$msCompile",
+			"group": "build",
+			"problemMatcher": [ "$msCompile" ],
 			"isBuildCommand": true,
 			"presentation": {
 				"reveal": "silent",
@@ -14,6 +15,14 @@
 				"showReuseMessage": false,
 				"clear": true
 			}
+		},
+		{
+			"label": "Run",
+			"type": "process",
+			"command": "dotnet",
+			"args": [ "run", "--project", "${workspaceFolder}/Quartz.Presentation/Quartz.Presentation.csproj" ],
+			"group": "test",
+			"problemMatcher": [ ]
 		}
 	]
 }
