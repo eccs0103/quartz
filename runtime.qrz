@@ -12,11 +12,13 @@ test_arithmetic_and_precedence() Null {
 	difference_result Number : first_number - second_number;
 	product_result Number : first_number * second_number;
 	quotient_result Number : first_number / second_number;
+	modulo_result Number : first_number % second_number;
 
 	write("10 + 3 = " + sum_result.to_string());
 	write("10 - 3 = " + difference_result.to_string());
 	write("10 * 3 = " + product_result.to_string());
 	write("10 / 3 = " + quotient_result.to_string());
+	write("10 % 3 = " + modulo_result.to_string());
 
 	operator_precedence_one Number : 2 + 3 * 4;
 	write("2 + 3 * 4 (expect 14) = " + operator_precedence_one.to_string());

@@ -22,7 +22,7 @@ Array<Number> {
 
 Developer {
 	main() Null {
-		array Array<Integer> : read("Enter the numbers.").split(", ").map((part) return part to Integer);
+		array Array<Number> : read("Enter the numbers.").split(", ").map((part) return part to Number);
 		write(array);
 		array.bubble_sort();
 		write(array);
