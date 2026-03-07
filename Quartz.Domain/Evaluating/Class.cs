@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using static Quartz.Domain.Definitions;
 
 namespace Quartz.Domain.Evaluating;

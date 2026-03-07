@@ -1,4 +1,3 @@
-using System.Text;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
 

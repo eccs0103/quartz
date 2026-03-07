@@ -236,7 +236,7 @@ public class Parser
 		string open = token1.Value;
 		if (!Brackets.TryGetValue(open, out string? close)) throw new UnmatchedBracketIssue(open, token1.RangePosition);
 		Walker subwalker = walker.GetSubwalker(open, close);
-		
+
 		IEnumerable<Node> ParseStatements()
 		{
 			while (subwalker.InRange) yield return ParseStatement(subwalker);

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Quartz.Domain.Evaluating;
 using Quartz.Shared.Helpers;
 
