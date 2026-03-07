@@ -23,17 +23,17 @@ Declaring variables of different types, including nullable types that can hold `
 ```quartz
 main() Null {
 	// Basic types with initial values
-	message String: "Hello from a variable";
-	answer Number: 42;
-	is_active Boolean: true;
+	message String : "Hello from a variable";
+	answer Number : 42;
+	is_active Boolean : true;
 
 	write(message);
 
 	// Nullable type
 	version Number?;
-	write(version);  // null
+	write(version); // null
 	version : 1.1;
-	write(version);  // 1.1
+	write(version); // 1.1
 }
 ```
 
@@ -41,9 +41,9 @@ main() Null {
 Combining strings to create new ones.
 ```quartz
 main() Null {
-	first_name String: "John";
-	last_name String: "Doe";
-	full_name String: first_name + " " + last_name;
+	first_name String : "John";
+	last_name String : "Doe";
+	full_name String : first_name + " " + last_name;
 
 	write("Full name: " + full_name);
 }
@@ -53,7 +53,7 @@ main() Null {
 Executing code based on conditions.
 ```quartz
 main() Null {
-	temperature Number: 25;
+	temperature Number : 25;
 	if (temperature > 30) {
 		write("It's a hot day!");
 	} else if (temperature > 20) {
@@ -69,14 +69,14 @@ Repeating a block of code and iterating over a sequence.
 ```quartz
 main() Null {
 	// While loop
-	counter Number: 1;
+	counter Number : 1;
 	while (counter <= 5) {
 		write(counter.to_string());
 		counter : counter + 1;
 	}
 
 	// For loop
-	sum Number: 0;
+	sum Number : 0;
 	for (i Number in range(1, 11)) {
 		sum : sum + i;
 	}
@@ -99,7 +99,7 @@ greet(name String) Null {
 
 main() Null {
 	greet("Alice");
-	result Number: add(5, 3);
+	result Number : add(5, 3);
 	write("5 + 3 = " + result.to_string()); // 8
 }
 ```
@@ -109,7 +109,7 @@ Working with ordered collections of data.
 ```quartz
 main() Null {
 	// Create an array with initial values
-	numbers Array<Number>: [10, 20, 30, 40, 50];
+	numbers Array<Number> : [10, 20, 30, 40, 50];
 
 	// Access an element by its zero-based index
 	write("Element at index 2: " + numbers[2].to_string()); // 30
@@ -120,28 +120,27 @@ main() Null {
 }
 ```
 
-### 8. FizzBuzz
-A classic programming task demonstrating loops, conditionals, and a custom function to calculate remainders, as Quartz does not have a built-in modulo operator.
+### 8. Bubble sort
+A classic programming task demonstrating loops, conditionals, and a custom function to sort arrays.
 ```quartz
-// Quartz uses integer division. We can create a remainder function.
-remainder(a Number, b Number) Number {
-	return a - (a / b) * b;
+swap(array Array<Number>, index_1 Number, index_2 Number) Null {
+	temporary Number : array[index_1];
+	array[index_1]: array[index_2];
+	array[index_2]: temporary;
+}
+
+bubble_sort(array Array<Number>) Null {
+	for (index_1 Number in range(0, array.length())) {
+		for (index_2 Number in range(index_1 + 1, array.length())) {
+			if (array[index_1] > array[index_2]) swap(array, index_1, index_2);
+		}
+	}
 }
 
 main() Null {
-	for (i Number in range(1, 16)) {
-		is_fizz Boolean: remainder(i, 3) = 0;
-		is_buzz Boolean: remainder(i, 5) = 0;
-
-		if (is_fizz & is_buzz) {
-			write("FizzBuzz");
-		} else if (is_fizz) {
-			write("Fizz");
-		} else if (is_buzz) {
-			write("Buzz");
-		} else {
-			write(i.to_string());
-		}
-	}
+	array Array<Number> : [8, 15, 32, 4, 0, -5];
+	write(array);
+	bubble_sort(array);
+	write(array);
 }
 ```
