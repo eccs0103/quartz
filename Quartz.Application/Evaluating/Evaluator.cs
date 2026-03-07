@@ -225,7 +225,7 @@ internal class Evaluator : IEvaluator<Value>
 			@operator = new Operator(nodeIdentifier.Name, RuntimeBuilder.Workspace.GetSubscope(nodeIdentifier.Name));
 			RuntimeBuilder.Workspace.TryRegister(nodeIdentifier.Name, Types.Function, new Value<Operator>(Types.Function, @operator));
 		}
-		@operator.TryRegisterOperation(operation);
+		if (!@operator.TryRegisterOperation(operation)) throw new SymbolAlreadyDeclaredIssue($"{nodeIdentifier.Name}{operation.Name}", nodeIdentifier.RangePosition);
 		return Value.Null;
 	}
 
