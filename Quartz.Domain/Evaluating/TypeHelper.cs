@@ -15,8 +15,7 @@ public static class TypeHelper
 		}
 		if (scope.TryRead(target, out Class? typeTarget) && scope.TryRead(value, out Class? typeValue))
 		{
-			// TODO: Implement inheritance check here when available on Class
-			// For now, assume no inheritance beyond implicit checks above
+			return typeValue.Depth >= typeTarget.Depth && typeValue.Display[typeTarget.Depth] == typeTarget.Id;
 		}
 		return false;
 	}

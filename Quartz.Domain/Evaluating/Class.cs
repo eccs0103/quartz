@@ -1,10 +1,36 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using static Quartz.Domain.Definitions;
 
 namespace Quartz.Domain.Evaluating;
 
 public class Class(string name, Scope location, string? @base) : Container(name, location)
 {
+	private bool HierarchyInitialized { get; set; } = false;
+	private (int Depth, int[] Display) Hierarchy { get; set; } = (0, []);
+	private static int NextTypeId = 0;
+	public int Id { get; } = Interlocked.Increment(ref NextTypeId);
+	public int Depth => EnsureHierarchy().Depth;
+	public int[] Display => EnsureHierarchy().Display;
+
+	private (int Depth, int[] Display) EnsureHierarchy()
+	{
+		if (HierarchyInitialized) return Hierarchy;
+		HierarchyInitialized = true;
+		if (TryGetBase(out Class? @base))
+		{
+			int depth = @base.Depth + 1;
+			int length = Math.Max(8, depth + 1);
+			int[] display = new int[length];
+			Array.Copy(@base.Display, display, @base.Display.Length);
+			display[depth] = Id;
+			return Hierarchy = (depth, display);
+		}
+		int[] @default = new int[8];
+		@default[0] = Id;
+		return Hierarchy = (0, @default);
+	}
+
 	private bool TryGetBase([NotNullWhen(true)] out Class? type)
 	{
 		if (@base != null) return Location.TryRead(@base, out type);
