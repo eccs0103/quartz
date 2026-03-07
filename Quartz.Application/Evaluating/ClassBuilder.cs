@@ -38,7 +38,7 @@ internal class ClassBuilder(Class type, Scope location)
 				return configurator.Invoke(workspace, arguments, scopeCall, range);
 			}
 			Operation operation = new(Mangler.Parameters(parameters), parameters, result, OperationWrapper, scope);
-			if (!type.TryRegisterOperation(name, operation)) throw new SymbolAlreadyDeclaredIssue(name, ~Position.Zero);
+			if (!type.TryRegisterOperation(name, operation)) throw new SymbolAlreadyDeclaredIssue($"{name}{operation.Name}", ~Position.Zero);
 			return;
 		}
 
@@ -48,6 +48,6 @@ internal class ClassBuilder(Class type, Scope location)
 			return configurator.Invoke(arguments[0], [.. arguments.Skip(1)], scopeCall, range);
 		}
 		Operation selfOperation = new(Mangler.Parameters(parameters), parameters, result, SelfOperationWrapper, scope);
-		if (!type.TryRegisterOperation(name, selfOperation)) throw new SymbolAlreadyDeclaredIssue(name, ~Position.Zero);
+		if (!type.TryRegisterOperation(name, selfOperation)) throw new SymbolAlreadyDeclaredIssue($"{name}{selfOperation.Name}", ~Position.Zero);
 	}
 }
