@@ -378,7 +378,7 @@ public class Parser
 	private Node ParseMultiplicative(Walker walker)
 	{
 		Node left = ParsePrefix(walker);
-		while (walker.Peek(out Token? token) && token.Represents(Types.Operator, Definitions.Operators.Multiply, Definitions.Operators.Divide))
+		while (walker.Peek(out Token? token) && token.Represents(Types.Operator, Definitions.Operators.Multiply, Definitions.Operators.Divide, Definitions.Operators.Modulo))
 		{
 			IdentifierNode @operator = new(token.Value, token.RangePosition);
 			walker.Index++;

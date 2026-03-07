@@ -99,6 +99,12 @@ public class Runtime
 					double result = @this.As<double>().Content / other.Content;
 					return new Value<double>(Types.Number, result);
 				});
+				type.DeclareOperation(Operators.Modulo, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
+				{
+					Value<double> other = arguments[0].As<double>();
+					double result = @this.As<double>().Content % other.Content;
+					return new Value<double>(Types.Number, result);
+				});
 				type.DeclareOperation(Operators.Less, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();

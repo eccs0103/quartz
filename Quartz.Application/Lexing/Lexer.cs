@@ -45,7 +45,7 @@ public partial class Lexer
 	[GeneratedRegex(@"\G'([^'\\]|\\.)'", RegexOptions.Compiled)]
 	private static partial Regex CharacterPattern();
 
-	[GeneratedRegex(@"\G(>=?|<=?|!=|=|\+|-|\*|/|:|\?|&|\||!|\.)", RegexOptions.Compiled)]
+	[GeneratedRegex(@"\G(>=?|<=?|!=|=|\+|-|\*|/|%|:|\?|&|\||!|\.)", RegexOptions.Compiled)]
 	private static partial Regex OperatorPattern();
 
 	[GeneratedRegex(@"\G[A-Za-z]\w*", RegexOptions.Compiled)]

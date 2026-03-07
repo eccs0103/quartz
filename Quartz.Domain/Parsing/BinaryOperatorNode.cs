@@ -11,7 +11,7 @@ public class BinaryOperatorNode(IdentifierNode @operator, Node left, Node right,
 
 	private static readonly Dictionary<string, int> Precedence = new()
 	{
-		{ Operators.Multiply, 3 }, { Operators.Divide, 3 },
+		{ Operators.Multiply, 3 }, { Operators.Divide, 3 }, { Operators.Modulo, 3 },
 		{ Operators.Plus, 2 }, { Operators.Minus, 2 },
 		{ Operators.Greater, 1 }, { Operators.Less, 1 }, { Operators.GreaterOrEqual, 1 }, { Operators.LessOrEqual, 1 },
 		{ Operators.Equal, 0 }, { Operators.NotEqual, 0 }

@@ -48,6 +48,7 @@ public static class Definitions
 		public const string Minus = "-";
 		public const string Multiply = "*";
 		public const string Divide = "/";
+		public const string Modulo = "%";
 		public const string Colon = ":";
 		public const string Question = "?";
 		public const string And = "&";
