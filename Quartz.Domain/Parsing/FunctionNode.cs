@@ -3,12 +3,12 @@ using Quartz.Shared.Helpers;
 
 namespace Quartz.Domain.Parsing;
 
-public class FunctionNode(IdentifierNode identifier, IEnumerable<ParameterNode> parameters, IdentifierNode result, BlockNode body, Range<Position> range) : Node(range)
+public class FunctionNode(IdentifierNode identifier, IEnumerable<ParameterNode> parameters, IdentifierNode result, Node body, Range<Position> range) : Node(range)
 {
 	public IdentifierNode Identifier { get; } = identifier;
 	public IEnumerable<ParameterNode> Parameters { get; } = parameters;
 	public IdentifierNode Result { get; } = result;
-	public BlockNode Body { get; } = body;
+	public Node Body { get; } = body;
 
 	public override string ToString()
 	{
