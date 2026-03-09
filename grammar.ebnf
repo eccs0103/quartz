@@ -3,7 +3,7 @@ Program
 	| Declaration, ";" };
 
 Function
-	= Identifier, "(", [ Parameters ], ")", Type, Block;
+	= Identifier, "(", [ Parameters ], ")", Type, Statement;
 
 Parameters
 	= Parameter, { ",", Parameter };

@@ -58,7 +58,7 @@ public class Parser
 
 		IdentifierNode result = ParseType(walker);
 
-		BlockNode body = ParseBlock(walker);
+		Node body = ParseStatement(walker);
 
 		return new FunctionNode(identifier, parameters, result, body, identifier.RangePosition >> body.RangePosition);
 	}
