@@ -23,6 +23,45 @@
 			"args": [ "run", "--project", "${workspaceFolder}/Quartz.Presentation/Quartz.Presentation.csproj" ],
 			"group": "test",
 			"problemMatcher": [ ]
+		},
+		{
+			"label": "Publish",
+			"type": "shell",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+			"windows": {
+				"options": {
+					"shell": {
+						"executable": "powershell.exe",
+						"args": [ "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command" ]
+					}
+				},
+				"command": "$prjPath='Quartz.Presentation/Quartz.Presentation.csproj'; $prjName='Quartz.Presentation'; $tfm='net10.0'; $cfg='Release'; $rids='win-x86','win-x64','win-arm64','osx-x64','osx-arm64','linux-x64','linux-arm','linux-arm64'; New-Item -ItemType Directory -Force -Path publish | Out-Null; $fail=@(); foreach ($rid in $rids) { Write-Host \"Publishing $prjName for RuntimeIdentifier=$rid\"; $tmp=Join-Path ([System.IO.Path]::GetTempPath()) \"qrz-$([System.Guid]::NewGuid())\"; New-Item -ItemType Directory -Force -Path $tmp | Out-Null; $ext=if ($rid -like 'win-*') {'.exe'} else {''}; dotnet publish $prjPath -c $cfg -f $tfm -r $rid --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o $tmp *> \"$tmp\\publish.log\"; if ($LASTEXITCODE -eq 0 -and (Test-Path \"$tmp\\$prjName$ext\")) { Move-Item \"$tmp\\$prjName$ext\" \"publish\\$rid$ext\" -Force; Write-Host '  -> OK' } else { Move-Item \"$tmp\\publish.log\" \"publish\\$rid.log\" -Force -ErrorAction SilentlyContinue; Write-Host '  -> FAILED'; $fail+=$rid }; Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue }; if ($fail.Count -eq 0) { Write-Host 'Publish finished successfully. All artifacts are strictly in publish/'; exit 0 }; Write-Host \"Publish finished with failures: $($fail -join ', ')\"; exit 0"
+			},
+			"linux": {
+				"options": {
+					"shell": {
+						"executable": "bash",
+						"args": [ "-c" ]
+					}
+				},
+				"command": "set -uo pipefail; prjPath='Quartz.Presentation/Quartz.Presentation.csproj'; prjName='Quartz.Presentation'; tfm='net10.0'; cfg='Release'; rids=(win-x86 win-x64 win-arm64 osx-x64 osx-arm64 linux-x64 linux-arm linux-arm64); mkdir -p publish; fail=(); for rid in \"${rids[@]}\"; do echo \"Publishing $prjName for RuntimeIdentifier=$rid\"; tmp=$(mktemp -d); ext=''; [[ \"$rid\" == win-* ]] && ext='.exe'; if dotnet publish \"$prjPath\" -c \"$cfg\" -f \"$tfm\" -r \"$rid\" --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o \"$tmp\" > \"$tmp/publish.log\" 2>&1 && [ -f \"$tmp/$prjName$ext\" ]; then mv \"$tmp/$prjName$ext\" \"publish/$rid$ext\"; echo '  -> OK'; else mv \"$tmp/publish.log\" \"publish/$rid.log\"; echo '  -> FAILED'; fail+=(\"$rid\"); fi; rm -rf \"$tmp\"; done; if [ ${#fail[@]} -eq 0 ]; then echo 'Publish finished successfully. All artifacts are strictly in publish/'; exit 0; fi; echo \"Publish finished with failures: ${fail[*]}\"; exit 0"
+			},
+			"osx": {
+				"options": {
+					"shell": {
+						"executable": "bash",
+						"args": [ "-c" ]
+					}
+				},
+				"command": "set -uo pipefail; prjPath='Quartz.Presentation/Quartz.Presentation.csproj'; prjName='Quartz.Presentation'; tfm='net10.0'; cfg='Release'; rids=(win-x86 win-x64 win-arm64 osx-x64 osx-arm64 linux-x64 linux-arm linux-arm64); mkdir -p publish; fail=(); for rid in \"${rids[@]}\"; do echo \"Publishing $prjName for RuntimeIdentifier=$rid\"; tmp=$(mktemp -d); ext=''; [[ \"$rid\" == win-* ]] && ext='.exe'; if dotnet publish \"$prjPath\" -c \"$cfg\" -f \"$tfm\" -r \"$rid\" --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o \"$tmp\" > \"$tmp/publish.log\" 2>&1 && [ -f \"$tmp/$prjName$ext\" ]; then mv \"$tmp/$prjName$ext\" \"publish/$rid$ext\"; echo '  -> OK'; else mv \"$tmp/publish.log\" \"publish/$rid.log\"; echo '  -> FAILED'; fail+=(\"$rid\"); fi; rm -rf \"$tmp\"; done; if [ ${#fail[@]} -eq 0 ]; then echo 'Publish finished successfully. All artifacts are strictly in publish/'; exit 0; fi; echo \"Publish finished with failures: ${fail[*]}\"; exit 0"
+			},
+			"problemMatcher": [ ]
 		}
 	]
 }
