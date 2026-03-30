@@ -19,17 +19,17 @@ public class Runtime
 		{
 			module.DeclareClass(Types.Any, null, [], static (type, _) =>
 			{
-				type.DeclareOperation(Operators.Equal, [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Equal}]", [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value other = arguments[0];
 					Value isEqual = @this.RunOperation("is_equal", [other], scope, range);
 					return isEqual;
 				});
-				type.DeclareOperation(Operators.NotEqual, [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.NotEqual}]", [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value other = arguments[0];
-					Value isEqual = @this.RunOperation(Operators.Equal, [other], scope, range);
-					Value isNotEqual = isEqual.RunOperation(Operators.Not, [], scope, range);
+					Value isEqual = @this.RunOperation($"[{Operators.Equal}]", [other], scope, range);
+					Value isNotEqual = isEqual.RunOperation($"[{Operators.Not}]", [], scope, range);
 					return isNotEqual;
 				});
 				type.DeclareOperation("is_equal", [Types.Any], Types.Boolean, static (@this, arguments, scope, range) =>
@@ -65,72 +65,72 @@ public class Runtime
 			});
 			module.DeclareClass(Types.Number, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation(Operators.Plus, [], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Plus}]", [], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					double result = +@this.As<double>().Content;
 					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation(Operators.Plus, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Plus}]", [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content + other.Content;
 					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation(Operators.Minus, [], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Minus}]", [], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					double result = -@this.As<double>().Content;
 					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation(Operators.Minus, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Minus}]", [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content - other.Content;
 					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation(Operators.Multiply, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Multiply}]", [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content * other.Content;
 					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation(Operators.Divide, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Divide}]", [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content / other.Content;
 					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation(Operators.Modulo, [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Modulo}]", [Types.Number], Types.Number, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					double result = @this.As<double>().Content % other.Content;
 					return new Value<double>(Types.Number, result);
 				});
-				type.DeclareOperation(Operators.Less, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Less}]", [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					bool result = @this.As<double>().Content < other.Content;
 					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.LessOrEqual, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.LessOrEqual}]", [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
-					Value<bool> isLess = @this.RunOperation(Operators.Less, [other], scope, range).As<bool>();
+					Value<bool> isLess = @this.RunOperation($"[{Operators.Less}]", [other], scope, range).As<bool>();
 					if (isLess.Content) return Value.True;
-					Value<bool> isEqual = @this.RunOperation(Operators.Equal, [other], scope, range).As<bool>();
+					Value<bool> isEqual = @this.RunOperation($"[{Operators.Equal}]", [other], scope, range).As<bool>();
 					return isEqual.Content ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.Greater, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Greater}]", [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
 					bool result = @this.As<double>().Content > other.Content;
 					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.GreaterOrEqual, [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.GreaterOrEqual}]", [Types.Number], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<double> other = arguments[0].As<double>();
-					Value<bool> isGreater = @this.RunOperation(Operators.Greater, [other], scope, range).As<bool>();
+					Value<bool> isGreater = @this.RunOperation($"[{Operators.Greater}]", [other], scope, range).As<bool>();
 					if (isGreater.Content) return Value.True;
-					Value<bool> isEqual = @this.RunOperation(Operators.Equal, [other], scope, range).As<bool>();
+					Value<bool> isEqual = @this.RunOperation($"[{Operators.Equal}]", [other], scope, range).As<bool>();
 					return isEqual.Content ? Value.True : Value.False;
 				});
 				type.DeclareOperation("to_string", [], Types.String, static (@this, arguments, scope, range) =>
@@ -141,18 +141,18 @@ public class Runtime
 			});
 			module.DeclareClass(Types.Boolean, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation(Operators.Not, [], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Not}]", [], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					bool result = !@this.As<bool>().Content;
 					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.And, [Types.Boolean], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.And}]", [Types.Boolean], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<bool> other = arguments[0].As<bool>();
 					bool result = @this.As<bool>().Content && other.Content;
 					return result ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.Or, [Types.Boolean], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Or}]", [Types.Boolean], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					Value<bool> other = arguments[0].As<bool>();
 					bool result = @this.As<bool>().Content || other.Content;
@@ -166,27 +166,27 @@ public class Runtime
 			});
 			module.DeclareClass(Types.Character, Types.Any, [], static (type, _) =>
 			{
-				type.DeclareOperation(Operators.Less, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Less}]", [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
 					return @this.As<char>().Content < other ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.LessOrEqual, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.LessOrEqual}]", [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
 					return @this.As<char>().Content <= other ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.Greater, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Greater}]", [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
 					return @this.As<char>().Content > other ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.GreaterOrEqual, [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.GreaterOrEqual}]", [Types.Character], Types.Boolean, static (@this, arguments, scope, range) =>
 				{
 					char other = arguments[0].As<char>().Content;
 					return @this.As<char>().Content >= other ? Value.True : Value.False;
 				});
-				type.DeclareOperation(Operators.Plus, [Types.String], Types.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Plus}]", [Types.String], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<string> other = arguments[0].As<string>();
 					string result = @this.As<char>().Content.ToString() + other.Content;
@@ -203,7 +203,7 @@ public class Runtime
 			});
 			module.DeclareClass(Types.String, $"{Types.Array}<{Types.Character}>", [], static (type, _) =>
 			{
-				type.DeclareOperation(Operators.Spread, [], $"{Types.Sequence}<{Types.Character}>", (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Spread}]", [], $"{Types.Sequence}<{Types.Character}>", (@this, arguments, scope, range) =>
 				{
 					string text = @this.As<string>().Content;
 					IEnumerator<Value> enumerator = text.Select(character => new Value<char>(Types.Character, character)).GetEnumerator();
@@ -220,13 +220,13 @@ public class Runtime
 				{
 					throw new ImmutableAssignmentIssue(Types.String, range);
 				});
-				type.DeclareOperation(Operators.Plus, [Types.Character], Types.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Plus}]", [Types.Character], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<char> other = arguments[0].As<char>();
 					string result = @this.As<string>().Content + other.Content;
 					return new Value<string>(Types.String, result);
 				});
-				type.DeclareOperation(Operators.Plus, [Types.String], Types.String, static (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Plus}]", [Types.String], Types.String, static (@this, arguments, scope, range) =>
 				{
 					Value<string> other = arguments[0].As<string>();
 					string result = @this.As<string>().Content + other.Content;
@@ -276,7 +276,7 @@ public class Runtime
 			});
 			module.DeclareClass(Types.Array, Types.Any, ["Content"], static (type, generics) =>
 			{
-				type.DeclareOperation(Operators.Spread, [], $"{Types.Sequence}<{generics[0].Name}>", (@this, arguments, scope, range) =>
+				type.DeclareOperation($"[{Operators.Spread}]", [], $"{Types.Sequence}<{generics[0].Name}>", (@this, arguments, scope, range) =>
 				{
 					Value[] elements = @this.As<Value[]>().Content;
 					IEnumerator<Value> enumerator = elements.AsEnumerable().GetEnumerator();
