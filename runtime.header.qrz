@@ -1,6 +1,6 @@
 Any {
-	=(arg_1 Any) Boolean;
-	!=(arg_1 Any) Boolean;
+	[=](arg_1 Any) Boolean;
+	[!=](arg_1 Any) Boolean;
 	is_equal(arg_1 Any) Boolean;
 	to_string() String;
 }
@@ -9,39 +9,40 @@ Null from Any {
 }
 
 Number from Any {
-	+() Number;
-	+(arg_1 Number) Number;
-	-() Number;
-	-(arg_1 Number) Number;
-	*(arg_1 Number) Number;
-	/(arg_1 Number) Number;
-	<(arg_1 Number) Boolean;
-	<=(arg_1 Number) Boolean;
-	>(arg_1 Number) Boolean;
-	>=(arg_1 Number) Boolean;
+	[+]() Number;
+	[+](arg_1 Number) Number;
+	[-]() Number;
+	[-](arg_1 Number) Number;
+	[*](arg_1 Number) Number;
+	[/](arg_1 Number) Number;
+	[%](arg_1 Number) Number;
+	[<](arg_1 Number) Boolean;
+	[<=](arg_1 Number) Boolean;
+	[>](arg_1 Number) Boolean;
+	[>=](arg_1 Number) Boolean;
 }
 
 Boolean from Any {
-	!() Boolean;
-	&(arg_1 Boolean) Boolean;
-	|(arg_1 Boolean) Boolean;
+	[!]() Boolean;
+	[&](arg_1 Boolean) Boolean;
+	[|](arg_1 Boolean) Boolean;
 }
 
 Character from Any {
-	<(arg_1 Character) Boolean;
-	<=(arg_1 Character) Boolean;
-	>(arg_1 Character) Boolean;
-	>=(arg_1 Character) Boolean;
-	+(arg_1 String) String;
+	[<](arg_1 Character) Boolean;
+	[<=](arg_1 Character) Boolean;
+	[>](arg_1 Character) Boolean;
+	[>=](arg_1 Character) Boolean;
+	[+](arg_1 String) String;
 	to_number() Number;
 }
 
 String from Array<Character> {
-	...() Sequence<Character>;
+	[...]() Sequence<Character>;
 	[](arg_1 Number) Character;
 	[](arg_1 Number, arg_2 Character) Null;
-	+(arg_1 Character) String;
-	+(arg_1 String) String;
+	[+](arg_1 Character) String;
+	[+](arg_1 String) String;
 	to_string() String;
 	length() Number;
 }
@@ -65,7 +66,7 @@ Sequence<Content> from Any {
 }
 
 Array<Content> from Any {
-	...() Sequence<Content>;
+	[...]() Sequence<Content>;
 	[](arg_1 Number) Content;
 	[](arg_1 Number, arg_2 Content) Null;
 	length() Number;

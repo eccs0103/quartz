@@ -127,7 +127,7 @@ internal class Evaluator : IEvaluator<Value>
 		IdentifierNode nodeOperator = node.Operator;
 		Value target = TypeHelper.Unwrap(nodeTarget.Accept(this, location));
 		if (!location.TryRead(target.Tag, out Class? type)) throw new SymbolNotFoundIssue(target.Tag, "Type class", nodeTarget.RangePosition);
-		if (!type.TryReadOperation(nodeOperator.Name, [target.Tag], out Operation? operation)) throw new NoMatchingOverloadIssue(nodeOperator.Name, [target.Tag], nodeOperator.RangePosition);
+		if (!type.TryReadOperation($"[{nodeOperator.Name}]", [target.Tag], out Operation? operation)) throw new NoMatchingOverloadIssue($"[{nodeOperator.Name}]", [target.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([target], scope, node.RangePosition);
 	}
@@ -138,7 +138,7 @@ internal class Evaluator : IEvaluator<Value>
 		Value left = TypeHelper.Unwrap(node.Left.Accept(this, location));
 		Value right = TypeHelper.Unwrap(node.Right.Accept(this, location));
 		if (!location.TryRead(left.Tag, out Class? type)) throw new SymbolNotFoundIssue(left.Tag, "Type class", node.Left.RangePosition);
-		if (!type.TryReadOperation(nodeOperator.Name, [left.Tag, right.Tag], out Operation? operation)) throw new NoMatchingOverloadIssue(nodeOperator.Name, [left.Tag, right.Tag], nodeOperator.RangePosition);
+		if (!type.TryReadOperation($"[{nodeOperator.Name}]", [left.Tag, right.Tag], out Operation? operation)) throw new NoMatchingOverloadIssue($"[{nodeOperator.Name}]", [left.Tag, right.Tag], nodeOperator.RangePosition);
 		Scope scope = location.GetSubscope("Call");
 		return operation.Invoke([left, right], scope, node.RangePosition);
 	}
@@ -177,7 +177,7 @@ internal class Evaluator : IEvaluator<Value>
 	public Value Evaluate(Scope location, ForStatementNode node)
 	{
 		Value generator = node.Collection.Accept(this, location);
-		if (location.TryRead(generator.Tag, out Class? type) && type.TryReadOperation("...", [generator.Tag], out Operation? operation))
+		if (location.TryRead(generator.Tag, out Class? type) && type.TryReadOperation($"[{Operators.Spread}]", [generator.Tag], out Operation? operation))
 			generator = operation.Invoke([generator], location, node.RangePosition);
 
 		while (true)
