@@ -1,3 +1,10 @@
+## 0.7.1 (06.05.2026)
+- Added modulo operator `%` for `Number`. Operator precedence is equal to `*` and `/`.
+- Function bodies now accept any single statement, not just a block `{ ... }`. Braces remain optional for multi-statement bodies.
+- Fixed inheritance type-checking: a value of a derived type is now correctly accepted wherever its base type is expected. Previously the check was a stub and always returned `false` for class hierarchies.
+- Improved duplicate-declaration error: the message now includes the full overload signature (name + parameter types), making it easier to identify which overload conflicts.
+- Operator methods in the type header (`--header` output) are now shown in bracket notation — `[+]`, `[-]`, `[*]`, `[/]`, `[%]`, `[<]`, `[<=]`, `[>]`, `[>=]`, `[=]`, `[!=]`, `[!]`, `[&]`, `[|]`, `[...]` — to visually distinguish operators from regular named methods.
+
 ## 0.7.0 (07.03.2026)
 - First-Class Functions: Full support for function declarations, parameters, and `return` semantics.
 - Arrays & Sequences: Added array literals and indexer access.
