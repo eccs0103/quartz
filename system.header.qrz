@@ -72,7 +72,7 @@ Array<Content> from Any {
 	length() Number;
 }
 
-workspace from Any {
+@Workspace from Any {
 	pi Number;
 	e Number;
 	read(arg_1 String) String;

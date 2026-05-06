@@ -32,7 +32,7 @@ public static class Reflection
 			builder.AppendLine();
 		}
 
-		builder.Append(FormatClass(workspace, "workspace"));
+		builder.Append(FormatClass(workspace));
 
 		return builder.ToString();
 	}
