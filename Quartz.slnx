@@ -7,8 +7,8 @@
 		<File Path="grammar.ebnf" />
 		<File Path="LICENSE" />
 		<File Path="README.md" />
-		<File Path="runtime.header.qrz" />
-		<File Path="runtime.qrz" />
+		<File Path="runtime.test.qrz" />
+		<File Path="system.header.qrz" />
 	</Folder>
 	<Project Path="Quartz.Application/Quartz.Application.csproj" />
 	<Project Path="Quartz.Domain/Quartz.Domain.csproj" />
